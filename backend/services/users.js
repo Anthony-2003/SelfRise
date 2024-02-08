@@ -42,9 +42,10 @@ async function update({ clave, nombre, apellido, direccion, telefono, cedula, id
 
     return { msg };
 }
-async function authenticate({ correo, clave }) {
-    const res = await db.query(`SELECT autenticar_usuario(?, ?) AS authenticated`, [correo, clave]);
+async function authenticate({ email, password }) {
+    const res = await db.query(`SELECT autenticar_usuario(?, ?) AS authenticated`, [email, password]);
 
+    console.log("res: ", res);
     const authenticated = res[0];
 
     return authenticated;
