@@ -1,5 +1,8 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:share/share.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/services/api_traductor.dart';
 import '../Colors/colors.dart';
 import '../services/api_frase_diaria.dart';
 
@@ -52,7 +55,7 @@ class PantallaMenuPrincipal extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 15.0),
       child: Text(
         '¡Bienvenido de vuelta, Emilia!',
-        style: TextStyle(fontSize: 27, color: AppColors.textColor),
+        style: TextStyle(fontSize: 25, color: AppColors.textColor),
       ),
     );
   }
@@ -107,18 +110,91 @@ class PantallaMenuPrincipal extends StatelessWidget {
     );
   }
 
-  Widget _construirFraseDelDia(String fraseDelDia) {
+  //HOLA FIRST COMMIT
+
+  Widget _construirNavigationBarInferior() {
+    return CurvedNavigationBar(
+      backgroundColor: Colors.white,
+      color: const Color.fromARGB(255, 104, 174, 240),
+      animationDuration: const Duration(milliseconds: 300),
+      height: 50,
+      items: <Widget>[
+        _construirNavigationBarItem(Icons.home),
+        _construirNavigationBarItem(Icons.chat),
+        _construirNavigationBarItem(Icons.assignment),
+        _construirNavigationBarItem(Icons.track_changes),
+        _construirNavigationBarItem(Icons.person),
+      ],
+    );
+  }
+
+  Widget _construirNavigationBarItem(IconData icon) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, size: 30),
+        const SizedBox(height: 4),
+      ],
+    );
+  }
+
+  Widget _construirFutureBuilder() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: ApiFraseDiaria.fetchData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _construirIndicadorProgreso();
+        } else if (snapshot.hasError) {
+          if (kDebugMode) {
+            print(snapshot.error);
+          }
+          return _construirTextoError('Error al cargar la frase del día');
+        } else {
+          final frase = snapshot.data!['quote'];
+          final autor = snapshot.data!['author'];
+          return _traducirFrase(frase, autor);
+        }
+      },
+    );
+  }
+
+  Widget _construirIndicadorProgreso() {
+    return const CircularProgressIndicator();
+  }
+
+  Widget _construirTextoError(String mensaje) {
+    return Text(mensaje);
+  }
+
+  Widget _traducirFrase(String frase, String autor) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: ApiTraductor.traducirFrase(frase),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _construirIndicadorProgreso();
+        } else if (snapshot.hasError) {
+          return _construirTextoError('Error al traducir la frase');
+        } else {
+          final fraseTraducida = snapshot.data!['data']['translatedText'];
+          return _construirFraseDelDia(fraseTraducida, autor);
+        }
+      },
+    );
+  }
+
+  Widget _construirFraseDelDia(String fraseDelDia, String autor) {
     return SizedBox(
       child: Center(
         child: Container(
-          width: 300,
+          margin: const EdgeInsets.only(top: 20, bottom: 20),
           decoration: BoxDecoration(
             color: AppColors.darkGray,
             borderRadius: BorderRadius.circular(10),
           ),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Ajustar el tamaño verticalmente
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 fraseDelDia,
@@ -128,14 +204,28 @@ class PantallaMenuPrincipal extends StatelessWidget {
                     fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    "-$autor",
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 98, 168, 233),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
               IconButton(
                 icon: const Icon(
                   Icons.share,
                   color: AppColors.textColor,
+                  size: 30,
                 ),
                 onPressed: () {
-                  // Acción al presionar el botón de compartir
+                  _compartirFrase(fraseDelDia, autor);
                 },
               ),
             ],
@@ -145,55 +235,7 @@ class PantallaMenuPrincipal extends StatelessWidget {
     );
   }
 
-  Widget _construirFutureBuilder() {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: ApiFraseDiaria.fetchData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          if (kDebugMode) {
-            print(snapshot.error);
-          }
-          return const Text('Error al cargar la frase del día');
-        } else {
-          if (snapshot.data != null) {
-            final quote = snapshot.data!['quote'] ??
-                'No se pudo obtener la frase del día';
-            return _construirFraseDelDia(quote);
-          } else {
-            return const Text('No se obtuvieron datos');
-          }
-        }
-      },
-    );
-  }
-
-  Widget _construirNavigationBarInferior() {
-    return BottomNavigationBar(
-      backgroundColor: Colors.blue,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Inicio',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat),
-          label: 'Chat',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.assignment),
-          label: 'Evaluación',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.track_changes),
-          label: 'Hábitos',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Perfil',
-        ),
-      ],
-    );
+  void _compartirFrase(String texto, String autor) {
+    Share.share("$texto\n-$autor", subject: 'Compartir frase del día');
   }
 }
