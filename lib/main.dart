@@ -15,12 +15,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'SelfRise',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-        textTheme: GoogleFonts.robotoTextTheme()
-      ),
-      home: const PantallaMenuPrincipal(), 
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+          textTheme: GoogleFonts.robotoTextTheme()),
+      home: const PantallaMenuPrincipal(),
     );
   }
 }
-

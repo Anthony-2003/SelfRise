@@ -12,6 +12,8 @@ class PantallaMenuPrincipal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _construirAppBar(context), // Agrega el AppBar
+      drawer: _menu_lateral(context), // Agrega el Drawer
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: SingleChildScrollView(
@@ -19,7 +21,6 @@ class PantallaMenuPrincipal extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 30),
-              _construirBotonMenu(),
               _construirTextoBienvenida(),
               _construirTextoSentimientos(),
               _construirFilaIconosSentimientos(),
@@ -36,17 +37,6 @@ class PantallaMenuPrincipal extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: _construirNavigationBarInferior(),
-    );
-  }
-
-  Widget _construirBotonMenu() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: IconButton(
-        icon: const Icon(Icons.menu, size: 35, color: AppColors.textColor),
-        onPressed: () {},
-        key: const Key('menu_button'),
-      ),
     );
   }
 
@@ -109,8 +99,6 @@ class PantallaMenuPrincipal extends StatelessWidget {
       ),
     );
   }
-
-  //HOLA FIRST COMMIT
 
   Widget _construirNavigationBarInferior() {
     return CurvedNavigationBar(
@@ -235,7 +223,89 @@ class PantallaMenuPrincipal extends StatelessWidget {
     );
   }
 
+//METODOS
+
+//comparti frase
   void _compartirFrase(String texto, String autor) {
     Share.share("$texto\n-$autor", subject: 'Compartir frase del día');
   }
+}
+
+//METODO DEL MENU LATERAL
+
+//App bar
+AppBar _construirAppBar(BuildContext context) {
+  return AppBar(
+    iconTheme: IconThemeData(color: AppColors.textColor, size: 40),
+  );
+}
+
+//drawer
+Drawer _menu_lateral(BuildContext context) {
+  return Drawer(
+      child: ListView(
+    children: <Widget>[
+      DrawerHeader(
+        decoration: BoxDecoration(
+          color: Colors.blue,
+        ),
+        child: Text(
+          'Emilia Sanchez',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+          ),
+        ),
+      ),
+      ListTile(
+        title: Text('Configuración'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: Text('Psicólogo'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: Text('Cuenta'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: Text('Libros'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: Text('Podcast'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: Text('Nutricion'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: Text('Salir'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+    ],
+  ));
 }
