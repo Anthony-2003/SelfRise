@@ -1,14 +1,62 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:share/share.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/services/api_traductor.dart';
 import '../Colors/colors.dart';
 import '../services/api_frase_diaria.dart';
+import '../services/api_traductor.dart';
+import './chat.dart';
 
-class PantallaMenuPrincipal extends StatelessWidget {
+class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
 
+  @override
+  _PantallaMenuPrincipalState createState() => _PantallaMenuPrincipalState();
+}
+
+class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
+  int _selectedTab = 0;
+
+  final List<Widget> _pages = [
+    PantallaPrincipal(),
+    PantallaChat(),
+    PantallaAsignaciones(),
+    PantallaSeguimientoCambios(),
+    PantallaPerfil(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedTab],
+      bottomNavigationBar: CurvedNavigationBar(
+        index: _selectedTab,
+        height: 50,
+        items: <Widget>[
+          _construirNavigationBarItem(Icons.home),
+          _construirNavigationBarItem(Icons.chat),
+          _construirNavigationBarItem(Icons.assignment),
+          _construirNavigationBarItem(Icons.track_changes),
+          _construirNavigationBarItem(Icons.person),
+        ],
+        backgroundColor: Colors.white,
+        color: const Color.fromARGB(255, 104, 174, 240),
+        animationDuration: const Duration(milliseconds: 300),
+        onTap: (int index) {
+          setState(() {
+            _selectedTab = index;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _construirNavigationBarItem(IconData icon) {
+    return Icon(icon, size: 30);
+  }
+}
+
+class PantallaPrincipal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +83,6 @@ class PantallaMenuPrincipal extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _construirNavigationBarInferior(),
     );
   }
 
@@ -107,35 +154,6 @@ class PantallaMenuPrincipal extends StatelessWidget {
           _construirIconoConTexto('enojado.gif', 'Enojado'),
         ],
       ),
-    );
-  }
-
-  //HOLA FIRST COMMIT
-
-  Widget _construirNavigationBarInferior() {
-    return CurvedNavigationBar(
-      backgroundColor: Colors.white,
-      color: const Color.fromARGB(255, 104, 174, 240),
-      animationDuration: const Duration(milliseconds: 300),
-      height: 50,
-      items: <Widget>[
-        _construirNavigationBarItem(Icons.home),
-        _construirNavigationBarItem(Icons.chat),
-        _construirNavigationBarItem(Icons.assignment),
-        _construirNavigationBarItem(Icons.track_changes),
-        _construirNavigationBarItem(Icons.person),
-      ],
-    );
-  }
-
-  Widget _construirNavigationBarItem(IconData icon) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, size: 30),
-        const SizedBox(height: 4),
-      ],
     );
   }
 
@@ -237,5 +255,32 @@ class PantallaMenuPrincipal extends StatelessWidget {
 
   void _compartirFrase(String texto, String autor) {
     Share.share("$texto\n-$autor", subject: 'Compartir frase del día');
+  }
+}
+
+class PantallaAsignaciones extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('Pantalla de Asignaciones'),
+    );
+  }
+}
+
+class PantallaSeguimientoCambios extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('Pantalla de Seguimiento de Cambios'),
+    );
+  }
+}
+
+class PantallaPerfil extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('Pantalla de Perfil'),
+    );
   }
 }
