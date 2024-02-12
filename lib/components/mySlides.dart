@@ -5,7 +5,6 @@ import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../Design/login.dart';
-import '../Design/menu_principal.dart';
 
 final controller = PageController();
 

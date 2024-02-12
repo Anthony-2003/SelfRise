@@ -127,7 +127,7 @@ class PantallaPrincipal extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
-            'assets/$nombreAsset',
+            'assets/iconos/$nombreAsset',
             width: 50,
             height: 50,
           ),
@@ -261,7 +261,7 @@ class PantallaPrincipal extends StatelessWidget {
 class PantallaAsignaciones extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text('Pantalla de Asignaciones'),
     );
   }
@@ -270,7 +270,7 @@ class PantallaAsignaciones extends StatelessWidget {
 class PantallaSeguimientoCambios extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text('Pantalla de Seguimiento de Cambios'),
     );
   }
@@ -279,7 +279,7 @@ class PantallaSeguimientoCambios extends StatelessWidget {
 class PantallaPerfil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text('Pantalla de Perfil'),
     );
   }
