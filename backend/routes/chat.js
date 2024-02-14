@@ -17,4 +17,17 @@ router.get("/:id", async (req, res, next) => {
     }
 });
 
+router.post("/", async (req, res, next) => {
+    try {
+        const data = req.body;
+
+        const result = await chat.create(data);
+
+        res.status(201).json(result);
+    } catch (err) {
+        console.log(`Error while creating from chat: ${err.message}`);
+        next(err);
+    }
+});
+
 module.exports = router;
