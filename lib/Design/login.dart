@@ -1,19 +1,27 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/inputs.dart';
+import 'package:flutter_proyecto_final/services/firebase_auth.dart';
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
 import '../components/loginwith.dart';
+import 'menu_principal.dart';
 import 'register.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
 
-  final usernameController = TextEditingController();
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final FirebaseAuthServ _auth = FirebaseAuthServ();
+
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   //para loguearse
-
-  void singUserIn() {}
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +64,7 @@ class LoginPage extends StatelessWidget {
 
                   //username textfield
                   InputsLogin(
-                    controller: usernameController,
+                    controller: emailController,
                     hinttxt: 'Correo electronico',
                     obscuretxt: false,
                     icono: Icons.alternate_email,
@@ -79,6 +87,15 @@ class LoginPage extends StatelessWidget {
                   ),
                   ButtonsLogin(
                     ontap: singUserIn,
+                    // () {
+                    //   Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) =>
+                    //             const PantallaMenuPrincipal()), // Reemplaza "RegistroScreen()" con la pantalla a la que deseas redirigir
+                    //   );
+                    // },
+                    txt: 'Ingresar',
                   ),
                   const SizedBox(
                     height: 50,
@@ -153,8 +170,7 @@ class LoginPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    RegistroScreen()), // Reemplaza "RegistroScreen()" con la pantalla a la que deseas redirigir
+                                builder: (context) => RegistroScreen()),
                           );
                         },
                         child: const Text(
@@ -175,5 +191,19 @@ class LoginPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void singUserIn() async {
+    String email = emailController.text;
+    String password = passwordController.text;
+
+    User? user = await _auth.SignInPassAndEmail(email, password);
+
+    if (user != null) {
+      print('Se ha ingresado correctamente el usuario');
+      Navigator.pushNamed(context, '/menu_principal');
+    } else {
+      print('Se ha ingresado incorrectamente el usuario');
+    }
   }
 }

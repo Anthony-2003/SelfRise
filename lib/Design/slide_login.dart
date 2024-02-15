@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/mySlides.dart';
 
 class SlideLogin extends StatefulWidget {
-  const SlideLogin({Key? key}) : super(key: key);
+  const SlideLogin({Key? key, required Future<Null> Function() onLoginSuccess}) : super(key: key);
 
   @override
   State<SlideLogin> createState() => _SlideLoginState();

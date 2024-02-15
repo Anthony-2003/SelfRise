@@ -1,4 +1,5 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:share/share.dart';
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import '../Colors/colors.dart';
 import '../services/api_frase_diaria.dart';
 import '../services/api_traductor.dart';
 import './chat.dart';
+import 'login.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -28,6 +30,8 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _construirAppBar(context), // Agrega el AppBar
+      drawer: _menu_lateral(context),
       body: _pages[_selectedTab],
       bottomNavigationBar: CurvedNavigationBar(
         index: _selectedTab,
@@ -67,7 +71,6 @@ class PantallaPrincipal extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 30),
-              _construirBotonMenu(),
               _construirTextoBienvenida(),
               _construirTextoSentimientos(),
               _construirFilaIconosSentimientos(),
@@ -82,17 +85,6 @@ class PantallaPrincipal extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _construirBotonMenu() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: IconButton(
-        icon: const Icon(Icons.menu, size: 35, color: AppColors.textColor),
-        onPressed: () {},
-        key: const Key('menu_button'),
       ),
     );
   }
@@ -283,4 +275,87 @@ class PantallaPerfil extends StatelessWidget {
       child: Text('Pantalla de Perfil'),
     );
   }
+}
+
+AppBar _construirAppBar(BuildContext context) {
+  return AppBar(
+    iconTheme: IconThemeData(color: AppColors.textColor, size: 40),
+  );
+}
+
+//drawer
+Drawer _menu_lateral(BuildContext context) {
+  return Drawer(
+      child: ListView(
+    children: <Widget>[
+      const DrawerHeader(
+        decoration: BoxDecoration(
+          color: Colors.blue,
+        ),
+        child: Text(
+          'Emilia Sanchez',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+          ),
+        ),
+      ),
+      ListTile(
+        title: const Text('Configuración'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: const Text('Psicólogo'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: const Text('Cuenta'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: const Text('Libros'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: const Text('Podcast'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: const Text('Nutricion'),
+        onTap: () {
+          // Puedes agregar lógica adicional aquí si es necesario
+          Navigator.pop(context); // Cierra el Drawer
+        },
+      ),
+      ListTile(
+        title: const Text('Salir'),
+        onTap: () {
+          FirebaseAuth.instance.signOut();
+          Navigator.pushNamed(context, '/login');
+          // Navigator.of(context).popUntil((route) => route.isFirst);
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => LoginPage(),
+          //   ),
+          // );
+        },
+      ),
+    ],
+  ));
 }
