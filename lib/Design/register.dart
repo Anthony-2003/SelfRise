@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/inputs.dart';
+import 'package:flutter_proyecto_final/components/pickerImage.dart';
+import 'package:image_picker/image_picker.dart';
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
 import '../components/loginwith.dart';
@@ -248,20 +251,51 @@ class _RegistroScreenState extends State<RegistroScreen> {
             ),
           ),
         ),
-        // Step(
-        //   state: _currentPage > 2 ? StepState.complete : StepState.indexed,
-        //   isActive: _currentPage >= 2,
-        //   title: const Text('foto',
-        //       style: TextStyle(color: Colors.white, fontSize: 12)),
-        //   content: Center(
-        //     child: SingleChildScrollView(
-        //       child: Container(
-        //         alignment: Alignment.center,
-        //         child:
-
-        //         )
-        //       ),
-        //     ),
-        //   ),
+        Step(
+          state: _currentPage > 2 ? StepState.complete : StepState.indexed,
+          isActive: _currentPage >= 2,
+          title: const Text('foto',
+              style: TextStyle(color: Colors.white, fontSize: 12)),
+          content: Center(
+            child: SingleChildScrollView(
+                child: Container(
+                    alignment: Alignment.center,
+                    child: Stack(
+                      children: [
+                        image != null
+                            ? CircleAvatar(
+                                radius: 200,
+                                backgroundImage: MemoryImage(image!),
+                              )
+                            : CircleAvatar(
+                                radius: 200, // Ajustar el tamaño del círculo
+                                backgroundImage: NetworkImage(
+                                    'https://icons.iconarchive.com/icons/papirus-team/papirus-status/512/avatar-default-icon.png'),
+                              ),
+                        Positioned(
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.add_a_photo_rounded,
+                              color: Colors.white,
+                              size: 60,
+                            ),
+                            onPressed: () {
+                              selectImage();
+                            },
+                          ),
+                          bottom: 40, // Ajustar la posición vertical
+                          right: 20, // Ajustar la posición horizontal
+                        )
+                      ],
+                    ))),
+          ),
+        ),
       ];
+  Uint8List? image;
+  void selectImage() async {
+    Uint8List img = await pickerImage(ImageSource.gallery);
+    setState(() {
+      image = img;
+    });
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/components/mySlides.dart';
 
 class InputsLogin extends StatelessWidget {
@@ -6,19 +7,22 @@ class InputsLogin extends StatelessWidget {
   final String hinttxt;
   final bool obscuretxt;
   final IconData icono;
+  final String? Function(String?)? validator;
 
   const InputsLogin(
       {super.key,
       this.controller,
       required this.hinttxt,
       required this.obscuretxt,
-      required this.icono});
+      required this.icono,
+      required this.validator});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 50.0),
-      child: TextField(
+      child: TextFormField(
+        validator: validator,
         controller: controller,
         obscureText: obscuretxt,
         decoration: InputDecoration(
@@ -27,7 +31,7 @@ class InputsLogin extends StatelessWidget {
             borderSide: BorderSide(color: Colors.white),
           ),
           focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+            borderSide: BorderSide(color: AppColors.buttonCoLor, width: 3),
             borderRadius: BorderRadius.all(Radius.circular(50)),
           ),
           fillColor: Colors.grey.shade300,
@@ -64,7 +68,7 @@ class InputsRegister extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       obscureText: obscuretxt,
       decoration: InputDecoration(

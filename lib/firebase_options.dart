@@ -70,6 +70,7 @@ class DefaultFirebaseOptions {
     projectId: 'selfraise-51f5b',
     databaseURL: 'https://selfraise-51f5b-default-rtdb.firebaseio.com',
     storageBucket: 'selfraise-51f5b.appspot.com',
+    androidClientId: '558167798499-c9ulmvt5is2t0r5bieqn9sq1fubb3vql.apps.googleusercontent.com',
     iosClientId: '558167798499-pohpnunns3enq3mdiipmisorriuarjvn.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterProyectoFinal',
   );
@@ -81,6 +82,7 @@ class DefaultFirebaseOptions {
     projectId: 'selfraise-51f5b',
     databaseURL: 'https://selfraise-51f5b-default-rtdb.firebaseio.com',
     storageBucket: 'selfraise-51f5b.appspot.com',
+    androidClientId: '558167798499-c9ulmvt5is2t0r5bieqn9sq1fubb3vql.apps.googleusercontent.com',
     iosClientId: '558167798499-h3pdm9ni8gkt6sdr0vc3la7i4kvb6ehc.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterProyectoFinal.RunnerTests',
   );
