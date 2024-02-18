@@ -171,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                         loginwith(
                           rute: 'assets/iconos/google.png',
                           onTap: () {
-                            FirebaseAuthServ().signInGoogle(context);
+                            _auth.signInGoogle(context);
                           },
                         ),
                         SizedBox(

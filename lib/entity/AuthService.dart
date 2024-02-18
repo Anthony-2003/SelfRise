@@ -10,13 +10,16 @@ class AuthService {
   // Método para iniciar sesión con Google
   static Future<void> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!.authentication;
+      final GoogleSignInAccount? googleSignInAccount =
+          await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication =
+          await googleSignInAccount!.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
         idToken: googleSignInAuthentication.idToken,
       );
-      final UserCredential authResult = await _firebaseAuth.signInWithCredential(credential);
+      final UserCredential authResult =
+          await _firebaseAuth.signInWithCredential(credential);
       final User? user = authResult.user;
 
       // Guardar los datos del usuario en Firestore
@@ -32,8 +35,9 @@ class AuthService {
       print('Error al iniciar sesión con Google: $error');
     }
   }
-  
-  static Future<void> _saveUserData(String userId, Map<String, dynamic> userData) async {
+
+  static Future<void> _saveUserData(
+      String userId, Map<String, dynamic> userData) async {
     try {
       await _firestore.collection('user').doc(userId).set(userData);
     } catch (error) {
@@ -45,7 +49,8 @@ class AuthService {
     try {
       final User? user = _firebaseAuth.currentUser;
       if (user != null) {
-        final DocumentSnapshot userDataSnapshot = await _firestore.collection('user').doc(user.uid).get();
+        final DocumentSnapshot userDataSnapshot =
+            await _firestore.collection('user').doc(user.uid).get();
         return userDataSnapshot.get('name');
       }
       return null;
@@ -55,11 +60,11 @@ class AuthService {
     }
   }
 
-  static Future<String?> getUserPhotoUrl() async {
+  static Future<String?> getUserPhotoUrl(String? userId) async {
     try {
-      final User? user = _firebaseAuth.currentUser;
-      if (user != null) {
-        final DocumentSnapshot userDataSnapshot = await _firestore.collection('user').doc(user.uid).get();
+      if (userId != null) {
+        final DocumentSnapshot userDataSnapshot =
+            await _firestore.collection('user').doc(userId).get();
         return userDataSnapshot.get('img');
       }
       return null;
@@ -73,7 +78,8 @@ class AuthService {
     try {
       final User? user = _firebaseAuth.currentUser;
       if (user != null) {
-        final DocumentSnapshot userDataSnapshot = await _firestore.collection('user').doc(user.uid).get();
+        final DocumentSnapshot userDataSnapshot =
+            await _firestore.collection('user').doc(user.uid).get();
         return userDataSnapshot.get('email');
       }
       return null;
@@ -84,12 +90,27 @@ class AuthService {
   }
 
   static String? getUserId() {
-  try {
-    final User? user = _firebaseAuth.currentUser;
-    return user?.uid;
-  } catch (error) {
-    print('Error al obtener el ID del usuario: $error');
-    return null;
+    try {
+      final User? user = _firebaseAuth.currentUser;
+      return user?.uid;
+    } catch (error) {
+      print('Error al obtener el ID del usuario: $error');
+      return null;
+    }
   }
-}
+
+  static Future<Map<String, dynamic>?> getUserData(String? userId) async {
+    try {
+      if (userId != null) {
+        final DocumentSnapshot userDataSnapshot =
+            await _firestore.collection('user').doc(userId).get();
+        return userDataSnapshot.data() as Map<String,
+            dynamic>?; // Asegúrate de devolver un Map<String, dynamic>?
+      }
+      return null;
+    } catch (error) {
+      print('Error al obtener los datos del usuario: $error');
+      return null;
+    }
+  }
 }

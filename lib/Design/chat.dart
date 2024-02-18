@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../entity/AuthService.dart';
-import '../entity/Chat.dart'; 
+import '../entity/Chat.dart';
 
 class PantallaChat extends StatelessWidget {
   final String? currentUser = AuthService.getUserId();
@@ -28,28 +28,51 @@ class PantallaChat extends StatelessWidget {
         children: [
           Expanded(
             child: StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('chat').orderBy('timestamp').snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              stream: FirebaseFirestore.instance
+                  .collection('chat')
+                  .orderBy('timestamp')
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 }
 
-                final chats = snapshot.data?.docs.map((doc) => Chat.fromMap(doc.data() as Map<String, dynamic>)).toList() ?? [];
+                final chats = snapshot.data?.docs
+                        .map((doc) =>
+                            Chat.fromMap(doc.data() as Map<String, dynamic>))
+                        .toList() ??
+                    [];
 
                 return ListView.builder(
                   itemCount: chats.length,
                   itemBuilder: (BuildContext context, int index) {
                     final chat = chats[index];
                     final isMe = chat.senderId == currentUser;
-                    return FutureBuilder(
-                      future: AuthService.getUserPhotoUrl(), // Obtener URL de la foto del usuario
-                      builder: (context, AsyncSnapshot<String?> photoSnapshot) {
+                    return FutureBuilder<Map<String, dynamic>?>(
+                      future: AuthService.getUserData(
+                          chat.senderId), // Obtener datos del usuario
+                      builder: (context,
+                          AsyncSnapshot<Map<String, dynamic>?>
+                              userDataSnapshot) {
+                        if (userDataSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        }
+
+                        final senderName = isMe
+                            ? 'Yo'
+                            : userDataSnapshot.data?['name'] ??
+                                'Usuario Desconocido';
+
                         return _buildMessage(
                           context: context,
                           isMe: isMe,
                           message: chat.content,
-                          senderName: isMe ? 'Yo' : chat.senderId, // Cambiar a nombre real si está disponible
-                          userPhotoUrl: photoSnapshot.data, // Usar la URL de la foto obtenida
+                          senderName:
+                              senderName, // Usar el nombre del remitente obtenido
+                          userPhotoUrl: userDataSnapshot.data?[
+                              'img'], // Obtener URL de la foto del usuario
                         );
                       },
                     );
@@ -74,20 +97,26 @@ class PantallaChat extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isMe) // Si el mensaje no es del usuario actual
             CircleAvatar(
               backgroundImage: userPhotoUrl != null
                   ? NetworkImage(userPhotoUrl)
-                  : AssetImage('assets/imagenes/default_avatar.png') as ImageProvider<Object>,
+                  : AssetImage('assets/imagenes/default_image.png')
+                      as ImageProvider<Object>,
               radius: 20.0,
             ),
-          SizedBox(width: isMe ? 8.0 : 0), // Agrega un espacio entre el avatar y el mensaje si es del usuario actual
+          SizedBox(
+              width: isMe
+                  ? 8.0
+                  : 0), // Agrega un espacio entre el avatar y el mensaje si es del usuario actual
           Expanded(
             child: Column(
-              crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -122,10 +151,14 @@ class PantallaChat extends StatelessWidget {
             CircleAvatar(
               backgroundImage: userPhotoUrl != null
                   ? NetworkImage(userPhotoUrl)
-                  : AssetImage('assets/imagenes/default_avatar.png') as ImageProvider<Object>,
+                  : AssetImage('assets/imagenes/default_image.png')
+                      as ImageProvider<Object>,
               radius: 20.0,
             ),
-          SizedBox(width: !isMe ? 8.0 : 0), // Agrega un espacio entre el mensaje y el avatar si no es del usuario actual
+          SizedBox(
+              width: !isMe
+                  ? 8.0
+                  : 0), // Agrega un espacio entre el mensaje y el avatar si no es del usuario actual
         ],
       ),
     );
