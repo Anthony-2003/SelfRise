@@ -1,13 +1,13 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:share/share.dart';
 import 'package:flutter/foundation.dart';
 import '../Colors/colors.dart';
 import '../services/api_frase_diaria.dart';
 import '../services/api_traductor.dart';
 import './chat.dart';
-import 'login.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -18,6 +18,20 @@ class PantallaMenuPrincipal extends StatefulWidget {
 
 class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
   int _selectedTab = 0;
+  late String _nombreUsuario = '';
+
+  @override
+  void initState() {
+    super.initState();
+    obtenerNombreUsuario();
+  }
+
+  Future<void> obtenerNombreUsuario() async {
+    final nombre = await AuthService.getUserName();
+    setState(() {
+      _nombreUsuario = nombre ?? 'Usuario';
+    });
+  }
 
   final List<Widget> _pages = [
     PantallaPrincipal(),
@@ -31,7 +45,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _construirAppBar(context), // Agrega el AppBar
-      drawer: _menu_lateral(context),
+      drawer: _menu_lateral(context, _nombreUsuario),
       body: _pages[_selectedTab],
       bottomNavigationBar: CurvedNavigationBar(
         index: _selectedTab,
@@ -64,36 +78,55 @@ class PantallaPrincipal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 30),
-              _construirTextoBienvenida(),
-              _construirTextoSentimientos(),
-              _construirFilaIconosSentimientos(),
-              const Text(
-                'Frase de hoy',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor),
+      body: PantallaPrincipalContent(),
+    );
+  }
+}
+
+class PantallaPrincipalContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String?>(
+      future: AuthService.getUserName(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error al obtener el nombre de usuario'));
+        } else {
+          final userName = snapshot.data ?? 'Usuario';
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 30),
+                  _construirTextoBienvenida(userName),
+                  _construirTextoSentimientos(),
+                  _construirFilaIconosSentimientos(),
+                  const Text(
+                    'Frase de hoy',
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textColor),
+                  ),
+                  _construirFutureBuilder(),
+                ],
               ),
-              _construirFutureBuilder(),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        }
+      },
     );
   }
 
-  Widget _construirTextoBienvenida() {
-    return const Padding(
-      padding: EdgeInsets.only(bottom: 15.0),
+  Widget _construirTextoBienvenida(String userName) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15.0),
       child: Text(
-        '¡Bienvenido de vuelta, Emilia!',
+        '¡Hola, $userName!',
         style: TextStyle(fontSize: 25, color: AppColors.textColor),
       ),
     );
@@ -283,79 +316,72 @@ AppBar _construirAppBar(BuildContext context) {
   );
 }
 
-//drawer
-Drawer _menu_lateral(BuildContext context) {
+Drawer _menu_lateral(BuildContext context, String nombreUsuario) {
   return Drawer(
-      child: ListView(
-    children: <Widget>[
-      const DrawerHeader(
-        decoration: BoxDecoration(
-          color: Colors.blue,
-        ),
-        child: Text(
-          'Emilia Sanchez',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
+    child: ListView(
+      children: <Widget>[
+        DrawerHeader(
+          decoration: BoxDecoration(
+            color: Colors.blue,
+          ),
+          child: Text(
+            nombreUsuario,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+            ),
           ),
         ),
-      ),
-      ListTile(
-        title: const Text('Configuración'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: const Text('Psicólogo'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: const Text('Cuenta'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: const Text('Libros'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: const Text('Podcast'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: const Text('Nutricion'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: const Text('Salir'),
-        onTap: () {
-          FirebaseAuth.instance.signOut();
-          Navigator.pushNamed(context, '/login');
-          // Navigator.of(context).popUntil((route) => route.isFirst);
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => LoginPage(),
-          //   ),
-          // );
-        },
-      ),
-    ],
-  ));
+        ListTile(
+          title: const Text('Configuración'),
+          onTap: () {
+            // Puedes agregar lógica adicional aquí si es necesario
+            Navigator.pop(context); // Cierra el Drawer
+          },
+        ),
+        ListTile(
+          title: const Text('Psicólogo'),
+          onTap: () {
+            // Puedes agregar lógica adicional aquí si es necesario
+            Navigator.pop(context); // Cierra el Drawer
+          },
+        ),
+        ListTile(
+          title: const Text('Cuenta'),
+          onTap: () {
+            // Puedes agregar lógica adicional aquí si es necesario
+            Navigator.pop(context); // Cierra el Drawer
+          },
+        ),
+        ListTile(
+          title: const Text('Libros'),
+          onTap: () {
+            // Puedes agregar lógica adicional aquí si es necesario
+            Navigator.pop(context); // Cierra el Drawer
+          },
+        ),
+        ListTile(
+          title: const Text('Podcast'),
+          onTap: () {
+            // Puedes agregar lógica adicional aquí si es necesario
+            Navigator.pop(context); // Cierra el Drawer
+          },
+        ),
+        ListTile(
+          title: const Text('Nutricion'),
+          onTap: () {
+            // Puedes agregar lógica adicional aquí si es necesario
+            Navigator.pop(context); // Cierra el Drawer
+          },
+        ),
+        ListTile(
+          title: const Text('Salir'),
+          onTap: () {
+            FirebaseAuth.instance.signOut();
+            Navigator.pushNamed(context, '/login');
+          },
+        ),
+      ],
+    ),
+  );
 }

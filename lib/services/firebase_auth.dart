@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-
 import '../Design/menu_principal.dart';
 
 class FirebaseAuthServ {
@@ -35,11 +34,17 @@ class FirebaseAuthServ {
     return null;
   }
 
-  signInGoogle(BuildContext context) async {
+ signInGoogle(BuildContext context) async {
+  print('fuera');
+  try {
+    print('dentro');
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
+
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    print('ok');
+    print(googleUser);
     final GoogleSignInAuthentication? googleAuth =
         await googleUser?.authentication;
     final AuthCredential credential = GoogleAuthProvider.credential(
@@ -48,6 +53,7 @@ class FirebaseAuthServ {
     UserCredential result = await firebaseAuth.signInWithCredential(credential);
 
     User? userDetails = result.user;
+
 
     if (result != null) {
       Map<String, dynamic> userInfoMap = {
@@ -62,7 +68,12 @@ class FirebaseAuthServ {
               MaterialPageRoute(
                   builder: (context) => PantallaMenuPrincipal())));
     }
+  } catch (e) {
+    print('Ocurrió un error durante la autenticación con Google: $e');
+    // Puedes mostrar un mensaje de error al usuario o realizar otras acciones según sea necesario
   }
+}
+
 
   Future<UserCredential> signInWithFacebook() async {
     // Trigger the sign-in flow
