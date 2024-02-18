@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../entity/AuthService.dart';
@@ -7,6 +8,7 @@ class PantallaChat extends StatelessWidget {
   final String? currentUser = AuthService.getUserId();
 
   PantallaChat({Key? key}) : super(key: key);
+  final ScrollController _scrollController = ScrollController();
 
   Future<void> sendMessage(String message) async {
     final chat = Chat(
@@ -16,6 +18,12 @@ class PantallaChat extends StatelessWidget {
     );
 
     await FirebaseFirestore.instance.collection('chat').add(chat.toMap());
+
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -30,7 +38,7 @@ class PantallaChat extends StatelessWidget {
             child: StreamBuilder(
               stream: FirebaseFirestore.instance
                   .collection('chat')
-                  .orderBy('timestamp')
+                  .orderBy('timestamp', descending: false)
                   .snapshots(),
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -45,6 +53,7 @@ class PantallaChat extends StatelessWidget {
                     [];
 
                 return ListView.builder(
+                  controller: _scrollController,
                   itemCount: chats.length,
                   itemBuilder: (BuildContext context, int index) {
                     final chat = chats[index];
@@ -55,11 +64,6 @@ class PantallaChat extends StatelessWidget {
                       builder: (context,
                           AsyncSnapshot<Map<String, dynamic>?>
                               userDataSnapshot) {
-                        if (userDataSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        }
-
                         final senderName = isMe
                             ? 'Yo'
                             : userDataSnapshot.data?['name'] ??
@@ -104,7 +108,7 @@ class PantallaChat extends StatelessWidget {
           if (!isMe) // Si el mensaje no es del usuario actual
             CircleAvatar(
               backgroundImage: userPhotoUrl != null
-                  ? NetworkImage(userPhotoUrl)
+                  ? CachedNetworkImageProvider(userPhotoUrl)
                   : AssetImage('assets/imagenes/default_image.png')
                       as ImageProvider<Object>,
               radius: 20.0,
@@ -150,7 +154,7 @@ class PantallaChat extends StatelessWidget {
           if (isMe) // Si el mensaje es del usuario actual
             CircleAvatar(
               backgroundImage: userPhotoUrl != null
-                  ? NetworkImage(userPhotoUrl)
+                  ? CachedNetworkImageProvider(userPhotoUrl)
                   : AssetImage('assets/imagenes/default_image.png')
                       as ImageProvider<Object>,
               radius: 20.0,
