@@ -45,6 +45,10 @@ dependencies:
   flutter_facebook_auth: ^6.1.0
   image_picker: ^1.0.7
   provider: ^6.1.1
+  get: ^4.6.6
+  datetime_picker_formfield: ^2.0.1
+  uuid: ^4.3.3
+  flutter_image_compress: ^2.1.0
 
 
 

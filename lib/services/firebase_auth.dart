@@ -14,12 +14,14 @@ class FirebaseAuthServ {
   }
 
   Future<User?> SignUpPassAndEmail(String email, String password) async {
-    try {
-      UserCredential credential = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      return credential.user;
-    } catch (e) {
-      print('Ha ocurrido un error');
+    if (password != null) {
+      try {
+        UserCredential credential = await _auth.createUserWithEmailAndPassword(
+            email: email, password: password);
+        return credential.user;
+      } catch (e) {
+        print('Ha ocurrido un error');
+      }
     }
     return null;
   }
@@ -51,7 +53,7 @@ class FirebaseAuthServ {
       Map<String, dynamic> userInfoMap = {
         'email': userDetails!.email,
         'name': userDetails.displayName,
-        'img': userDetails.photoURL,
+        'Imagelink': userDetails.photoURL,
         'id': userDetails.uid
       };
       await DataBase().addUser(userDetails.uid, userInfoMap).then((value) =>
