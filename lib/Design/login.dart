@@ -169,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
                         loginwith(
                             rute: 'assets/iconos/facebook.png',
                             onTap: () {
-                              FirebaseAuthServ().signInWithFacebook();
+                              _auth.signInWithFacebook(context);
                             }),
                       ],
                     ),
@@ -252,8 +252,6 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
-
-
 
   bool isValidEmail(String email) {
     // Simple regex for email validation
