@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-
 import '../Design/menu_principal.dart';
 
 class FirebaseAuthServ {
