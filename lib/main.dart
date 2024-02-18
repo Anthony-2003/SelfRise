@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/services/database.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'Design/login.dart';
 import 'Design/menu_principal.dart';
+import 'Design/register.dart';
+import 'Design/slide_login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  Get.put(UserRep());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key});
 
   @override
   Widget build(BuildContext context) {

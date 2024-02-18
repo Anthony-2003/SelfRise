@@ -1,19 +1,84 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:share/share.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/services/api_traductor.dart';
 import '../Colors/colors.dart';
 import '../services/api_frase_diaria.dart';
+import '../services/api_traductor.dart';
+import './chat.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-class PantallaMenuPrincipal extends StatelessWidget {
+class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
+
+  @override
+  _PantallaMenuPrincipalState createState() => _PantallaMenuPrincipalState();
+}
+
+class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
+  int _selectedTab = 0;
+  late String _nombreUsuario = '';
+
+  @override
+  void initState() {
+    super.initState();
+    obtenerNombreUsuario();
+  }
+
+  Future<void> obtenerNombreUsuario() async {
+    final nombre = await AuthService.getUserName();
+    setState(() {
+      _nombreUsuario = nombre ?? 'Usuario';
+    });
+  }
+
+  final List<Widget> _pages = [
+    PantallaPrincipal(),
+    PantallaChat(),
+    PantallaAsignaciones(),
+    PantallaSeguimientoCambios(),
+    PantallaPerfil(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _construirAppBar(context), // Agrega el AppBar
-      drawer: _menu_lateral(context), // Agrega el Drawer
+      drawer: _menu_lateral(context, _nombreUsuario),
+      body: _pages[_selectedTab],
+      bottomNavigationBar: CurvedNavigationBar(
+        index: _selectedTab,
+        height: 50,
+        items: <Widget>[
+          _construirNavigationBarItem(Icons.home),
+          _construirNavigationBarItem(Icons.chat),
+          _construirNavigationBarItem(Icons.assignment),
+          _construirNavigationBarItem(Icons.track_changes),
+          _construirNavigationBarItem(Icons.person),
+        ],
+        backgroundColor: Colors.white,
+        color: const Color.fromARGB(255, 104, 174, 240),
+        animationDuration: const Duration(milliseconds: 300),
+        onTap: (int index) {
+          setState(() {
+            _selectedTab = index;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _construirNavigationBarItem(IconData icon) {
+    return Icon(icon, size: 30);
+  }
+}
+
+class PantallaPrincipal extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: SingleChildScrollView(
@@ -21,6 +86,7 @@ class PantallaMenuPrincipal extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 30),
+              _construirBotonMenu(),
               _construirTextoBienvenida(),
               _construirTextoSentimientos(),
               _construirFilaIconosSentimientos(),
@@ -40,11 +106,22 @@ class PantallaMenuPrincipal extends StatelessWidget {
     );
   }
 
+  Widget _construirBotonMenu() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10.0),
+      child: IconButton(
+        icon: const Icon(Icons.menu, size: 35, color: AppColors.textColor),
+        onPressed: () {},
+        key: const Key('menu_button'),
+      ),
+    );
+  }
+
   Widget _construirTextoBienvenida() {
     return const Padding(
       padding: EdgeInsets.only(bottom: 15.0),
       child: Text(
-        '¡Bienvenido de vuelta, Emilia!',
+        '¡Hola, $userName!',
         style: TextStyle(fontSize: 25, color: AppColors.textColor),
       ),
     );
@@ -70,7 +147,7 @@ class PantallaMenuPrincipal extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
-            'assets/$nombreAsset',
+            'assets/iconos/$nombreAsset',
             width: 50,
             height: 50,
           ),
@@ -99,6 +176,8 @@ class PantallaMenuPrincipal extends StatelessWidget {
       ),
     );
   }
+
+  //HOLA FIRST COMMIT
 
   Widget _construirNavigationBarInferior() {
     return CurvedNavigationBar(
@@ -229,83 +308,4 @@ class PantallaMenuPrincipal extends StatelessWidget {
   void _compartirFrase(String texto, String autor) {
     Share.share("$texto\n-$autor", subject: 'Compartir frase del día');
   }
-}
-
-//METODO DEL MENU LATERAL
-
-//App bar
-AppBar _construirAppBar(BuildContext context) {
-  return AppBar(
-    iconTheme: IconThemeData(color: AppColors.textColor, size: 40),
-  );
-}
-
-//drawer
-Drawer _menu_lateral(BuildContext context) {
-  return Drawer(
-      child: ListView(
-    children: <Widget>[
-      DrawerHeader(
-        decoration: BoxDecoration(
-          color: Colors.blue,
-        ),
-        child: Text(
-          'Emilia Sanchez',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-          ),
-        ),
-      ),
-      ListTile(
-        title: Text('Configuración'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: Text('Psicólogo'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: Text('Cuenta'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: Text('Libros'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: Text('Podcast'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: Text('Nutricion'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-      ListTile(
-        title: Text('Salir'),
-        onTap: () {
-          // Puedes agregar lógica adicional aquí si es necesario
-          Navigator.pop(context); // Cierra el Drawer
-        },
-      ),
-    ],
-  ));
 }

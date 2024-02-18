@@ -33,8 +33,25 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_fonts: ^6.1.0
   http: ^1.2.0
+  smooth_page_indicator: ^1.1.0
+  curved_navigation_bar: ^1.0.3
   share: ^2.0.4
-  curved_navigation_bar: ^1.0.3 
+  shared_preferences: ^2.2.2
+  firebase_core: ^2.25.4
+  firebase_auth: ^4.17.4
+  firebase_storage: ^11.6.5
+  cloud_firestore: ^4.15.4
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^6.1.0
+  image_picker: ^1.0.7
+  provider: ^6.1.1
+  get: ^4.6.6
+  datetime_picker_formfield: ^2.0.1
+  uuid: ^4.3.3
+  flutter_image_compress: ^2.1.0
+  map_location_picker: ^0.0.1
+
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -43,6 +60,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: 'assets/iconos/1024.png'
+  addaptive_icon_background: '#2196F3'
+  addaptive_icon_foreground: 'assets/iconos/logo_blanco.png'
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -65,6 +90,8 @@ flutter:
  
   assets:
    - assets/
+   - assets/imagenes/
+   - assets/iconos/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
