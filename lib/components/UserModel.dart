@@ -9,7 +9,6 @@ class UserModel {
   final String name;
   final String lastname;
   final String birthday;
-  final String address;
   final String email;
   final String password;
   final Uint8List? file;
@@ -21,7 +20,6 @@ class UserModel {
     required this.name,
     required this.lastname,
     required this.birthday,
-    required this.address,
     required this.file,
   });
 

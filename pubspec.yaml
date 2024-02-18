@@ -49,6 +49,7 @@ dependencies:
   datetime_picker_formfield: ^2.0.1
   uuid: ^4.3.3
   flutter_image_compress: ^2.1.0
+  map_location_picker: ^0.0.1
 
 
 

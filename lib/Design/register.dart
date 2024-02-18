@@ -32,7 +32,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController lastnameController = TextEditingController();
   TextEditingController birthdayController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
   TextEditingController imageController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   DateTime? Dateselected;
@@ -155,7 +154,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
           name: nameController.text,
           lastname: lastnameController.text,
           birthday: birthdayController.text,
-          address: addressController.text,
           file: image!,
         );
         await UserRep().createUser(user);
@@ -331,21 +329,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
                       validator: (value) {
                         if (value == null) {
                           return 'Por favor selecciona la fecha de nacimiento';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    InputsRegister(
-                      hinttxt: 'Dirección',
-                      controller: addressController,
-                      obscuretxt: false,
-                      icono: Icons.location_on,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor introduce la dirección';
                         }
                         return null;
                       },

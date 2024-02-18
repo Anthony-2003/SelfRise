@@ -10,20 +10,21 @@ class DataBase {
     return db.doc(userId).set(userInfoMap);
   }
 }
-  Future<bool> checkIfUserExists(String email) async {
-    try {
-      CollectionReference usersRef =
-          FirebaseFirestore.instance.collection('user');
 
-      QuerySnapshot querySnapshot =
-          await usersRef.where('email', isEqualTo: email).get();
+Future<bool> checkIfUserExists(String email) async {
+  try {
+    CollectionReference usersRef =
+        FirebaseFirestore.instance.collection('user');
 
-      return querySnapshot.docs.isNotEmpty;
-    } catch (e) {
-      print('Error al verificar si el usuario existe: $e');
-      return false;
-    }
+    QuerySnapshot querySnapshot =
+        await usersRef.where('email', isEqualTo: email).get();
+
+    return querySnapshot.docs.isNotEmpty;
+  } catch (e) {
+    print('Error al verificar si el usuario existe: $e');
+    return false;
   }
+}
 
 class UserRep extends GetxController {
   static UserRep get instance => Get.find();
@@ -36,7 +37,6 @@ class UserRep extends GetxController {
         'email': user.email,
         'password': user.password,
         'birthday': user.birthday,
-        'address': user.address,
         'Imagelink': imageUrl,
       });
       Get.snackbar(
