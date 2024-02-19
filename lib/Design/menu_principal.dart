@@ -8,6 +8,7 @@ import '../Colors/colors.dart';
 import '../services/api_frase_diaria.dart';
 import '../services/api_traductor.dart';
 import './chat.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -383,10 +384,16 @@ Drawer _menu_lateral(BuildContext context, String nombreUsuario) {
           title: const Text('Salir'),
           onTap: () {
             FirebaseAuth.instance.signOut();
+            signOutFromGoogle();
             Navigator.pushNamed(context, '/login');
           },
         ),
       ],
     ),
   );
+}
+
+void signOutFromGoogle() async {
+  GoogleSignIn googleSignIn = GoogleSignIn();
+  await googleSignIn.signOut();
 }

@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/components/UserModel.dart';
 import 'package:flutter_proyecto_final/components/inputs.dart';
 import 'package:flutter_proyecto_final/components/pickerImage.dart';
+import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:image_picker/image_picker.dart';
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
@@ -10,8 +12,7 @@ import 'login.dart';
 // ignore: must_be_immutable
 class RegistroScreen extends StatefulWidget {
   RegistroScreen({Key? key}) : super(key: key);
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+
   bool checkBoxValue = false;
 
   @override
@@ -21,6 +22,17 @@ class RegistroScreen extends StatefulWidget {
 class _RegistroScreenState extends State<RegistroScreen> {
   int _currentPage = 0;
   bool isComplete = false;
+
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController repeatpasswordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController lastnameController = TextEditingController();
+  TextEditingController birthdayController = TextEditingController();
+  TextEditingController imageController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  DateTime? Dateselected;
+  Uint8List? image;
 
   @override
   Widget build(BuildContext context) {
@@ -58,15 +70,9 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 if (!isLastStep) {
                   setState(() => _currentPage++);
                 } else {
-                  //enviar datos al servidor
+                  // Enviar datos al servidor
                   setState(() => isComplete = true);
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginPage(),
-                    ),
-                  );
+                  _registerUser();
                 }
               },
               onStepCancel: () {
@@ -81,16 +87,48 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   children: [
                     if (_currentPage != 0) ...[
                       CustomBackButton(
-                          onTap: details.onStepCancel, text: 'Atras'),
+                        onTap: details.onStepCancel,
+                        text: 'Atras',
+                      ),
                     ],
                     const SizedBox(
                       width: 12,
                     ),
                     NextButton(
-                      onTap: () {
-                        if (widget.checkBoxValue) {
-                          details.onStepContinue!();
+                      onTap: () async {
+                        bool userExists =
+                            await checkIfUserExists(emailController.text);
+                        if (!userExists) {
+                          if (widget.checkBoxValue &&
+                              passwordController.text ==
+                                  repeatpasswordController.text) {
+                            details.onStepContinue!();
+                          } else if (widget.checkBoxValue == false) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              backgroundColor: Colors.orange,
+                              content: Text(
+                                'Debes aceptar los términos y condiciones.',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ));
+                          } else if (passwordController.text !=
+                              repeatpasswordController.text) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              backgroundColor: Colors.orange,
+                              content: Text(
+                                'Las contraseñas no coinciden',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ));
+                          }
                         }
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          backgroundColor: Colors.orange,
+                          content: Text(
+                            'Ya existe un usuario con este email',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ));
                       },
                       text: isLastStep ? 'Confirmar' : 'Siguiente',
                     ),
@@ -102,6 +140,43 @@ class _RegistroScreenState extends State<RegistroScreen> {
         ],
       ),
     );
+  }
+
+  void _registerUser() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final user = UserModel(
+          email: emailController.text.trim(),
+          password: passwordController.text,
+          name: nameController.text,
+          lastname: lastnameController.text,
+          birthday: birthdayController.text,
+          file: image!,
+        );
+        await UserRep().createUser(user);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.green,
+          content: Text(
+            'Registro completado con éxito.',
+            style: TextStyle(fontSize: 18),
+          ),
+        ));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginPage(),
+          ),
+        );
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            'Error durante el registro. Inténtalo de nuevo.',
+            style: TextStyle(fontSize: 18),
+          ),
+        ));
+      }
+    }
   }
 
   List<Step> getSteps() => [
@@ -116,75 +191,83 @@ class _RegistroScreenState extends State<RegistroScreen> {
             child: SingleChildScrollView(
               child: Container(
                 alignment: Alignment.center,
-                child:
-                    //correo
-                    Column(
-                  children: [
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    const InputsRegister(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      InputsRegister(
                         hinttxt: 'Correo',
                         obscuretxt: false,
-                        icono: Icons.alternate_email),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    //contrase;a
-                    const InputsRegister(
+                        controller: emailController,
+                        icono: Icons.alternate_email,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor introduce el correo electrónico';
+                          } else if (!isValidEmail(value)) {
+                            return 'Introduce un correo electrónico válido';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      InputsRegister(
                         hinttxt: 'Contraseña',
-                        obscuretxt: false,
-                        icono: Icons.password),
-                    const SizedBox(
-                      height: 10,
-                    ),
-
-                    //text
-
-                    const Text(
-                      'Ingresa una contraseña segura que contenga al menos 8 caracteres, incluyendo letras mayúsculas, minúsculas, números y caracteres especiales.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    //contrase;a
-                    const InputsRegister(
-                        hinttxt: 'Contraseña',
-                        obscuretxt: false,
-                        icono: Icons.password),
-                    const SizedBox(
-                      height: 10,
-                    ),
-
-                    //text
-                    const Text(
-                        'Por favor, ingresa la misma contraseña nuevamente para confirmar que la has ingresado correctamente.',
-                        style: TextStyle(color: Colors.grey)),
-                    const SizedBox(
-                      height: 80,
-                    ),
-                    //marca la casilla
-
-                    CheckboxListTile(
-                      title: const Text(
-                          'Por favor, marca la casilla para aceptar nuestros términos y condiciones antes de continuar.',
+                        controller: passwordController,
+                        obscuretxt: true,
+                        icono: Icons.password,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor introduce la contraseña';
+                          } else if (value.length < 8) {
+                            return 'La contraseña debe tener al menos 8 caracteres';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      InputsRegister(
+                        hinttxt: 'Repetir Contraseña',
+                        controller: repeatpasswordController,
+                        obscuretxt: true,
+                        icono: Icons.password,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor repite la contraseña';
+                          } else if (value != passwordController.text) {
+                            return 'Las contraseñas no coinciden';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(
+                        height: 80,
+                      ),
+                      CheckboxListTile(
+                        title: const Text(
+                          'Acepto los términos y condiciones',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold)),
-                      controlAffinity: ListTileControlAffinity
-                          .leading, // Coloca el Checkbox a la derecha
-                      value: widget.checkBoxValue,
-                      fillColor: MaterialStateProperty.resolveWith(
-                          (states) => AppColors.textColor),
-                      onChanged: (bool? newValue) {
-                        setState(() {
-                          widget.checkBoxValue = newValue!;
-                        });
-                      },
-                    )
-                  ],
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        value: widget.checkBoxValue,
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            widget.checkBoxValue = newValue!;
+                          });
+                        },
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -193,54 +276,63 @@ class _RegistroScreenState extends State<RegistroScreen> {
         Step(
           state: _currentPage > 1 ? StepState.complete : StepState.indexed,
           isActive: _currentPage >= 1,
-          title: const Text('datos personales',
-              style: TextStyle(color: Colors.white, fontSize: 12)),
+          title: const Text(
+            'Datos personales',
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
           content: Center(
             child: SingleChildScrollView(
               child: Container(
                 alignment: Alignment.center,
-                child: const Column(
+                child: Column(
                   children: [
                     SizedBox(
                       height: 40,
                     ),
-                    //nombre
                     InputsRegister(
-                        hinttxt: 'Nombre',
-                        obscuretxt: false,
-                        icono: Icons.person),
+                      hinttxt: 'Nombre',
+                      controller: nameController,
+                      obscuretxt: false,
+                      icono: Icons.person,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor introduce el nombre';
+                        }
+                        return null;
+                      },
+                    ),
                     SizedBox(
                       height: 20,
                     ),
-                    //apellido
                     InputsRegister(
-                        hinttxt: 'Apellido',
-                        obscuretxt: false,
-                        icono: Icons.person),
+                      hinttxt: 'Apellido',
+                      controller: lastnameController,
+                      obscuretxt: false,
+                      icono: Icons.person,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor introduce el apellido';
+                        }
+                        return null;
+                      },
+                    ),
                     SizedBox(
                       height: 20,
                     ),
-
-                    //fecha
-                    InputsRegister(
-                        hinttxt: 'Fecha',
-                        obscuretxt: false,
-                        icono: Icons.calendar_month),
-                    SizedBox(
-                      height: 20,
+                    ImputDate(
+                      datecontroller: birthdayController,
+                      icono: Icons.calendar_month,
+                      selectedDate: Dateselected,
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Por favor selecciona la fecha de nacimiento';
+                        }
+                        return null;
+                      },
                     ),
                     SizedBox(
                       height: 10,
                     ),
-                    //localidad
-                    InputsRegister(
-                        hinttxt: 'Localidad',
-                        obscuretxt: false,
-                        icono: Icons.location_on),
-                    SizedBox(
-                      height: 10,
-                    ),
-
                     SizedBox(
                       height: 80,
                     ),
@@ -253,48 +345,59 @@ class _RegistroScreenState extends State<RegistroScreen> {
         Step(
           state: _currentPage > 2 ? StepState.complete : StepState.indexed,
           isActive: _currentPage >= 2,
-          title: const Text('foto',
-              style: TextStyle(color: Colors.white, fontSize: 12)),
+          title: const Text(
+            'Foto',
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
           content: Center(
             child: SingleChildScrollView(
-                child: Container(
-                    alignment: Alignment.center,
-                    child: Stack(
-                      children: [
-                        image != null
-                            ? CircleAvatar(
-                                radius: 200,
-                                backgroundImage: MemoryImage(image!),
-                              )
-                            : CircleAvatar(
-                                radius: 200, // Ajustar el tamaño del círculo
-                                backgroundImage: NetworkImage(
-                                    'https://icons.iconarchive.com/icons/papirus-team/papirus-status/512/avatar-default-icon.png'),
-                              ),
-                        Positioned(
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.add_a_photo_rounded,
-                              color: Colors.white,
-                              size: 60,
-                            ),
-                            onPressed: () {
-                              selectImage();
-                            },
-                          ),
-                          bottom: 40, // Ajustar la posición vertical
-                          right: 20, // Ajustar la posición horizontal
-                        )
-                      ],
-                    ))),
+              child: Container(
+                alignment: Alignment.center,
+                child: Stack(
+                  children: [
+                    if (image != null)
+                      CircleAvatar(
+                        radius: 200,
+                        backgroundImage: MemoryImage(image!),
+                      )
+                    else
+                      CircleAvatar(
+                        radius: 200,
+                        backgroundImage: NetworkImage(
+                            'https://icons.iconarchive.com/icons/papirus-team/papirus-status/512/avatar-default-icon.png'),
+                      ),
+                    Positioned(
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.add_a_photo_rounded,
+                          color: Colors.white,
+                          size: 60,
+                        ),
+                        onPressed: () {
+                          selectImage();
+                        },
+                      ),
+                      bottom: 40,
+                      right: 20,
+                    )
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ];
-  Uint8List? image;
+
   void selectImage() async {
     Uint8List img = await pickerImage(ImageSource.gallery);
     setState(() {
-      image = img;
+      this.image = img;
     });
+  }
+
+  void saveProfile() async {}
+
+  bool isValidEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 }
