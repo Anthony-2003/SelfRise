@@ -10,6 +10,8 @@ class PantallaChat extends StatelessWidget {
   PantallaChat({Key? key}) : super(key: key);
   final ScrollController _scrollController = ScrollController();
 
+
+
   Future<void> sendMessage(String message) async {
     final chat = Chat(
       senderId: currentUser ?? 'UsuarioDesconocido',
@@ -76,7 +78,7 @@ class PantallaChat extends StatelessWidget {
                           senderName:
                               senderName, // Usar el nombre del remitente obtenido
                           userPhotoUrl: userDataSnapshot.data?[
-                              'img'], // Obtener URL de la foto del usuario
+                              'imageLink'], // Obtener URL de la foto del usuario
                         );
                       },
                     );

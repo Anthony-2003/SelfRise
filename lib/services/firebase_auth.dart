@@ -28,21 +28,16 @@ class FirebaseAuthServ {
       UserCredential credential = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
       return credential.user;
-    } on FirebaseAuthException catch (e) {}
+    } on FirebaseAuthException {}
     return null;
   }
 
  signInGoogle(BuildContext context) async {
-  print('fuera');
   try {
-    print('dentro');
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
-
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    print('ok');
-    print(googleUser);
     final GoogleSignInAuthentication? googleAuth =
         await googleUser?.authentication;
     final AuthCredential credential = GoogleAuthProvider.credential(
@@ -52,23 +47,19 @@ class FirebaseAuthServ {
 
     User? userDetails = result.user;
 
-
-    if (result != null) {
-      Map<String, dynamic> userInfoMap = {
-        'email': userDetails!.email,
-        'name': userDetails.displayName,
-        'img': userDetails.photoURL,
-        'id': userDetails.uid
-      };
-      await DataBase().addUser(userDetails.uid, userInfoMap).then((value) =>
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => PantallaMenuPrincipal())));
-    }
-  } catch (e) {
+    Map<String, dynamic> userInfoMap = {
+      'email': userDetails!.email,
+      'name': userDetails.displayName,
+      'imageLink': userDetails.photoURL,
+      'id': userDetails.uid
+    };
+    await DataBase().addUser(userDetails.uid, userInfoMap).then((value) =>
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => PantallaMenuPrincipal())));
+    } catch (e) {
     print('Ocurrió un error durante la autenticación con Google: $e');
-    // Puedes mostrar un mensaje de error al usuario o realizar otras acciones según sea necesario
   }
 }
 

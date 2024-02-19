@@ -44,19 +44,13 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _construirAppBar(context), // Agrega el AppBar
+      appBar: _construirAppBar(context),
       drawer: _menu_lateral(context, _nombreUsuario),
       body: _pages[_selectedTab],
       bottomNavigationBar: CurvedNavigationBar(
         index: _selectedTab,
         height: 50,
-        items: <Widget>[
-          _construirNavigationBarItem(Icons.home),
-          _construirNavigationBarItem(Icons.chat),
-          _construirNavigationBarItem(Icons.assignment),
-          _construirNavigationBarItem(Icons.track_changes),
-          _construirNavigationBarItem(Icons.person),
-        ],
+        items: _construirNavigationBarItems(),
         backgroundColor: Colors.white,
         color: const Color.fromARGB(255, 104, 174, 240),
         animationDuration: const Duration(milliseconds: 300),
@@ -69,9 +63,21 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
     );
   }
 
+  List<Widget> _construirNavigationBarItems() {
+    return [
+      Icons.home,
+      Icons.chat,
+      Icons.assignment,
+      Icons.track_changes,
+      Icons.person,
+    ].map((icon) => _construirNavigationBarItem(icon)).toList();
+  }
+
   Widget _construirNavigationBarItem(IconData icon) {
     return Icon(icon, size: 30);
   }
+
+  // Otros métodos de la clase...
 }
 
 class PantallaPrincipal extends StatelessWidget {
@@ -187,7 +193,10 @@ class PantallaPrincipalContent extends StatelessWidget {
       future: ApiFraseDiaria.fetchData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _construirIndicadorProgreso();
+          return Center(
+            // Centra vertical y horizontalmente
+            child: _construirIndicadorProgreso(),
+          );
         } else if (snapshot.hasError) {
           if (kDebugMode) {
             print(snapshot.error);
@@ -203,7 +212,9 @@ class PantallaPrincipalContent extends StatelessWidget {
   }
 
   Widget _construirIndicadorProgreso() {
-    return const CircularProgressIndicator();
+    return Center(
+      child: CircularProgressIndicator(),
+    );
   }
 
   Widget _construirTextoError(String mensaje) {
@@ -335,43 +346,37 @@ Drawer _menu_lateral(BuildContext context, String nombreUsuario) {
         ListTile(
           title: const Text('Configuración'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Psicólogo'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Cuenta'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Libros'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Podcast'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Nutricion'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(

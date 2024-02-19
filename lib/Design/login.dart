@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/inputs.dart';
 import 'package:flutter_proyecto_final/services/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
 import '../components/loginwith.dart';
@@ -21,7 +20,6 @@ class _LoginPageState extends State<LoginPage> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   //para loguearse
 

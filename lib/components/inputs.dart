@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/components/mySlides.dart';
 
 class InputsLogin extends StatelessWidget {
   final TextEditingController? controller;

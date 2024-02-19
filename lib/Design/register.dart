@@ -5,10 +5,9 @@ import 'package:flutter_proyecto_final/components/pickerImage.dart';
 import 'package:image_picker/image_picker.dart';
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
-import '../components/loginwith.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'login.dart';
 
+// ignore: must_be_immutable
 class RegistroScreen extends StatefulWidget {
   RegistroScreen({Key? key}) : super(key: key);
   final emailController = TextEditingController();
