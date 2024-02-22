@@ -6,11 +6,9 @@ import '../entity/Chat.dart';
 
 class PantallaChat extends StatelessWidget {
   final String? currentUser = AuthService.getUserId();
-
-  PantallaChat({Key? key}) : super(key: key);
   final ScrollController _scrollController = ScrollController();
 
-
+  PantallaChat({Key? key}) : super(key: key);
 
   Future<void> sendMessage(String message) async {
     final chat = Chat(
@@ -24,7 +22,7 @@ class PantallaChat extends StatelessWidget {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
       duration: Duration(milliseconds: 300),
-      curve: Curves.easeOut,
+      curve: Curves.bounceInOut,
     );
   }
 
@@ -33,6 +31,7 @@ class PantallaChat extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat'),
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -164,7 +163,7 @@ class PantallaChat extends StatelessWidget {
           SizedBox(
               width: !isMe
                   ? 8.0
-                  : 0), // Agrega un espacio entre el mensaje y el avatar si no es del usuario actual
+                  : 0), 
         ],
       ),
     );
@@ -207,3 +206,4 @@ class PantallaChat extends StatelessWidget {
     );
   }
 }
+
