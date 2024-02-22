@@ -14,7 +14,7 @@ class PantallaChat extends StatelessWidget {
     final chat = Chat(
       senderId: currentUser ?? 'UsuarioDesconocido',
       content: message,
-      timestamp: DateTime.now(),
+      timestamp: DateTime.now()
     );
 
     await FirebaseFirestore.instance.collection('chat').add(chat.toMap());
@@ -48,8 +48,7 @@ class PantallaChat extends StatelessWidget {
                 }
 
                 final chats = snapshot.data?.docs
-                        .map((doc) =>
-                            Chat.fromMap(doc.data() as Map<String, dynamic>))
+                        .map((doc) => Chat.fromMap(doc.data() as Map<String, dynamic>, doc.id)) // Pasar el ID del documento
                         .toList() ??
                     [];
 
