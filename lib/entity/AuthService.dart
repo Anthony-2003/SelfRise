@@ -27,7 +27,7 @@ class AuthService {
         await _saveUserData(user.uid, {
           'name': user.displayName,
           'email': user.email,
-          'img': user.photoURL,
+          'imageLink': user.photoURL,
           'id': user.uid,
         });
       }
@@ -65,7 +65,7 @@ class AuthService {
       if (userId != null) {
         final DocumentSnapshot userDataSnapshot =
             await _firestore.collection('user').doc(userId).get();
-        return userDataSnapshot.get('img');
+        return userDataSnapshot.get('imageLink');
       }
       return null;
     } catch (error) {

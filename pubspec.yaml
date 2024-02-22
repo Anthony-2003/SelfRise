@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  cached_network_image: ^3.3.1
   cloud_firestore: ^4.15.4
   cupertino_icons: ^1.0.2
   curved_navigation_bar: ^1.0.3
@@ -42,9 +43,12 @@ dependencies:
   get: ^4.6.6
   google_fonts: ^6.1.0
   google_sign_in: ^6.2.1
-  http: ^1.2.1
+  http: 1.2.0
   image_picker: ^1.0.7
   provider: ^6.1.1
+<<<<<<<<< Temporary merge branch 1
+  cached_network_image: ^3.0.0
+
   
 
 
@@ -85,6 +89,7 @@ flutter:
     - assets/
     - assets/imagenes/
     - assets/iconos/
+    - lib/data/frases_motivacionales.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
   # For details regarding adding assets from package dependencies, see

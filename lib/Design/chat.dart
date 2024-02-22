@@ -6,15 +6,15 @@ import '../entity/Chat.dart';
 
 class PantallaChat extends StatelessWidget {
   final String? currentUser = AuthService.getUserId();
+  final ScrollController _scrollController = ScrollController();
 
   PantallaChat({Key? key}) : super(key: key);
-  final ScrollController _scrollController = ScrollController();
 
   Future<void> sendMessage(String message) async {
     final chat = Chat(
       senderId: currentUser ?? 'UsuarioDesconocido',
       content: message,
-      timestamp: DateTime.now(),
+      timestamp: DateTime.now()
     );
 
     await FirebaseFirestore.instance.collection('chat').add(chat.toMap());
@@ -22,7 +22,7 @@ class PantallaChat extends StatelessWidget {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
       duration: Duration(milliseconds: 300),
-      curve: Curves.easeOut,
+      curve: Curves.bounceInOut,
     );
   }
 
@@ -31,6 +31,7 @@ class PantallaChat extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat'),
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -47,8 +48,7 @@ class PantallaChat extends StatelessWidget {
                 }
 
                 final chats = snapshot.data?.docs
-                        .map((doc) =>
-                            Chat.fromMap(doc.data() as Map<String, dynamic>))
+                        .map((doc) => Chat.fromMap(doc.data() as Map<String, dynamic>, doc.id)) // Pasar el ID del documento
                         .toList() ??
                     [];
 
@@ -76,7 +76,7 @@ class PantallaChat extends StatelessWidget {
                           senderName:
                               senderName, // Usar el nombre del remitente obtenido
                           userPhotoUrl: userDataSnapshot.data?[
-                              'img'], // Obtener URL de la foto del usuario
+                              'imageLink'], // Obtener URL de la foto del usuario
                         );
                       },
                     );
@@ -162,7 +162,7 @@ class PantallaChat extends StatelessWidget {
           SizedBox(
               width: !isMe
                   ? 8.0
-                  : 0), // Agrega un espacio entre el mensaje y el avatar si no es del usuario actual
+                  : 0), 
         ],
       ),
     );
@@ -205,3 +205,4 @@ class PantallaChat extends StatelessWidget {
     );
   }
 }
+

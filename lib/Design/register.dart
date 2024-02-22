@@ -1,17 +1,15 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/UserModel.dart';
 import 'package:flutter_proyecto_final/components/inputs.dart';
 import 'package:flutter_proyecto_final/components/pickerImage.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
-import 'package:flutter_proyecto_final/services/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
-import '../Design/login.dart';
+import 'login.dart';
 
+// ignore: must_be_immutable
 class RegistroScreen extends StatefulWidget {
   RegistroScreen({Key? key}) : super(key: key);
 
@@ -24,7 +22,6 @@ class RegistroScreen extends StatefulWidget {
 class _RegistroScreenState extends State<RegistroScreen> {
   int _currentPage = 0;
   bool isComplete = false;
-  final FirebaseAuthServ _auth = FirebaseAuthServ();
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();

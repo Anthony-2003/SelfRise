@@ -1,14 +1,14 @@
+import 'dart:async';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:share/share.dart';
-import 'package:flutter/foundation.dart';
 import '../Colors/colors.dart';
-import '../services/api_frase_diaria.dart';
-import '../services/api_traductor.dart';
+import '../services/frases_motivacionales.dart';
 import './chat.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -45,19 +45,13 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _construirAppBar(context), // Agrega el AppBar
+      appBar: _construirAppBar(context),
       drawer: _menu_lateral(context, _nombreUsuario),
       body: _pages[_selectedTab],
       bottomNavigationBar: CurvedNavigationBar(
         index: _selectedTab,
         height: 50,
-        items: <Widget>[
-          _construirNavigationBarItem(Icons.home),
-          _construirNavigationBarItem(Icons.chat),
-          _construirNavigationBarItem(Icons.assignment),
-          _construirNavigationBarItem(Icons.track_changes),
-          _construirNavigationBarItem(Icons.person),
-        ],
+        items: _construirNavigationBarItems(),
         backgroundColor: Colors.white,
         color: const Color.fromARGB(255, 104, 174, 240),
         animationDuration: const Duration(milliseconds: 300),
@@ -68,6 +62,16 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
         },
       ),
     );
+  }
+
+  List<Widget> _construirNavigationBarItems() {
+    return [
+      Icons.home,
+      Icons.chat,
+      Icons.assignment,
+      Icons.track_changes,
+      Icons.person,
+    ].map((icon) => _construirNavigationBarItem(icon)).toList();
   }
 
   Widget _construirNavigationBarItem(IconData icon) {
@@ -84,42 +88,103 @@ class PantallaPrincipal extends StatelessWidget {
   }
 }
 
-class PantallaPrincipalContent extends StatelessWidget {
+class PantallaPrincipalContent extends StatefulWidget {
+  @override
+  _PantallaPrincipalContentState createState() =>
+      _PantallaPrincipalContentState();
+}
+
+class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
+  late Map<String, dynamic> _fraseAleatoria = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _obtenerFraseAleatoria();
+    // Configurar el temporizador para obtener una nueva frase cada 24 horas
+    Timer.periodic(Duration(hours: 24), (timer) {
+      _obtenerFraseAleatoria();
+    });
+  }
+
+Future<void> _obtenerFraseAleatoria() async {
+  try {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? fraseGuardada = prefs.getString('frase');
+    final String? autorGuardado = prefs.getString('autor');
+    final String? fechaGuardada = prefs.getString('fecha');
+
+    if (fraseGuardada != null && autorGuardado != null && fechaGuardada != null) {
+      final DateTime fechaObtenida = DateTime.parse(fechaGuardada);
+      final DateTime fechaActual = DateTime.now();
+
+      if (fechaActual.difference(fechaObtenida).inDays < 1) {
+        setState(() {
+          _fraseAleatoria = {
+            'frase': fraseGuardada,
+            'autor': autorGuardado,
+          };
+        });
+        return;
+      }
+    }
+
+    // Si no hay frase guardada o ha pasado más de un día, obtenemos una nueva frase aleatoria
+    Map<String, dynamic> frase = await FrasesMotivacionales.obtenerFraseAleatoria();
+    await prefs.setString('frase', frase['frase']);
+    await prefs.setString('autor', frase['autor']);
+    await prefs.setString('fecha', DateTime.now().toIso8601String());
+
+    setState(() {
+      _fraseAleatoria = frase;
+    });
+  } catch (error) {
+    print(error);
+  }
+}
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: AuthService.getUserName(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error al obtener el nombre de usuario'));
-        } else {
-          final userName = snapshot.data ?? 'Usuario';
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 30),
-                  _construirTextoBienvenida(userName),
-                  _construirTextoSentimientos(),
-                  _construirFilaIconosSentimientos(),
-                  const Text(
-                    'Frase de hoy',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textColor),
-                  ),
-                  _construirFutureBuilder(),
-                ],
-              ),
+    return _buildContent();
+  }
+
+  Widget _buildContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 30),
+          FutureBuilder<String?>(
+            future: AuthService.getUserName(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator(); // O cualquier otro indicador de carga
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+              final userName = snapshot.data ?? 'Usuario';
+              return _construirTextoBienvenida(userName);
+            },
+          ),
+          _construirTextoSentimientos(),
+          _construirFilaIconosSentimientos(),
+          const Text(
+            'Frase de hoy',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textColor,
             ),
-          );
-        }
-      },
+          ),
+          if (_fraseAleatoria['frase'] != null)
+            Container(
+              child: _construirFraseDelDia(
+                  _fraseAleatoria['frase'], _fraseAleatoria['autor']),
+            ),
+        ],
+      ),
     );
   }
 
@@ -139,9 +204,10 @@ class PantallaPrincipalContent extends StatelessWidget {
       child: Text(
         '¿Cómo te sientes hoy?',
         style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textColor),
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textColor,
+        ),
       ),
     );
   }
@@ -183,50 +249,6 @@ class PantallaPrincipalContent extends StatelessWidget {
     );
   }
 
-  Widget _construirFutureBuilder() {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: ApiFraseDiaria.fetchData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _construirIndicadorProgreso();
-        } else if (snapshot.hasError) {
-          if (kDebugMode) {
-            print(snapshot.error);
-          }
-          return _construirTextoError('Error al cargar la frase del día');
-        } else {
-          final frase = snapshot.data!['quote'];
-          final autor = snapshot.data!['author'];
-          return _traducirFrase(frase, autor);
-        }
-      },
-    );
-  }
-
-  Widget _construirIndicadorProgreso() {
-    return const CircularProgressIndicator();
-  }
-
-  Widget _construirTextoError(String mensaje) {
-    return Text(mensaje);
-  }
-
-  Widget _traducirFrase(String frase, String autor) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: ApiTraductor.traducirFrase(frase),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _construirIndicadorProgreso();
-        } else if (snapshot.hasError) {
-          return _construirTextoError('Error al traducir la frase');
-        } else {
-          final fraseTraducida = snapshot.data!['data']['translatedText'];
-          return _construirFraseDelDia(fraseTraducida, autor);
-        }
-      },
-    );
-  }
-
   Widget _construirFraseDelDia(String fraseDelDia, String autor) {
     return SizedBox(
       child: Center(
@@ -243,9 +265,10 @@ class PantallaPrincipalContent extends StatelessWidget {
               Text(
                 fraseDelDia,
                 style: const TextStyle(
-                    color: AppColors.textColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
+                  color: AppColors.textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               Row(
@@ -254,10 +277,11 @@ class PantallaPrincipalContent extends StatelessWidget {
                   Text(
                     "-$autor",
                     style: const TextStyle(
-                        color: Color.fromARGB(255, 98, 168, 233),
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic),
+                      color: Color.fromARGB(255, 98, 168, 233),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ],
               ),
@@ -329,50 +353,44 @@ Drawer _menu_lateral(BuildContext context, String nombreUsuario) {
             nombreUsuario,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 20,
             ),
           ),
         ),
         ListTile(
           title: const Text('Configuración'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Psicólogo'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Cuenta'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Libros'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Podcast'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
           title: const Text('Nutricion'),
           onTap: () {
-            // Puedes agregar lógica adicional aquí si es necesario
-            Navigator.pop(context); // Cierra el Drawer
+            Navigator.pop(context);
           },
         ),
         ListTile(
