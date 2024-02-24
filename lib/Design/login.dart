@@ -156,19 +156,12 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         loginwith(
-                          rute: 'assets/iconos/google.png',
+                          text: "Logueate con google",
+                          route: 'assets/iconos/google.png',
                           onTap: () {
                             _auth.signInGoogle(context);
                           },
                         ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        loginwith(
-                            rute: 'assets/iconos/facebook.png',
-                            onTap: () {
-                              _auth.signInWithFacebook(context);
-                            }),
                       ],
                     ),
                     const SizedBox(height: 40),
