@@ -1,14 +1,95 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Design/booksPage.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:share/share.dart';
 import '../Colors/colors.dart';
 import '../services/frases_motivacionales.dart';
 import './chat.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MenuLateral extends StatelessWidget {
+  final String nombreUsuario;
+
+  const MenuLateral({Key? key, required this.nombreUsuario}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text(
+              nombreUsuario,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text('Configuración'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Psicólogo'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Cuenta'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Libros'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookListScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Podcast'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Nutricion'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Salir'),
+            onTap: () {
+              FirebaseAuth.instance.signOut();
+              signOutFromGoogle();
+              Navigator.pushNamed(context, '/login');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -46,7 +127,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _construirAppBar(context),
-      drawer: _menu_lateral(context, _nombreUsuario),
+      drawer: MenuLateral(nombreUsuario: _nombreUsuario),
       body: _pages[_selectedTab],
       bottomNavigationBar: CurvedNavigationBar(
         index: _selectedTab,
@@ -107,41 +188,44 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
     });
   }
 
-Future<void> _obtenerFraseAleatoria() async {
-  try {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? fraseGuardada = prefs.getString('frase');
-    final String? autorGuardado = prefs.getString('autor');
-    final String? fechaGuardada = prefs.getString('fecha');
+  Future<void> _obtenerFraseAleatoria() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? fraseGuardada = prefs.getString('frase');
+      final String? autorGuardado = prefs.getString('autor');
+      final String? fechaGuardada = prefs.getString('fecha');
 
-    if (fraseGuardada != null && autorGuardado != null && fechaGuardada != null) {
-      final DateTime fechaObtenida = DateTime.parse(fechaGuardada);
-      final DateTime fechaActual = DateTime.now();
+      if (fraseGuardada != null &&
+          autorGuardado != null &&
+          fechaGuardada != null) {
+        final DateTime fechaObtenida = DateTime.parse(fechaGuardada);
+        final DateTime fechaActual = DateTime.now();
 
-      if (fechaActual.difference(fechaObtenida).inDays < 1) {
-        setState(() {
-          _fraseAleatoria = {
-            'frase': fraseGuardada,
-            'autor': autorGuardado,
-          };
-        });
-        return;
+        if (fechaActual.difference(fechaObtenida).inDays < 1) {
+          setState(() {
+            _fraseAleatoria = {
+              'frase': fraseGuardada,
+              'autor': autorGuardado,
+            };
+          });
+          return;
+        }
       }
+
+      // Si no hay frase guardada o ha pasado más de un día, obtenemos una nueva frase aleatoria
+      Map<String, dynamic> frase =
+          await FrasesMotivacionales.obtenerFraseAleatoria();
+      await prefs.setString('frase', frase['frase']);
+      await prefs.setString('autor', frase['autor']);
+      await prefs.setString('fecha', DateTime.now().toIso8601String());
+
+      setState(() {
+        _fraseAleatoria = frase;
+      });
+    } catch (error) {
+      print(error);
     }
-
-    // Si no hay frase guardada o ha pasado más de un día, obtenemos una nueva frase aleatoria
-    Map<String, dynamic> frase = await FrasesMotivacionales.obtenerFraseAleatoria();
-    await prefs.setString('frase', frase['frase']);
-    await prefs.setString('autor', frase['autor']);
-    await prefs.setString('fecha', DateTime.now().toIso8601String());
-
-    setState(() {
-      _fraseAleatoria = frase;
-    });
-  } catch (error) {
-    print(error);
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +243,10 @@ Future<void> _obtenerFraseAleatoria() async {
             future: AuthService.getUserName(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator(); // O cualquier otro indicador de carga
+                return SpinKitFadingCircle(
+                  color: Colors.blueGrey,
+                  size: 50.0,
+                ); // O cualquier otro indicador de carga
               }
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
@@ -341,70 +428,70 @@ AppBar _construirAppBar(BuildContext context) {
   );
 }
 
-Drawer _menu_lateral(BuildContext context, String nombreUsuario) {
-  return Drawer(
-    child: ListView(
-      children: <Widget>[
-        DrawerHeader(
-          decoration: BoxDecoration(
-            color: Colors.blue,
-          ),
-          child: Text(
-            nombreUsuario,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-            ),
-          ),
-        ),
-        ListTile(
-          title: const Text('Configuración'),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: const Text('Psicólogo'),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: const Text('Cuenta'),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: const Text('Libros'),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: const Text('Podcast'),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: const Text('Nutricion'),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: const Text('Salir'),
-          onTap: () {
-            FirebaseAuth.instance.signOut();
-            signOutFromGoogle();
-            Navigator.pushNamed(context, '/login');
-          },
-        ),
-      ],
-    ),
-  );
-}
+// Drawer _menu_lateral(BuildContext context, String nombreUsuario) {
+//   return Drawer(
+//     child: ListView(
+//       children: <Widget>[
+//         DrawerHeader(
+//           decoration: BoxDecoration(
+//             color: Colors.blue,
+//           ),
+//           child: Text(
+//             nombreUsuario,
+//             style: const TextStyle(
+//               color: Colors.white,
+//               fontSize: 20,
+//             ),
+//           ),
+//         ),
+//         ListTile(
+//           title: const Text('Configuración'),
+//           onTap: () {
+//             Navigator.pop(context);
+//           },
+//         ),
+//         ListTile(
+//           title: const Text('Psicólogo'),
+//           onTap: () {
+//             Navigator.pop(context);
+//           },
+//         ),
+//         ListTile(
+//           title: const Text('Cuenta'),
+//           onTap: () {
+//             Navigator.pop(context);
+//           },
+//         ),
+//         ListTile(
+//           title: const Text('Libros'),
+//           onTap: () {
+//             Navigator.pop(context);
+//           },
+//         ),
+//         ListTile(
+//           title: const Text('Podcast'),
+//           onTap: () {
+//             Navigator.pop(context);
+//           },
+//         ),
+//         ListTile(
+//           title: const Text('Nutricion'),
+//           onTap: () {
+//             Navigator.pop(context);
+//           },
+//         ),
+//         ListTile(
+//           title: const Text('Salir'),
+//           onTap: () {
+//             FirebaseAuth.instance.signOut();
+//             signOutFromGoogle();
+//             Navigator.pushNamed(context, '/login');
+//           },
+//         ),
+//       ],
+//     ),
+//   );
+// }
 
 void signOutFromGoogle() async {
   GoogleSignIn googleSignIn = GoogleSignIn();

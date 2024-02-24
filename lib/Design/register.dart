@@ -187,7 +187,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
           birthday: birthdayController.text,
           file: image!,
         );
-        await UserRep().createUser(user);
+        await UserRep().createUserWithEmailAndPassword(user);
         // Mostrar el diálogo de éxito
         AwesomeDialog(
           context: context,

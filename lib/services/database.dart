@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/UserModel.dart';
 import 'package:get/get.dart';
@@ -28,17 +29,30 @@ Future<bool> checkIfUserExists(String email) async {
 
 class UserRep extends GetxController {
   static UserRep get instance => Get.find();
-  Future<void> createUser(UserModel user) async {
+  Future<void> createUserWithEmailAndPassword(UserModel user) async {
     try {
+      // Crear usuario en Firebase Authentication
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: user.email,
+        password: user.password,
+      );
+
+      // Obtener el ID del usuario generado por Firebase Authentication
+      String userId = userCredential.user!.uid;
+
+      // Subir la imagen de perfil a Firebase Storage y obtener su URL
       String imageUrl =
           await user.uploadImageStorage('ImagenDePerfil', user.file);
-      await db.add({
-        "fullname": user.name + ' ' + user.lastname,
+
+      // Crear un nuevo documento en Firestore con el ID de usuario como ID de documento
+      await db.doc(userId).set({
+        "name": user.name + ' ' + user.lastname,
         'email': user.email,
-        'password': user.password,
         'birthday': user.birthday,
-        'Imagelink': imageUrl,
+        'imageLink': imageUrl,
       });
+
       Get.snackbar(
         "LOGRADO",
         "Tu cuenta ha sido creada correctamente",
@@ -49,12 +63,12 @@ class UserRep extends GetxController {
     } catch (error) {
       Get.snackbar(
         "Error",
-        "Ha ocurrido un error, intentalo de nuevo",
+        "Ha ocurrido un error al crear la cuenta: $error",
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent.withOpacity(0.1),
         colorText: Colors.red,
       );
-      print(error.toString());
+      print('Error al crear la cuenta: $error');
     }
   }
 }
