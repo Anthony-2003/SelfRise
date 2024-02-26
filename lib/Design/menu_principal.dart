@@ -7,6 +7,7 @@ import 'package:share/share.dart';
 import '../Colors/colors.dart';
 import '../services/frases_motivacionales.dart';
 import './chat.dart';
+import 'habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -38,7 +39,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
     PantallaPrincipal(),
     PantallaChat(),
     PantallaAsignaciones(),
-    PantallaSeguimientoCambios(),
+    PantallaSeguimientoHabitos(),
     PantallaPerfil(),
   ];
 
@@ -317,14 +318,7 @@ class PantallaAsignaciones extends StatelessWidget {
   }
 }
 
-class PantallaSeguimientoCambios extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Pantalla de Seguimiento de Cambios'),
-    );
-  }
-}
+
 
 class PantallaPerfil extends StatelessWidget {
   @override

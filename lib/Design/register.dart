@@ -178,6 +178,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
   void _registerUser() async {
     if (_formKey.currentState!.validate()) {
+      print('xd 1');
       try {
         final user = UserModel(
           email: emailController.text.trim(),
@@ -188,7 +189,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
           file: image!,
         );
         await UserRep().createUser(user);
-        // Mostrar el diálogo de éxito
+        
+        print('xd 2');
         AwesomeDialog(
           context: context,
           dialogType: DialogType.success,
@@ -231,6 +233,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
         ));
       }
     }
+
+      print('xd 3');
   }
 
   List<Step> getSteps() => [
