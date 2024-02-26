@@ -103,6 +103,7 @@ class PantallaChat extends StatelessWidget {
     required String message,
     required String senderName,
     required String? userPhotoUrl,
+    dynamic Function()? onTap,
   }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),

@@ -92,9 +92,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                       setState(() => isComplete = true);
                       _registerUser();
                     },
-                    btnCancelOnPress: () {
-                      Navigator.of(context).pop();
-                    },
+                    btnCancelOnPress: () {},
                     desc: "¿Estás seguro que quieres registrar este usuario?",
                     descTextStyle: TextStyle(
                       color: Colors.white,
@@ -202,7 +200,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
           ),
           reverseBtnOrder: true,
           btnOkOnPress: () {
-            Navigator.of(context).pop();
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
