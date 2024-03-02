@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Colors/colors.dart';
+import 'package:rive/rive.dart';
 
 class ButtonsLogin extends StatelessWidget {
   final Function()? ontap;
@@ -102,5 +103,49 @@ class CustomBackButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+//BOTON DE MENU
+class menubtn extends StatelessWidget {
+  const menubtn({
+    super.key,
+    required this.press,
+    required this.riveOnInit,
+  });
+
+  final VoidCallback press;
+  final ValueChanged<Artboard> riveOnInit;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+        child: GestureDetector(
+      onTap: press,
+      child: Container(
+        margin: const EdgeInsets.only(left: 20, top: 10),
+        height: 45,
+        width: 45,
+        decoration: const BoxDecoration(
+            color: AppColors.buttonCoLor,
+            shape: BoxShape.circle,
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromARGB(94, 3, 3, 3),
+                offset: Offset(0, 3),
+                blurRadius: 8,
+              )
+            ]),
+        child: Center(
+          child: Transform.scale(
+            scale: 0.7, // Ajusta este valor según sea necesario
+            child: RiveAnimation.asset(
+              "assets/icon-menu/menu_button.riv",
+              onInit: riveOnInit,
+            ),
+          ),
+        ),
+      ),
+    ));
   }
 }

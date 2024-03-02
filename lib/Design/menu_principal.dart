@@ -1,95 +1,20 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Design/booksPage.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_proyecto_final/Design/drawer_menu.dart';
+import 'package:flutter_proyecto_final/components/buttons.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:rive/rive.dart';
 import 'package:share/share.dart';
 import '../Colors/colors.dart';
 import '../services/frases_motivacionales.dart';
 import './chat.dart';
-import 'habitos.dart';
+import './habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class MenuLateral extends StatelessWidget {
-  final String nombreUsuario;
-
-  const MenuLateral({Key? key, required this.nombreUsuario}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-            child: Text(
-              nombreUsuario,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-              ),
-            ),
-          ),
-          ListTile(
-            title: const Text('Configuración'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Psicólogo'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Cuenta'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Libros'),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BookListScreen(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Podcast'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Nutricion'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Salir'),
-            onTap: () {
-              FirebaseAuth.instance.signOut();
-              signOutFromGoogle();
-              Navigator.pushNamed(context, '/login');
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
+import 'package:flutter_proyecto_final/components/rive_utils.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -98,14 +23,40 @@ class PantallaMenuPrincipal extends StatefulWidget {
   _PantallaMenuPrincipalState createState() => _PantallaMenuPrincipalState();
 }
 
-class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
+class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
+    with SingleTickerProviderStateMixin {
+  late SMIBool isSideBarClosed;
+  bool isSideMenuClose = true;
+
+  late AnimationController _animationController;
+  late Animation<double> animation;
+  late Animation<double> scalAnimation;
+
   int _selectedTab = 0;
   late String _nombreUsuario = '';
 
   @override
   void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    )..addListener(() {
+        setState(() {});
+      });
+
+    animation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+        parent: _animationController, curve: Curves.fastOutSlowIn));
+
+    scalAnimation = Tween<double>(begin: 1, end: 0.8).animate(CurvedAnimation(
+        parent: _animationController, curve: Curves.fastOutSlowIn));
     super.initState();
     obtenerNombreUsuario();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> obtenerNombreUsuario() async {
@@ -126,21 +77,89 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _construirAppBar(context),
-      drawer: MenuLateral(nombreUsuario: _nombreUsuario),
-      body: _pages[_selectedTab],
-      bottomNavigationBar: CurvedNavigationBar(
-        index: _selectedTab,
-        height: 50,
-        items: _construirNavigationBarItems(),
-        backgroundColor: Colors.white,
-        color: const Color.fromARGB(255, 104, 174, 240),
-        animationDuration: const Duration(milliseconds: 300),
-        onTap: (int index) {
-          setState(() {
-            _selectedTab = index;
-          });
-        },
+      backgroundColor: AppColors.drawer,
+      body: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 200),
+            curve: Curves.fastOutSlowIn,
+            width: 288,
+            left: isSideMenuClose ? -288 : 0,
+            height: MediaQuery.of(context).size.height,
+            child: DrawerMenu(),
+          ),
+          Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateY(animation.value - 30 * animation.value * pi / 180),
+            child: Transform.translate(
+                offset: Offset(animation.value * 265, 0),
+                child: Transform.scale(
+                    scale: scalAnimation.value,
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(24)),
+                        child: _pages[_selectedTab]))),
+          ),
+
+          // Button animado
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 200),
+            left: isSideMenuClose ? 0 : 220,
+            top: 16,
+            child: menubtn(
+              riveOnInit: (artboard) {
+                StateMachineController controller = RiveUtils.getRiveController(
+                    artboard,
+                    stateMachineName: "Morph");
+                isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
+                isSideBarClosed.value = true;
+              },
+              press: () {
+                isSideBarClosed.value = !isSideBarClosed.value;
+                if (isSideMenuClose) {
+                  _animationController.forward();
+
+                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                    statusBarColor: AppColors.drawer,
+                    systemNavigationBarIconBrightness: Brightness.light,
+                    systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
+                  ));
+                } else {
+                  _animationController.reverse();
+                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                    statusBarColor: Color.fromARGB(255, 191, 188, 191),
+                    systemNavigationBarIconBrightness: Brightness.light,
+                    systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
+                  ));
+                }
+                setState(() {
+                  isSideMenuClose = isSideBarClosed.value;
+                });
+              },
+            ),
+          ),
+          // Barra de navegación curvada
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Transform.translate(
+              offset: Offset(0, 150 * animation.value),
+              child: CurvedNavigationBar(
+                index: _selectedTab,
+                height: 50,
+                items: _construirNavigationBarItems(),
+                backgroundColor: Colors.transparent,
+                color: Colors.blue, // Cambia esto al color que desees
+                animationDuration: const Duration(milliseconds: 300),
+                onTap: (int index) {
+                  setState(() {
+                    _selectedTab = index;
+                  });
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -234,7 +253,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
 
   Widget _buildContent() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+      padding: EdgeInsets.fromLTRB(15, 80, 15, 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -243,10 +262,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
             future: AuthService.getUserName(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return SpinKitFadingCircle(
-                  color: Colors.blueGrey,
-                  size: 50.0,
-                ); // O cualquier otro indicador de carga
+                return CircularProgressIndicator(); // O cualquier otro indicador de carga
               }
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
@@ -280,7 +296,10 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
       padding: const EdgeInsets.only(bottom: 15.0),
       child: Text(
         '¡Hola, $userName!',
-        style: TextStyle(fontSize: 25, color: AppColors.textColor),
+        style: TextStyle(
+          fontSize: 25,
+          color: AppColors.textColor,
+        ),
       ),
     );
   }
@@ -404,8 +423,6 @@ class PantallaAsignaciones extends StatelessWidget {
   }
 }
 
-
-
 class PantallaPerfil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -414,77 +431,6 @@ class PantallaPerfil extends StatelessWidget {
     );
   }
 }
-
-AppBar _construirAppBar(BuildContext context) {
-  return AppBar(
-    iconTheme: IconThemeData(color: AppColors.textColor, size: 40),
-  );
-}
-
-// Drawer _menu_lateral(BuildContext context, String nombreUsuario) {
-//   return Drawer(
-//     child: ListView(
-//       children: <Widget>[
-//         DrawerHeader(
-//           decoration: BoxDecoration(
-//             color: Colors.blue,
-//           ),
-//           child: Text(
-//             nombreUsuario,
-//             style: const TextStyle(
-//               color: Colors.white,
-//               fontSize: 20,
-//             ),
-//           ),
-//         ),
-//         ListTile(
-//           title: const Text('Configuración'),
-//           onTap: () {
-//             Navigator.pop(context);
-//           },
-//         ),
-//         ListTile(
-//           title: const Text('Psicólogo'),
-//           onTap: () {
-//             Navigator.pop(context);
-//           },
-//         ),
-//         ListTile(
-//           title: const Text('Cuenta'),
-//           onTap: () {
-//             Navigator.pop(context);
-//           },
-//         ),
-//         ListTile(
-//           title: const Text('Libros'),
-//           onTap: () {
-//             Navigator.pop(context);
-//           },
-//         ),
-//         ListTile(
-//           title: const Text('Podcast'),
-//           onTap: () {
-//             Navigator.pop(context);
-//           },
-//         ),
-//         ListTile(
-//           title: const Text('Nutricion'),
-//           onTap: () {
-//             Navigator.pop(context);
-//           },
-//         ),
-//         ListTile(
-//           title: const Text('Salir'),
-//           onTap: () {
-//             FirebaseAuth.instance.signOut();
-//             signOutFromGoogle();
-//             Navigator.pushNamed(context, '/login');
-//           },
-//         ),
-//       ],
-//     ),
-//   );
-// }
 
 void signOutFromGoogle() async {
   GoogleSignIn googleSignIn = GoogleSignIn();
