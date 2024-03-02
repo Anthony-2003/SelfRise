@@ -49,7 +49,7 @@ dependencies:
   datetime_picker_formfield: ^2.0.1
   uuid: ^4.3.3
   flutter_image_compress: ^2.1.0
-  map_location_picker: ^0.0.1
+  rive: ^0.12.4
 
 
 
@@ -92,6 +92,8 @@ flutter:
    - assets/
    - assets/imagenes/
    - assets/iconos/
+   - assets/icon-menu/
+   - lib/data/frases_motivacionales.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

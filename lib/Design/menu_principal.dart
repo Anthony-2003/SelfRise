@@ -1,14 +1,20 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Design/drawer_menu.dart';
+import 'package:flutter_proyecto_final/components/buttons.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
+import 'package:rive/rive.dart';
 import 'package:share/share.dart';
-import 'package:flutter/foundation.dart';
 import '../Colors/colors.dart';
-import '../services/api_frase_diaria.dart';
-import '../services/api_traductor.dart';
+import '../services/frases_motivacionales.dart';
 import './chat.dart';
+//import './habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_proyecto_final/components/rive_utils.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -17,14 +23,40 @@ class PantallaMenuPrincipal extends StatefulWidget {
   _PantallaMenuPrincipalState createState() => _PantallaMenuPrincipalState();
 }
 
-class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
+class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
+    with SingleTickerProviderStateMixin {
+  late SMIBool isSideBarClosed;
+  bool isSideMenuClose = true;
+
+  late AnimationController _animationController;
+  late Animation<double> animation;
+  late Animation<double> scalAnimation;
+
   int _selectedTab = 0;
   late String _nombreUsuario = '';
 
   @override
   void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    )..addListener(() {
+        setState(() {});
+      });
+
+    animation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+        parent: _animationController, curve: Curves.fastOutSlowIn));
+
+    scalAnimation = Tween<double>(begin: 1, end: 0.8).animate(CurvedAnimation(
+        parent: _animationController, curve: Curves.fastOutSlowIn));
     super.initState();
     obtenerNombreUsuario();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> obtenerNombreUsuario() async {
@@ -38,36 +70,93 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal> {
     PantallaPrincipal(),
     PantallaChat(),
     PantallaAsignaciones(),
-    PantallaSeguimientoCambios(),
+    //PantallaSeguimientoHabitos(),
     PantallaPerfil(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _construirAppBar(context), // Agrega el AppBar
-      drawer: _menu_lateral(context, _nombreUsuario),
-      body: _pages[_selectedTab],
-      bottomNavigationBar: CurvedNavigationBar(
-        index: _selectedTab,
-        height: 50,
-        items: <Widget>[
-          _construirNavigationBarItem(Icons.home),
-          _construirNavigationBarItem(Icons.chat),
-          _construirNavigationBarItem(Icons.assignment),
-          _construirNavigationBarItem(Icons.track_changes),
-          _construirNavigationBarItem(Icons.person),
+      backgroundColor: AppColors.drawer,
+      body: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 200),
+            curve: Curves.fastOutSlowIn,
+            width: 288,
+            left: isSideMenuClose ? -288 : 0,
+            height: MediaQuery.of(context).size.height,
+            child: DrawerMenu(),
+          ),
+          Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateY(animation.value - 30 * animation.value * pi / 180),
+            child: Transform.translate(
+                offset: Offset(animation.value * 265, 0),
+                child: Transform.scale(
+                    scale: scalAnimation.value,
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(24)),
+                        child: _pages[_selectedTab]))),
+          ),
+
+          // Button animado
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 200),
+            left: isSideMenuClose ? 0 : 220,
+            top: 16,
+            child: menubtn(
+              riveOnInit: (artboard) {
+                StateMachineController controller = RiveUtils.getRiveController(
+                    artboard,
+                    stateMachineName: "Morph");
+                isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
+                isSideBarClosed.value = true;
+              },
+              press: () {
+                isSideBarClosed.value = !isSideBarClosed.value;
+                if (isSideMenuClose) {
+                  _animationController.forward();
+                } else {
+                  _animationController.reverse();
+                }
+                setState(() {
+                  isSideMenuClose = isSideBarClosed.value;
+                });
+              },
+            ),
+          ),
         ],
-        backgroundColor: Colors.white,
-        color: const Color.fromARGB(255, 104, 174, 240),
-        animationDuration: const Duration(milliseconds: 300),
-        onTap: (int index) {
-          setState(() {
-            _selectedTab = index;
-          });
-        },
+      ),
+      bottomNavigationBar: Transform.translate(
+        offset: Offset(0, 150 * animation.value),
+        child: CurvedNavigationBar(
+          index: _selectedTab,
+          height: 50,
+          items: _construirNavigationBarItems(),
+          backgroundColor: AppColors.appcolor,
+          color: const Color.fromARGB(255, 104, 174, 240),
+          animationDuration: const Duration(milliseconds: 300),
+          onTap: (int index) {
+            setState(() {
+              _selectedTab = index;
+            });
+          },
+        ),
       ),
     );
+  }
+
+  List<Widget> _construirNavigationBarItems() {
+    return [
+      Icons.home,
+      Icons.chat,
+      Icons.assignment,
+      Icons.track_changes,
+      Icons.person,
+    ].map((icon) => _construirNavigationBarItem(icon)).toList();
   }
 
   Widget _construirNavigationBarItem(IconData icon) {
@@ -79,50 +168,123 @@ class PantallaPrincipal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 30),
-              _construirBotonMenu(),
-              _construirTextoBienvenida(),
-              _construirTextoSentimientos(),
-              _construirFilaIconosSentimientos(),
-              const Text(
-                'Frase de hoy',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor),
-              ),
-              _construirFutureBuilder(),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: _construirNavigationBarInferior(),
+      body: PantallaPrincipalContent(),
     );
   }
+}
 
-  Widget _construirBotonMenu() {
+class PantallaPrincipalContent extends StatefulWidget {
+  @override
+  _PantallaPrincipalContentState createState() =>
+      _PantallaPrincipalContentState();
+}
+
+class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
+  late Map<String, dynamic> _fraseAleatoria = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _obtenerFraseAleatoria();
+    // Configurar el temporizador para obtener una nueva frase cada 24 horas
+    Timer.periodic(Duration(hours: 24), (timer) {
+      _obtenerFraseAleatoria();
+    });
+  }
+
+  Future<void> _obtenerFraseAleatoria() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? fraseGuardada = prefs.getString('frase');
+      final String? autorGuardado = prefs.getString('autor');
+      final String? fechaGuardada = prefs.getString('fecha');
+
+      if (fraseGuardada != null &&
+          autorGuardado != null &&
+          fechaGuardada != null) {
+        final DateTime fechaObtenida = DateTime.parse(fechaGuardada);
+        final DateTime fechaActual = DateTime.now();
+
+        if (fechaActual.difference(fechaObtenida).inDays < 1) {
+          setState(() {
+            _fraseAleatoria = {
+              'frase': fraseGuardada,
+              'autor': autorGuardado,
+            };
+          });
+          return;
+        }
+      }
+
+      // Si no hay frase guardada o ha pasado más de un día, obtenemos una nueva frase aleatoria
+      Map<String, dynamic> frase =
+          await FrasesMotivacionales.obtenerFraseAleatoria();
+      await prefs.setString('frase', frase['frase']);
+      await prefs.setString('autor', frase['autor']);
+      await prefs.setString('fecha', DateTime.now().toIso8601String());
+
+      setState(() {
+        _fraseAleatoria = frase;
+      });
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildContent();
+  }
+
+  Widget _buildContent() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: IconButton(
-        icon: const Icon(Icons.menu, size: 35, color: AppColors.textColor),
-        onPressed: () {},
-        key: const Key('menu_button'),
+      padding: EdgeInsets.fromLTRB(15, 80, 15, 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 30),
+          FutureBuilder<String?>(
+            future: AuthService.getUserName(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator(); // O cualquier otro indicador de carga
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+              final userName = snapshot.data ?? 'Usuario';
+              return _construirTextoBienvenida(userName);
+            },
+          ),
+          _construirTextoSentimientos(),
+          _construirFilaIconosSentimientos(),
+          const Text(
+            'Frase de hoy',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textColor,
+            ),
+          ),
+          if (_fraseAleatoria['frase'] != null)
+            Container(
+              child: _construirFraseDelDia(
+                  _fraseAleatoria['frase'], _fraseAleatoria['autor']),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _construirTextoBienvenida() {
-    return const Padding(
-      padding: EdgeInsets.only(bottom: 15.0),
+  Widget _construirTextoBienvenida(String userName) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15.0),
       child: Text(
         '¡Hola, $userName!',
-        style: TextStyle(fontSize: 25, color: AppColors.textColor),
+        style: TextStyle(
+          fontSize: 25,
+          color: AppColors.textColor,
+        ),
       ),
     );
   }
@@ -133,9 +295,10 @@ class PantallaPrincipal extends StatelessWidget {
       child: Text(
         '¿Cómo te sientes hoy?',
         style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textColor),
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textColor,
+        ),
       ),
     );
   }
@@ -177,79 +340,6 @@ class PantallaPrincipal extends StatelessWidget {
     );
   }
 
-  //HOLA FIRST COMMIT
-
-  Widget _construirNavigationBarInferior() {
-    return CurvedNavigationBar(
-      backgroundColor: Colors.white,
-      color: const Color.fromARGB(255, 104, 174, 240),
-      animationDuration: const Duration(milliseconds: 300),
-      height: 50,
-      items: <Widget>[
-        _construirNavigationBarItem(Icons.home),
-        _construirNavigationBarItem(Icons.chat),
-        _construirNavigationBarItem(Icons.assignment),
-        _construirNavigationBarItem(Icons.track_changes),
-        _construirNavigationBarItem(Icons.person),
-      ],
-    );
-  }
-
-  Widget _construirNavigationBarItem(IconData icon) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, size: 30),
-        const SizedBox(height: 4),
-      ],
-    );
-  }
-
-  Widget _construirFutureBuilder() {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: ApiFraseDiaria.fetchData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _construirIndicadorProgreso();
-        } else if (snapshot.hasError) {
-          if (kDebugMode) {
-            print(snapshot.error);
-          }
-          return _construirTextoError('Error al cargar la frase del día');
-        } else {
-          final frase = snapshot.data!['quote'];
-          final autor = snapshot.data!['author'];
-          return _traducirFrase(frase, autor);
-        }
-      },
-    );
-  }
-
-  Widget _construirIndicadorProgreso() {
-    return const CircularProgressIndicator();
-  }
-
-  Widget _construirTextoError(String mensaje) {
-    return Text(mensaje);
-  }
-
-  Widget _traducirFrase(String frase, String autor) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: ApiTraductor.traducirFrase(frase),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _construirIndicadorProgreso();
-        } else if (snapshot.hasError) {
-          return _construirTextoError('Error al traducir la frase');
-        } else {
-          final fraseTraducida = snapshot.data!['data']['translatedText'];
-          return _construirFraseDelDia(fraseTraducida, autor);
-        }
-      },
-    );
-  }
-
   Widget _construirFraseDelDia(String fraseDelDia, String autor) {
     return SizedBox(
       child: Center(
@@ -266,9 +356,10 @@ class PantallaPrincipal extends StatelessWidget {
               Text(
                 fraseDelDia,
                 style: const TextStyle(
-                    color: AppColors.textColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
+                  color: AppColors.textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               Row(
@@ -277,10 +368,11 @@ class PantallaPrincipal extends StatelessWidget {
                   Text(
                     "-$autor",
                     style: const TextStyle(
-                        color: Color.fromARGB(255, 98, 168, 233),
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic),
+                      color: Color.fromARGB(255, 98, 168, 233),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ],
               ),
@@ -302,10 +394,35 @@ class PantallaPrincipal extends StatelessWidget {
     );
   }
 
-//METODOS
-
-//comparti frase
   void _compartirFrase(String texto, String autor) {
     Share.share("$texto\n-$autor", subject: 'Compartir frase del día');
   }
+}
+
+class PantallaAsignaciones extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('Pantalla de Asignaciones'),
+    );
+  }
+}
+
+class PantallaPerfil extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('Pantalla de Perfil'),
+    );
+  }
+}
+
+//BOTON ELIMINAR
+/*FirebaseAuth.instance.signOut();
+  signOutFromGoogle();
+  Navigator.pushNamed(context, '/login');*/
+
+void signOutFromGoogle() async {
+  GoogleSignIn googleSignIn = GoogleSignIn();
+  await googleSignIn.signOut();
 }
