@@ -20,12 +20,6 @@ void main() async {
   );
   Get.put(UserRep());
   runApp(MyApp());
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: AppColors.drawer,
-    systemNavigationBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: AppColors
-        .white, // Puedes ajustar el color de fondo según tus necesidades
-  ));
 }
 
 class MyApp extends StatelessWidget {

@@ -124,7 +124,7 @@ class menubtn extends StatelessWidget {
         child: GestureDetector(
       onTap: press,
       child: Container(
-        margin: const EdgeInsets.only(left: 20, top: 15),
+        margin: const EdgeInsets.only(left: 20, top: 10),
         height: 45,
         width: 45,
         decoration: const BoxDecoration(

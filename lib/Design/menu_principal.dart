@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_proyecto_final/Design/drawer_menu.dart';
 import 'package:flutter_proyecto_final/components/buttons.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
@@ -119,8 +120,19 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 isSideBarClosed.value = !isSideBarClosed.value;
                 if (isSideMenuClose) {
                   _animationController.forward();
+
+                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                    statusBarColor: AppColors.drawer,
+                    systemNavigationBarIconBrightness: Brightness.light,
+                    systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
+                  ));
                 } else {
                   _animationController.reverse();
+                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                    statusBarColor: Color.fromARGB(255, 191, 188, 191),
+                    systemNavigationBarIconBrightness: Brightness.light,
+                    systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
+                  ));
                 }
                 setState(() {
                   isSideMenuClose = isSideBarClosed.value;
@@ -128,23 +140,27 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
               },
             ),
           ),
+          // Barra de navegación curvada
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Transform.translate(
+              offset: Offset(0, 150 * animation.value),
+              child: CurvedNavigationBar(
+                index: _selectedTab,
+                height: 50,
+                items: _construirNavigationBarItems(),
+                backgroundColor: Colors.transparent,
+                color: Colors.blue, // Cambia esto al color que desees
+                animationDuration: const Duration(milliseconds: 300),
+                onTap: (int index) {
+                  setState(() {
+                    _selectedTab = index;
+                  });
+                },
+              ),
+            ),
+          ),
         ],
-      ),
-      bottomNavigationBar: Transform.translate(
-        offset: Offset(0, 150 * animation.value),
-        child: CurvedNavigationBar(
-          index: _selectedTab,
-          height: 50,
-          items: _construirNavigationBarItems(),
-          backgroundColor: AppColors.appcolor,
-          color: const Color.fromARGB(255, 104, 174, 240),
-          animationDuration: const Duration(milliseconds: 300),
-          onTap: (int index) {
-            setState(() {
-              _selectedTab = index;
-            });
-          },
-        ),
       ),
     );
   }
@@ -416,11 +432,6 @@ class PantallaPerfil extends StatelessWidget {
     );
   }
 }
-
-//BOTON ELIMINAR
-/*FirebaseAuth.instance.signOut();
-  signOutFromGoogle();
-  Navigator.pushNamed(context, '/login');*/
 
 void signOutFromGoogle() async {
   GoogleSignIn googleSignIn = GoogleSignIn();
