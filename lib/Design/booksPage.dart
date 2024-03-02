@@ -14,14 +14,7 @@ class BookListScreen extends StatefulWidget {
 
   @override
   State<BookListScreen> createState() => _BookListScreenState();
-
-  static void updateFavoriteList(BuildContext context) {
-    final _BookListScreenState? state =
-        context.findAncestorStateOfType<_BookListScreenState>();
-    state?._updateFavoriteList();
-  }
 }
-
 
 ImageProvider<Object>? _getImageProvider(String? thumbnailUrl) {
   if (thumbnailUrl != null &&
@@ -94,7 +87,7 @@ class Book {
   int get hashCode => title.hashCode ^ authors.hashCode ^ thumbnailUrl.hashCode;
 }
 
-class  _BookListScreenState extends State<BookListScreen> {
+class _BookListScreenState extends State<BookListScreen> {
   late Future<List<Book>> _futureBooks;
   final ScrollController _scrollController = ScrollController();
   final bookListController = BookListController.instance;
@@ -213,176 +206,234 @@ class  _BookListScreenState extends State<BookListScreen> {
     });
   }
 
+  PreferredSizeWidget? appBarCustom(String titulo) {
+    return AppBar(
+      centerTitle: true,
+      title: Text(
+        titulo,
+      ),
+      leading: GestureDetector(
+        onTap: () {
+          // Navigator.of(context).pop();
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: builder,
+          //   ),
+          // );
+          Navigator.pop(context);
+        },
+        child: Icon(Icons.arrow_back_ios_new_rounded),
+      ),
+      actions: <Widget>[
+        IconButton(
+          icon: Badge(
+            label:
+                favoritelength(_favoriteBooks.length) != _favoriteBooks.isEmpty
+                    ? Text('${favoritelength(_favoriteBooks.length)}')
+                    : Text('.'),
+            child: Icon(Icons.bookmark_border),
+          ),
+          tooltip: 'Libros favoritos',
+          onPressed: () async {
+            final removedBook = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FavoriteBookScreen(
+                  favoriteBooks: _favoriteBooks,
+                  onBookRemoved: (book) {
+                    setState(() {
+                      _favoriteBooks.remove(book);
+                      _isFavoriteList[_books.indexOf(book)] = false;
+                    });
+                    bookListController.notifyBookRemoved(book);
+                  },
+                  refreshCallback: () {
+                    setState(() {
+                      print("Refreshing favorite books list...");
+                      _favoriteBooks = List.from(_favoriteBooks);
+                      _updateFavoriteList();
+                    });
+                  },
+                ),
+              ),
+            );
+
+            if (removedBook != null) {
+              setState(() {
+                _favoriteBooks.remove(removedBook);
+                _isFavoriteList[_books.indexOf(removedBook)] = false;
+              });
+              _updateFavoriteList();
+            }
+          },
+        ),
+      ],
+      automaticallyImplyLeading: false,
+    );
+  }
+
+  GestureDetector favoriteButton(Book book, int index) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isFavoriteList[index] = !_isFavoriteList[index];
+          if (_isFavoriteList[index]) {
+            _favoriteBooks.add(book);
+          } else {
+            _favoriteBooks.remove(book);
+          }
+        });
+      },
+      child: Icon(
+        _isFavoriteList[index] ? Icons.star : Icons.star_border,
+        size: 32,
+        color: _isFavoriteList[index] ? Colors.yellow : null,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Libros recomendados',
-        ),
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PantallaMenuPrincipal(),
-              ),
-            );
-          },
-          child: Icon(Icons.arrow_back_ios_new_rounded),
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: Badge(
-              label: favoritelenght(_favoriteBooks.length) != null
-                  ? Text('${favoritelenght(_favoriteBooks.length)}')
-                  : null,
-              child: Icon(Icons.bookmark_border),
-            ),
-            tooltip: 'Libros favoritos',
-            onPressed: () async {
-              final removedBook = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FavoriteBookScreen(
-                    favoriteBooks: _favoriteBooks,
-                    onBookRemoved: (book) {
-                      setState(() {
-                        _favoriteBooks.remove(book);
-                        _isFavoriteList[_books.indexOf(book)] = false;
-                      });
-                      bookListController.notifyBookRemoved(book);
-                    },
-                    refreshCallback: () {
-                      setState(() {});
-                    },
-                  ),
-                ),
-              );
-
-              if (removedBook != null) {
-                setState(() {
-                  _favoriteBooks.remove(removedBook);
-                  _isFavoriteList[_books.indexOf(removedBook)] = false;
-                });
-                _updateFavoriteList();
-              }
-            },
-          ),
-        ],
-        automaticallyImplyLeading: false,
+      appBar: appBarCustom(
+        'Libros recomendados',
       ),
-      body: FutureBuilder<List<Book>>(
-        future: _futureBooks,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: SpinKitFadingCircle(
-                color: Colors.blueGrey,
-                size: 50.0,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchbookcontroller,
+              decoration: InputDecoration(
+                hintText: 'Buscar libros...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
               ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            _books = snapshot.data!;
-            if (_isFavoriteList.length != _books.length) {
-              _isFavoriteList = List.filled(_books.length, false);
-            }
-            return ListView.builder(
-              controller: _scrollController,
-              itemCount: _books.length + (_loading ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == _books.length) {
+              onChanged: (value) {
+                _searchBooks(value);
+              },
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<Book>>(
+              future: _futureBooks,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
                     child: SpinKitFadingCircle(
                       color: Colors.blueGrey,
                       size: 50.0,
                     ),
                   );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
                 } else {
-                  final Book book = _books[index];
-                  return Container(
-                    width: double.infinity,
-                    height: 140.0,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, top: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(right: 8.0),
-                            width: 100.0,
-                            height: 120.0,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image(
-                                image: _getImageProvider(book.thumbnailUrl)!,
-                                fit: BoxFit.fill,
+                  _books = snapshot.data!;
+                  if (_isFavoriteList.length != _books.length) {
+                    _isFavoriteList = List.filled(_books.length, false);
+                  }
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: _books.length + (_loading ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _books.length) {
+                        return Center(
+                          child: SpinKitFadingCircle(
+                            color: Colors.blueGrey,
+                            size: 50.0,
+                          ),
+                        );
+                      } else {
+                        final Book book = _books[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BookViewPage(
+                                  appBarCustom: appBarCustom(
+                                    'Descripción de libros',
+                                  ),
+                                  imageProvider:
+                                      _getImageProvider(book.thumbnailUrl),
+                                  title: book.title,
+                                  subtitle: book.subtitle,
+                                  authors: book.authors,
+                                  publisher: book.publisher,
+                                  publishedDate: book.publishedDate,
+                                  description: book.description,
+                                  book: book,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            height: 140.0,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: Container(
+                                      width: 100.0,
+                                      height: 120.0,
+                                      color: Colors
+                                          .grey[300], // Color de fondo temporal
+                                      child: Image(
+                                        image: _getImageProvider(
+                                            book.thumbnailUrl)!,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.0),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          book.title,
+                                          style: TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text(
+                                          book.subtitle,
+                                          style: TextStyle(fontSize: 14.0),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 8.0),
+                                        Text(
+                                          '- ${book.authors.join(',')}',
+                                          style: TextStyle(fontSize: 12.0),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  favoriteButton(book, index),
+                                ],
                               ),
                             ),
                           ),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  book.title,
-                                  style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(
-                                  width: 8.0,
-                                ),
-                                Text(
-                                  book.authors.join(', '),
-                                  style: TextStyle(fontSize: 16.0),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(right: 10.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isFavoriteList[index] =
-                                      !_isFavoriteList[index];
-                                  if (_isFavoriteList[index]) {
-                                    _favoriteBooks.add(
-                                        book); // Actualización: Agregar a la lista de favoritos
-                                  } else {
-                                    _favoriteBooks.remove(
-                                        book); // Actualización: Quitar de la lista de favoritos
-                                  }
-                                });
-                              },
-                              child: Icon(
-                                _isFavoriteList[index]
-                                    ? Icons.star
-                                    : Icons.star_border,
-                                size: 32,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                        );
+                      }
+                    },
                   );
                 }
               },
-            );
-          }
-        },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -478,10 +529,11 @@ class FavoriteBookScreen extends StatelessWidget {
                                 ),
                                 reverseBtnOrder: true,
                                 btnOkOnPress: () async {
-                              
+                                  // Eliminar el libro de la lista de favoritos
                                   onBookRemoved(book);
+                                  // Actualizar el estado de la lista de favoritos en la pantalla anterior
+                                  refreshCallback();
                                   // Ocultar el diálogo
-                                  Navigator.of(context).pop();
                                 },
                                 btnCancelOnPress: () {},
                                 desc:
