@@ -35,46 +35,41 @@ class FirebaseAuthServ {
     return null;
   }
 
- signInGoogle(BuildContext context) async {
-  try {
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+  signInGoogle(BuildContext context) async {
+    try {
+      final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+      final GoogleSignIn googleSignIn = GoogleSignIn();
 
+      // Desconectar el usuario actual
+      await firebaseAuth.signOut();
 
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
-    final AuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleAuth?.idToken, accessToken: googleAuth?.accessToken);
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+          idToken: googleAuth?.idToken, accessToken: googleAuth?.accessToken);
 
       UserCredential result =
           await firebaseAuth.signInWithCredential(credential);
 
-    User? userDetails = result.user;
+      User? userDetails = result.user;
 
-
-    if (result != null) {
-      Map<String, dynamic> userInfoMap = {
-        'email': userDetails!.email,
-        'name': userDetails.displayName,
-        'imageLink': userDetails.photoURL,
-        'id': userDetails.uid
-      };
-      await DataBase().addUser(userDetails.uid, userInfoMap).then((value) =>
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => PantallaMenuPrincipal())));
+      if (result != null) {
+        Map<String, dynamic> userInfoMap = {
+          'email': userDetails!.email,
+          'name': userDetails.displayName,
+          'imageLink': userDetails.photoURL,
+          'id': userDetails.uid
+        };
+        await DataBase().addUser(userDetails.uid, userInfoMap).then((value) =>
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PantallaMenuPrincipal())));
+      }
+    } catch (e) {
+      print('Ocurrió un error durante la autenticación con Google: $e');
+      // Puedes mostrar un mensaje de error al usuario o realizar otras acciones según sea necesario
     }
-  } catch (e) {
-    print('Ocurrió un error durante la autenticación con Google: $e');
-    // Puedes mostrar un mensaje de error al usuario o realizar otras acciones según sea necesario
   }
-}
-
-
-  // Create a credential from the access token
-
-  // // Once signed in, return the UserCredential
-  //
 }
