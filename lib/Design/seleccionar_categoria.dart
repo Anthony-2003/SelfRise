@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Design/evaluar_progreso.dart';
+import 'package:flutter_proyecto_final/Design/defineHabito.dart';
 
 class SeleccionarCategoriaPantalla extends StatefulWidget {
   @override
@@ -83,7 +83,7 @@ class _SeleccionarCategoriaPantallaState
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => EvaluarProgresoScreen(),
+              builder: (context) => DefineHabitoScreen(),
             ),
           );
         } else {

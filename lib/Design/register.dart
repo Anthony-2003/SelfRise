@@ -92,9 +92,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                       setState(() => isComplete = true);
                       _registerUser();
                     },
-                    btnCancelOnPress: () {
-                      Navigator.of(context).pop();
-                    },
+                    btnCancelOnPress: () {},
                     desc: "¿Estás seguro que quieres registrar este usuario?",
                     descTextStyle: TextStyle(
                       color: Colors.white,
@@ -178,7 +176,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
   void _registerUser() async {
     if (_formKey.currentState!.validate()) {
-      print('xd 1');
       try {
         final user = UserModel(
           email: emailController.text.trim(),
@@ -188,9 +185,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
           birthday: birthdayController.text,
           file: image!,
         );
-        await UserRep().createUser(user);
-        
-        print('xd 2');
+        await UserRep().createUserWithEmailAndPassword(user);
+        // Mostrar el diálogo de éxito
         AwesomeDialog(
           context: context,
           dialogType: DialogType.success,
@@ -204,7 +200,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
           ),
           reverseBtnOrder: true,
           btnOkOnPress: () {
-            Navigator.of(context).pop();
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -233,8 +228,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
         ));
       }
     }
-
-      print('xd 3');
   }
 
   List<Step> getSteps() => [

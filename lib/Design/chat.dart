@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../entity/AuthService.dart';
 import '../entity/Chat.dart';
 
@@ -12,10 +13,9 @@ class PantallaChat extends StatelessWidget {
 
   Future<void> sendMessage(String message) async {
     final chat = Chat(
-      senderId: currentUser ?? 'UsuarioDesconocido',
-      content: message,
-      timestamp: DateTime.now()
-    );
+        senderId: currentUser ?? 'UsuarioDesconocido',
+        content: message,
+        timestamp: DateTime.now());
 
     await FirebaseFirestore.instance.collection('chat').add(chat.toMap());
 
@@ -30,7 +30,7 @@ class PantallaChat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: Center(child: const Text('Chat')),
         automaticallyImplyLeading: false,
       ),
       body: Column(
@@ -44,11 +44,17 @@ class PantallaChat extends StatelessWidget {
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(
+                      child: SpinKitFadingCircle(
+                    color: Colors.blueGrey,
+                    size: 50.0,
+                  ));
                 }
 
                 final chats = snapshot.data?.docs
-                        .map((doc) => Chat.fromMap(doc.data() as Map<String, dynamic>, doc.id)) // Pasar el ID del documento
+                        .map((doc) => Chat.fromMap(
+                            doc.data() as Map<String, dynamic>,
+                            doc.id)) // Pasar el ID del documento
                         .toList() ??
                     [];
 
@@ -97,6 +103,7 @@ class PantallaChat extends StatelessWidget {
     required String message,
     required String senderName,
     required String? userPhotoUrl,
+    dynamic Function()? onTap,
   }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -159,10 +166,7 @@ class PantallaChat extends StatelessWidget {
                       as ImageProvider<Object>,
               radius: 20.0,
             ),
-          SizedBox(
-              width: !isMe
-                  ? 8.0
-                  : 0), 
+          SizedBox(width: !isMe ? 8.0 : 0),
         ],
       ),
     );
@@ -205,4 +209,3 @@ class PantallaChat extends StatelessWidget {
     );
   }
 }
-
