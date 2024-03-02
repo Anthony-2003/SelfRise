@@ -186,7 +186,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
           file: image!,
         );
         await UserRep().createUserWithEmailAndPassword(user);
-        // Mostrar el diálogo de éxito
         AwesomeDialog(
           context: context,
           dialogType: DialogType.success,

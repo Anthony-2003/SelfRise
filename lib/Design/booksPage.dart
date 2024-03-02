@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_proyecto_final/Design/booksview.dart';
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
-import 'package:flutter_proyecto_final/components/inputs.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'booksController.dart';
@@ -34,28 +35,48 @@ ImageProvider<Object>? _getImageProvider(String? thumbnailUrl) {
 
 class Book {
   final String title;
+  final String subtitle;
   final List<String> authors;
   final String thumbnailUrl;
+  final String publisher;
+  final String publishedDate;
+  final String description;
 
   Book({
     required this.title,
     required this.authors,
     required this.thumbnailUrl,
+    required this.subtitle,
+    required this.description,
+    required this.publisher,
+    required this.publishedDate,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
     final volumeInfo = json['volumeInfo'];
     final title = volumeInfo['title'];
+    final subtitle =
+        volumeInfo['subtitle'] ?? ''; // Verificar si subtitle es nulo
     final authors = volumeInfo['authors'] != null
         ? List<String>.from(volumeInfo['authors'])
         : ['Unknown Author'];
     final imageLinks = volumeInfo['imageLinks'] ?? {};
     final thumbnailUrl = imageLinks['smallThumbnail'] ?? '';
+    final publisher =
+        volumeInfo['publisher'] ?? ''; // Verificar si publisher es nulo
+    final publishedDate =
+        volumeInfo['publishedDate'] ?? ''; // Verificar si publishedDate es nulo
+    final description =
+        volumeInfo['description'] ?? ''; // Verificar si description es nulo
 
     return Book(
       title: title,
       authors: authors,
       thumbnailUrl: thumbnailUrl,
+      subtitle: subtitle,
+      publisher: publisher,
+      publishedDate: publishedDate,
+      description: description,
     );
   }
 
@@ -92,6 +113,8 @@ class  _BookListScreenState extends State<BookListScreen> {
     _futureBooks = fetchBooks();
     _scrollController.addListener(_scrollListener);
     bookListController.removedBookNotifier.addListener(_onBookRemoved);
+    _favoriteBooks = List.from(_favoriteBooks);
+    _updateFavoriteList();
   }
 
   @override
@@ -112,6 +135,38 @@ class  _BookListScreenState extends State<BookListScreen> {
     }
   }
 
+  Future<void> _searchBooks(String query) async {
+    if (query.isNotEmpty) {
+      final searchUrl =
+          'https://www.googleapis.com/books/v1/volumes?q=intitle:$query+subject:health+body+mind';
+      final response = await http.get(Uri.parse(searchUrl));
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body)['items'];
+        final List<Book> searchResults =
+            responseData.map((json) => Book.fromJson(json)).toList();
+
+        setState(() {
+          // Actualizar la lista de libros solo con los resultados de la búsqueda
+          _books = searchResults;
+          // Actualizar el Future para que el FutureBuilder use los resultados de la búsqueda
+          _futureBooks = Future.value(searchResults);
+        });
+
+        // Imprimir los resultados de la respuesta HTTP
+        print('Resultados de la búsqueda:');
+        print(_books);
+        print(query);
+      } else {
+        throw Exception('Failed to search books');
+      }
+    } else {
+      // Si el campo de búsqueda está vacío, restaurar la lista de libros original
+      setState(() {
+        _futureBooks = fetchBooks();
+      });
+    }
+  }
+
   Future<List<Book>> fetchBooks() async {
     final response = await http.get(Uri.parse(
         'https://www.googleapis.com/books/v1/volumes?q=subject:health+body+mind&startIndex=$_startIndex&maxResults=$_maxResults'));
@@ -123,26 +178,30 @@ class  _BookListScreenState extends State<BookListScreen> {
     }
   }
 
-  void _scrollListener() {
-    if (_scrollController.offset >=
-            _scrollController.position.maxScrollExtent &&
-        !_scrollController.position.outOfRange) {
-      _startIndex += _maxResults;
-      _fetchMoreBooks();
-    }
-  }
-
   Future<void> _fetchMoreBooks() async {
     if (!_loading) {
       setState(() {
         _loading = true;
       });
-      final List<Book> moreBooks = await fetchBooks();
-      setState(() {
-        _books.addAll(moreBooks);
-        _isFavoriteList.addAll(List.filled(moreBooks.length, false));
-        _loading = false;
-      });
+      try {
+        final List<Book> moreBooks = await fetchBooks();
+        setState(() {
+          _books.addAll(moreBooks);
+          _isFavoriteList.addAll(List.filled(moreBooks.length, false));
+          _loading = false;
+        });
+      } catch (error) {
+        print('Error fetching more books: $error');
+      }
+    }
+  }
+
+  void _scrollListener() {
+    if (!_loading &&
+        _scrollController.position.extentAfter < 200 &&
+        !_scrollController.position.outOfRange) {
+      _startIndex += _maxResults;
+      _fetchMoreBooks();
     }
   }
 
@@ -177,8 +236,8 @@ class  _BookListScreenState extends State<BookListScreen> {
         actions: <Widget>[
           IconButton(
             icon: Badge(
-              label: favoritelength(_favoriteBooks.length) != null
-                  ? Text('${favoritelength(_favoriteBooks.length)}')
+              label: favoritelenght(_favoriteBooks.length) != null
+                  ? Text('${favoritelenght(_favoriteBooks.length)}')
                   : null,
               child: Icon(Icons.bookmark_border),
             ),
@@ -215,134 +274,115 @@ class  _BookListScreenState extends State<BookListScreen> {
         ],
         automaticallyImplyLeading: false,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchbookcontroller,
-              decoration: InputDecoration(
-                hintText: 'Buscar libros...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+      body: FutureBuilder<List<Book>>(
+        future: _futureBooks,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: SpinKitFadingCircle(
+                color: Colors.blueGrey,
+                size: 50.0,
               ),
-              onChanged: (value) {
-              },
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<Book>>(
-              future: _futureBooks,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else {
+            _books = snapshot.data!;
+            if (_isFavoriteList.length != _books.length) {
+              _isFavoriteList = List.filled(_books.length, false);
+            }
+            return ListView.builder(
+              controller: _scrollController,
+              itemCount: _books.length + (_loading ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == _books.length) {
                   return Center(
                     child: SpinKitFadingCircle(
                       color: Colors.blueGrey,
                       size: 50.0,
                     ),
                   );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
                 } else {
-                  _books = snapshot.data!;
-                  if (_isFavoriteList.length != _books.length) {
-                    _isFavoriteList = List.filled(_books.length, false);
-                  }
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: _books.length + (_loading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == _books.length) {
-                        return Center(
-                          child: SpinKitFadingCircle(
-                            color: Colors.blueGrey,
-                            size: 50.0,
+                  final Book book = _books[index];
+                  return Container(
+                    width: double.infinity,
+                    height: 140.0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 8.0, right: 8.0, top: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(right: 8.0),
+                            width: 100.0,
+                            height: 120.0,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Image(
+                                image: _getImageProvider(book.thumbnailUrl)!,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
                           ),
-                        );
-                      } else {
-                        final Book book = _books[index];
-                        return Container(
-                          width: double.infinity,
-                          height: 140.0,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 8.0, right: 8.0, top: 10.0),
-                            child: Row(
+                          Expanded(
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  margin: EdgeInsets.only(right: 8.0),
-                                  width: 100.0,
-                                  height: 120.0,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: Image(
-                                      image: _getImageProvider(book.thumbnailUrl)!,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
+                                Text(
+                                  book.title,
+                                  style: TextStyle(
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        book.title,
-                                        style: TextStyle(
-                                            fontSize: 18.0,
-                                            fontWeight: FontWeight.bold),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      SizedBox(
-                                        width: 8.0,
-                                      ),
-                                      Text(
-                                        book.authors.join(', '),
-                                        style: TextStyle(fontSize: 16.0),
-                                      ),
-                                    ],
-                                  ),
+                                SizedBox(
+                                  width: 8.0,
                                 ),
-                                Container(
-                                  margin: EdgeInsets.only(right: 10.0),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _isFavoriteList[index] =
-                                            !_isFavoriteList[index];
-                                        if (_isFavoriteList[index]) {
-                                          _favoriteBooks.add(
-                                              book); // Actualización: Agregar a la lista de favoritos
-                                        } else {
-                                          _favoriteBooks.remove(
-                                              book); // Actualización: Quitar de la lista de favoritos
-                                        }
-                                      });
-                                    },
-                                    child: Icon(
-                                      _isFavoriteList[index]
-                                          ? Icons.star
-                                          : Icons.star_border,
-                                      size: 32,
-                                    ),
-                                  ),
+                                Text(
+                                  book.authors.join(', '),
+                                  style: TextStyle(fontSize: 16.0),
                                 ),
                               ],
                             ),
                           ),
-                        );
-                      }
-                    },
+                          Container(
+                            margin: EdgeInsets.only(right: 10.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isFavoriteList[index] =
+                                      !_isFavoriteList[index];
+                                  if (_isFavoriteList[index]) {
+                                    _favoriteBooks.add(
+                                        book); // Actualización: Agregar a la lista de favoritos
+                                  } else {
+                                    _favoriteBooks.remove(
+                                        book); // Actualización: Quitar de la lista de favoritos
+                                  }
+                                });
+                              },
+                              child: Icon(
+                                _isFavoriteList[index]
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                size: 32,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 }
               },
-            ),
-          ),
-        ],
+            );
+          }
+        },
       ),
     );
   }
@@ -413,7 +453,7 @@ class FavoriteBookScreen extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               SizedBox(
-                                width: 8.0,
+                                height: 8.0,
                               ),
                               Text(
                                 book.authors.join(', '),
@@ -440,7 +480,8 @@ class FavoriteBookScreen extends StatelessWidget {
                                 btnOkOnPress: () async {
                               
                                   onBookRemoved(book);
-                                  BookListScreen.updateFavoriteList(context);
+                                  // Ocultar el diálogo
+                                  Navigator.of(context).pop();
                                 },
                                 btnCancelOnPress: () {},
                                 desc:
