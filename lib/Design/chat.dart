@@ -53,8 +53,7 @@ class PantallaChat extends StatelessWidget {
 
                 final chats = snapshot.data?.docs
                         .map((doc) => Chat.fromMap(
-                            doc.data() as Map<String, dynamic>,
-                            doc.id)) // Pasar el ID del documento
+                            doc.data() as Map<String, dynamic>, doc.id))
                         .toList() ??
                     [];
 
@@ -65,8 +64,7 @@ class PantallaChat extends StatelessWidget {
                     final chat = chats[index];
                     final isMe = chat.senderId == currentUser;
                     return FutureBuilder<Map<String, dynamic>?>(
-                      future: AuthService.getUserData(
-                          chat.senderId), // Obtener datos del usuario
+                      future: AuthService.getUserData(chat.senderId),
                       builder: (context,
                           AsyncSnapshot<Map<String, dynamic>?>
                               userDataSnapshot) {
@@ -79,10 +77,8 @@ class PantallaChat extends StatelessWidget {
                           context: context,
                           isMe: isMe,
                           message: chat.content,
-                          senderName:
-                              senderName, // Usar el nombre del remitente obtenido
-                          userPhotoUrl: userDataSnapshot.data?[
-                              'imageLink'], // Obtener URL de la foto del usuario
+                          senderName: senderName,
+                          userPhotoUrl: userDataSnapshot.data?['imageLink'],
                         );
                       },
                     );
@@ -182,6 +178,7 @@ class PantallaChat extends StatelessWidget {
           Expanded(
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 8.0),
+              margin: EdgeInsets.only(bottom: 50.0),
               child: TextField(
                 controller: messageController,
                 decoration: InputDecoration(
@@ -194,15 +191,20 @@ class PantallaChat extends StatelessWidget {
             ),
           ),
           SizedBox(width: 8.0),
-          IconButton(
-            icon: Icon(Icons.send),
-            onPressed: () {
-              String message = messageController.text;
-              if (message.isNotEmpty) {
-                sendMessage(message);
-                messageController.clear();
-              }
-            },
+          Container(
+            margin: EdgeInsets.only(bottom: 50.0),
+            child: IconButton(
+              icon: Icon(Icons.send),
+              iconSize: 30,
+              color: Colors.blue,
+              onPressed: () {
+                String message = messageController.text;
+                if (message.isNotEmpty) {
+                  sendMessage(message);
+                  messageController.clear();
+                }
+              },
+            ),
           ),
         ],
       ),

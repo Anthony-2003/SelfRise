@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Design/booksPage.dart';
+import 'package:provider/provider.dart';
+import '../components/favorite_provider.dart';
 
-// Agregar una nueva propiedad book
 class BookViewPage extends StatefulWidget {
+  final List<Book> favoriteBooks;
+  final VoidCallback? onFavoriteChanged;
   final ImageProvider<Object>? imageProvider;
   final PreferredSizeWidget? appBarCustom;
   final Book book;
-  final VoidCallback? onFavoriteChanged;
 
   final String title;
   final String subtitle;
@@ -17,16 +19,17 @@ class BookViewPage extends StatefulWidget {
 
   BookViewPage({
     Key? key,
+    required this.favoriteBooks,
+    this.onFavoriteChanged,
     required this.imageProvider,
     required this.title,
     required this.authors,
     required this.subtitle,
     required this.description,
-    this.onFavoriteChanged,
     required this.publisher,
     required this.publishedDate,
     required this.appBarCustom,
-    required this.book, // Asignar el libro actual
+    required this.book,
   }) : super(key: key);
 
   @override
@@ -34,11 +37,16 @@ class BookViewPage extends StatefulWidget {
 }
 
 class _BookViewPageState extends State<BookViewPage> {
-  List<Book> _favoriteBooks = []; // Lista de libros favoritos
+  late bool isFavorite;
+
+  void initState() {
+    super.initState();
+    isFavorite = widget.favoriteBooks.contains(widget.book);
+  }
 
   @override
   Widget build(BuildContext context) {
-    bool isFavorite = isBookFavorite(widget.book); // Calcular isFavorite aquí
+    final provider = Provider.of<FavoriteProvider>(context);
 
     return Scaffold(
       appBar: widget.appBarCustom,
@@ -103,20 +111,15 @@ class _BookViewPageState extends State<BookViewPage> {
                     // Botón de favoritos
                     GestureDetector(
                       onTap: () {
-                        setState(() {
-                          if (isFavorite) {
-                            _favoriteBooks.remove(widget.book);
-                          } else {
-                            _favoriteBooks.add(widget.book);
-                          }
-                          // Notificar el cambio de estado de favoritos
-                          widget.onFavoriteChanged?.call();
-                        });
+                        provider.ToggleFavorite(widget.book);
                       },
                       child: Icon(
-                        isFavorite ? Icons.star : Icons.star_border,
+                        provider.isExist(widget.book)
+                            ? Icons.favorite
+                            : Icons.favorite_border,
                         size: 32,
-                        color: isFavorite ? Colors.yellow : null,
+                        color:
+                            provider.isExist(widget.book) ? Colors.red : null,
                       ),
                     ),
                   ],
@@ -142,10 +145,5 @@ class _BookViewPageState extends State<BookViewPage> {
         ),
       ),
     );
-  }
-
-  // Método para verificar si el libro está en la lista de favoritos
-  bool isBookFavorite(Book book) {
-    return _favoriteBooks.contains(book);
   }
 }

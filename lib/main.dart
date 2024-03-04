@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/components/favorite_provider.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'Design/login.dart';
 import 'Design/menu_principal.dart';
 import 'Design/register.dart';
@@ -24,19 +26,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'SelfRise',
-      theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-          textTheme: GoogleFonts.robotoTextTheme()),
-      home: const SlideLoginWithCheck(),
-      routes: {
-        '/menu_principal': (context) => const PantallaMenuPrincipal(),
-        '/login': (context) => LoginPage(),
-        '/register': (context) => RegistroScreen(),
-      },
+    return ChangeNotifierProvider(
+      create: (context) => FavoriteProvider(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'SelfRise',
+        theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+            textTheme: GoogleFonts.robotoTextTheme()),
+        home: const SlideLoginWithCheck(),
+        routes: {
+          '/menu_principal': (context) => const PantallaMenuPrincipal(),
+          '/login': (context) => LoginPage(),
+          '/register': (context) => RegistroScreen(),
+        },
+      ),
     );
   }
 }
@@ -82,3 +87,4 @@ class _SlideLoginWithCheckState extends State<SlideLoginWithCheck> {
         : const PantallaMenuPrincipal();
   }
 }
+  
