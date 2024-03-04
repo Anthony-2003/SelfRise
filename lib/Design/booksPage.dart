@@ -1,9 +1,9 @@
+// ignore_for_file: file_names, unrelated_type_equality_checks
+
 import 'dart:convert';
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Design/booksview.dart';
-import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
@@ -12,7 +12,7 @@ import 'booksController.dart';
 import 'favoriteBooks.dart';
 
 class BookListScreen extends StatefulWidget {
-  const BookListScreen({Key? key}) : super(key: key);
+  const BookListScreen({super.key});
 
   @override
   State<BookListScreen> createState() => _BookListScreenState();
@@ -24,7 +24,7 @@ ImageProvider<Object> _getImageProvider(String? thumbnailUrl) {
       !thumbnailUrl.startsWith('file:///')) {
     return NetworkImage(thumbnailUrl);
   } else {
-    return AssetImage('assets/iconos/image-default.png');
+    return const AssetImage('assets/iconos/image-default.png');
   }
 }
 
@@ -95,7 +95,7 @@ class _BookListScreenState extends State<BookListScreen> {
   List<bool> _isFavoriteList = [];
   List<Book> _favoriteBooks = [];
   int _startIndex = 0;
-  int _maxResults = 10;
+  final int _maxResults = 10;
   bool _loading = false;
 
   @override
@@ -207,13 +207,13 @@ class _BookListScreenState extends State<BookListScreen> {
                 label: favoritelength(provider.favoriteBooks.length) !=
                         provider.favoriteBooks.isEmpty
                     ? Text('${favoritelength(provider.favoriteBooks.length)}')
-                    : Text('.'),
-                child: Icon(Icons.bookmark_border),
+                    : const Text('.'),
+                child: const Icon(Icons.bookmark_border),
               ),
               tooltip: 'Libros favoritos',
               onPressed: () {
                 final route =
-                    MaterialPageRoute(builder: ((context) => FavoritePage()));
+                    MaterialPageRoute(builder: ((context) => const FavoritePage()));
                 Navigator.push(context, route);
               },
             );
@@ -238,7 +238,7 @@ class _BookListScreenState extends State<BookListScreen> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: searchbookcontroller,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Buscar libros...',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
@@ -253,7 +253,7 @@ class _BookListScreenState extends State<BookListScreen> {
               future: _futureBooks,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
+                  return const Center(
                     child: SpinKitFadingCircle(
                       color: Colors.blueGrey,
                       size: 50.0,
@@ -273,7 +273,7 @@ class _BookListScreenState extends State<BookListScreen> {
                     itemCount: _books.length + (_loading ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index == _books.length) {
-                        return Center(
+                        return const Center(
                           child: SpinKitFadingCircle(
                             color: Colors.blueGrey,
                             size: 50.0,
@@ -290,7 +290,6 @@ class _BookListScreenState extends State<BookListScreen> {
                                     appBarCustom: appBarCustom(
                                         'Descripción de libros',
                                         provider.favoriteBooks),
-                                    favoriteBooks: _favoriteBooks,
                                     imageProvider:
                                         _getImageProvider(book.thumbnailUrl),
                                     title: book.title,
@@ -304,11 +303,11 @@ class _BookListScreenState extends State<BookListScreen> {
                                       setState(() {
                                         _updateFavoriteList();
                                       });
-                                    }),
+                                    }, favoriteBooks: _favoriteBooks,),
                               ),
                             );
                           },
-                          child: Container(
+                          child: SizedBox(
                             width: double.infinity,
                             height: 140.0,
                             child: Padding(
@@ -325,12 +324,12 @@ class _BookListScreenState extends State<BookListScreen> {
                                           .grey[300], // Color de fondo temporal
                                       child: Image(
                                         image: _getImageProvider(
-                                            book.thumbnailUrl)!,
+                                            book.thumbnailUrl),
                                         fit: BoxFit.fill,
                                       ),
                                     ),
                                   ),
-                                  SizedBox(width: 8.0),
+                                  const SizedBox(width: 8.0),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -338,7 +337,7 @@ class _BookListScreenState extends State<BookListScreen> {
                                       children: [
                                         Text(
                                           book.title,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 18.0,
                                               fontWeight: FontWeight.bold),
                                           maxLines: 2,
@@ -346,14 +345,14 @@ class _BookListScreenState extends State<BookListScreen> {
                                         ),
                                         Text(
                                           book.subtitle,
-                                          style: TextStyle(fontSize: 14.0),
+                                          style: const TextStyle(fontSize: 14.0),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        SizedBox(height: 8.0),
+                                        const SizedBox(height: 8.0),
                                         Text(
                                           '- ${book.authors.join(',')}',
-                                          style: TextStyle(fontSize: 12.0),
+                                          style: const TextStyle(fontSize: 12.0),
                                         ),
                                       ],
                                     ),

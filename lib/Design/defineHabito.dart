@@ -1,6 +1,11 @@
+// ignore: file_names
+// ignore_for_file: unused_field, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 
 class DefineHabitoScreen extends StatefulWidget {
+  const DefineHabitoScreen({super.key});
+
   @override
   _DefineHabitoScreenState createState() => _DefineHabitoScreenState();
 }
@@ -8,9 +13,9 @@ class DefineHabitoScreen extends StatefulWidget {
 class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   String _habito = '';
   String _descripcion = '';
-  bool _seleccionarDiasSemana = false;
-  bool _seleccionarDiasMes = false;
-  bool _repetir = false;
+  final bool _seleccionarDiasSemana = false;
+  final bool _seleccionarDiasMes = false;
+  final bool _repetir = false;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +23,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
       appBar: AppBar(),
       body: Center(
         child: ListView(
-          padding: EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20.0),
           children: [
             TextFormField(
               decoration: InputDecoration(
@@ -30,14 +35,14 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                 });
               },
             ),
-            SizedBox(height: 20.0),
-            Text(
+            const SizedBox(height: 20.0),
+            const Text(
               'Texto aquí',
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             TextFormField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Descripción (Opcional)',
               ),
               onChanged: (value) {
@@ -46,7 +51,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                 });
               },
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
                 // Aquí guardamos el hábito y navegamos a la pantalla de frecuencia
@@ -61,7 +66,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                   ),
                 );
               },
-              child: Text('Guardar'),
+              child: const Text('Guardar'),
             ),
           ],
         ),
@@ -75,7 +80,7 @@ class FrecuenciaScreen extends StatefulWidget {
   final bool seleccionarDiasMes;
   final bool repetir;
 
-  FrecuenciaScreen({
+  const FrecuenciaScreen({super.key, 
     required this.seleccionarDiasSemana,
     required this.seleccionarDiasMes,
     required this.repetir,
@@ -89,11 +94,11 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Frecuencia')),
+      appBar: AppBar(title: const Text('Frecuencia')),
       body: Column(
         children: [
           CheckboxListTile(
-            title: Text('Cada día'),
+            title: const Text('Cada día'),
             value: widget.seleccionarDiasSemana,
             onChanged: (value) {
               setState(() {
@@ -102,7 +107,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             },
           ),
           CheckboxListTile(
-            title: Text('Días específicos de la semana'),
+            title: const Text('Días específicos de la semana'),
             value: widget.seleccionarDiasMes,
             onChanged: (value) {
               setState(() {
@@ -111,7 +116,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             },
           ),
           CheckboxListTile(
-            title: Text('Días específicos del mes'),
+            title: const Text('Días específicos del mes'),
             value: widget.repetir,
             onChanged: (value) {
               setState(() {
@@ -123,7 +128,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             Column(
               children: [
                 CheckboxListTile(
-                  title: Text('Lunes'),
+                  title: const Text('Lunes'),
                   value: widget.seleccionarDiasSemana,
                   onChanged: (value) {
                     setState(() {
@@ -135,14 +140,14 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
               ],
             ),
           if (widget.seleccionarDiasMes)
-            Column(
+            const Column(
               children: [
                 // Lógica para seleccionar los días del mes
               ],
             ),
           if (widget.repetir)
             TextFormField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Repetir cada (en días)',
               ),
               keyboardType: TextInputType.number,

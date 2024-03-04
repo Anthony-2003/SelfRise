@@ -7,7 +7,7 @@ import 'package:flutter_proyecto_final/Design/drawer_menu.dart';
 import 'package:flutter_proyecto_final/components/buttons.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:rive/rive.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import '../Colors/colors.dart';
 import '../services/frases_motivacionales.dart';
 import './chat.dart';
@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
-  const PantallaMenuPrincipal({Key? key}) : super(key: key);
+  const PantallaMenuPrincipal({super.key});
 
   @override
   _PantallaMenuPrincipalState createState() => _PantallaMenuPrincipalState();
@@ -33,13 +33,14 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
   late Animation<double> scalAnimation;
 
   int _selectedTab = 0;
+  // ignore: unused_field
   late String _nombreUsuario = '';
 
   @override
   void initState() {
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
     )..addListener(() {
         setState(() {});
       });
@@ -81,12 +82,12 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
       body: Stack(
         children: [
           AnimatedPositioned(
-            duration: Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 200),
             curve: Curves.fastOutSlowIn,
             width: 288,
             left: isSideMenuClose ? -288 : 0,
             height: MediaQuery.of(context).size.height,
-            child: DrawerMenu(),
+            child: const DrawerMenu(),
           ),
           Transform(
             alignment: Alignment.center,
@@ -98,13 +99,13 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 child: Transform.scale(
                     scale: scalAnimation.value,
                     child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(24)),
+                        borderRadius: const BorderRadius.all(Radius.circular(24)),
                         child: _pages[_selectedTab]))),
           ),
 
           // Button animado
           AnimatedPositioned(
-            duration: Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 200),
             left: isSideMenuClose ? 0 : 220,
             top: 16,
             child: menubtn(
@@ -120,14 +121,14 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 if (isSideMenuClose) {
                   _animationController.forward();
 
-                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
                     statusBarColor: AppColors.drawer,
                     systemNavigationBarIconBrightness: Brightness.light,
                     systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
                   ));
                 } else {
                   _animationController.reverse();
-                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
                     statusBarColor: Color.fromARGB(255, 191, 188, 191),
                     systemNavigationBarIconBrightness: Brightness.light,
                     systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
@@ -180,15 +181,19 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
 }
 
 class PantallaPrincipal extends StatelessWidget {
+  const PantallaPrincipal({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: PantallaPrincipalContent(),
     );
   }
 }
 
 class PantallaPrincipalContent extends StatefulWidget {
+  const PantallaPrincipalContent({super.key});
+
   @override
   _PantallaPrincipalContentState createState() =>
       _PantallaPrincipalContentState();
@@ -202,7 +207,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
     super.initState();
     _obtenerFraseAleatoria();
     // Configurar el temporizador para obtener una nueva frase cada 24 horas
-    Timer.periodic(Duration(hours: 24), (timer) {
+    Timer.periodic(const Duration(hours: 24), (timer) {
       _obtenerFraseAleatoria();
     });
   }
@@ -253,7 +258,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
 
   Widget _buildContent() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(15, 80, 15, 15),
+      padding: const EdgeInsets.fromLTRB(15, 80, 15, 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -262,7 +267,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
             future: AuthService.getUserName(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator(); // O cualquier otro indicador de carga
+                return const CircularProgressIndicator(); // O cualquier otro indicador de carga
               }
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
@@ -296,7 +301,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
       padding: const EdgeInsets.only(bottom: 15.0),
       child: Text(
         '¡Hola, $userName!',
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 25,
           color: AppColors.textColor,
         ),
@@ -415,6 +420,8 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
 }
 
 class PantallaAsignaciones extends StatelessWidget {
+  const PantallaAsignaciones({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -424,6 +431,8 @@ class PantallaAsignaciones extends StatelessWidget {
 }
 
 class PantallaPerfil extends StatelessWidget {
+  const PantallaPerfil({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const Center(
