@@ -69,7 +69,7 @@ dev_dependencies:
     sdk: flutter
 
 flutter_launcher_icons:
-  android: true
+  android: true 
   ios: true
   image_path: "assets/iconos/1024.png"
   addaptive_icon_background: "#2196F3"
@@ -96,6 +96,7 @@ flutter:
    - assets/imagenes/
    - assets/iconos/
    - assets/icon-menu/
+   - lib/data/frases_motivacionales.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

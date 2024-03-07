@@ -356,6 +356,15 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
   }
 
   Widget _construirFraseDelDia(String fraseDelDia, String autor) {
+    if (fraseDelDia.isEmpty || autor.isEmpty) {
+      return Container(
+        decoration: BoxDecoration(
+          color: AppColors.darkGray,
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ); // o cualquier otro widget de reemplazo o mensaje de error
+    }
+
     return SizedBox(
       child: Center(
         child: Container(
