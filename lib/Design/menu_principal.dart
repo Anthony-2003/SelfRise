@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_proyecto_final/Design/drawer_menu.dart';
@@ -12,7 +11,7 @@ import 'package:share/share.dart';
 import '../Colors/colors.dart';
 import '../services/frases_motivacionales.dart';
 import './chat.dart';
-//import './habitos.dart';
+import './habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
@@ -71,7 +70,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
     PantallaPrincipal(),
     PantallaChat(),
     PantallaAsignaciones(),
-    //PantallaSeguimientoHabitos(),
+    PantallaSeguimientoHabitos(),
     PantallaPerfil(),
   ];
 

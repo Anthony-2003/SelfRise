@@ -1,16 +1,14 @@
 import 'dart:typed_data';
-
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/UserModel.dart';
 import 'package:flutter_proyecto_final/components/inputs.dart';
 import 'package:flutter_proyecto_final/components/pickerImage.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
-import 'package:flutter_proyecto_final/services/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
-import '../Design/login.dart';
+import 'login.dart';
 
 class RegistroScreen extends StatefulWidget {
   RegistroScreen({Key? key}) : super(key: key);
@@ -24,7 +22,6 @@ class RegistroScreen extends StatefulWidget {
 class _RegistroScreenState extends State<RegistroScreen> {
   int _currentPage = 0;
   bool isComplete = false;
-  final FirebaseAuthServ _auth = FirebaseAuthServ();
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -36,6 +33,13 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final _formKey = GlobalKey<FormState>();
   DateTime? Dateselected;
   Uint8List? image;
+
+  void selectImage() async {
+    Uint8List img = await pickerImage(ImageSource.gallery);
+    setState(() {
+      this.image = img;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +77,29 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 if (!isLastStep) {
                   setState(() => _currentPage++);
                 } else {
-                  // Enviar datos al servidor
-                  setState(() => isComplete = true);
-                  _registerUser();
+                  AwesomeDialog(
+                    context: context,
+                    dialogType: DialogType.infoReverse,
+                    dialogBackgroundColor: Colors.transparent,
+                    headerAnimationLoop: true,
+                    animType: AnimType.bottomSlide,
+                    title: 'Registrar usuario',
+                    titleTextStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                    reverseBtnOrder: true,
+                    btnOkOnPress: () async {
+                      setState(() => isComplete = true);
+                      _registerUser();
+                    },
+                    btnCancelOnPress: () {},
+                    desc: "¿Estás seguro que quieres registrar este usuario?",
+                    descTextStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                    btnOkText: 'Aceptar',
+                    btnCancelText: 'Cancelar',
+                  ).show();
                 }
               },
               onStepCancel: () {
@@ -99,39 +123,44 @@ class _RegistroScreenState extends State<RegistroScreen> {
                     ),
                     NextButton(
                       onTap: () async {
-                        bool userExists =
-                            await checkIfUserExists(emailController.text);
-                        if (!userExists) {
-                          if (widget.checkBoxValue &&
-                              passwordController.text ==
-                                  repeatpasswordController.text) {
-                            details.onStepContinue!();
-                          } else if (widget.checkBoxValue == false) {
+                        if (_formKey.currentState!.validate()) {
+                          bool userExists =
+                              await checkIfUserExists(emailController.text);
+                          if (!userExists) {
+                            if (widget.checkBoxValue &&
+                                passwordController.text ==
+                                    repeatpasswordController.text) {
+                              details.onStepContinue!();
+                            } else if (widget.checkBoxValue == false) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                backgroundColor: Colors.orange,
+                                content: Text(
+                                  'Debes aceptar los términos y condiciones.',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ));
+                            } else if (passwordController.text !=
+                                repeatpasswordController.text) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                backgroundColor: Colors.orange,
+                                content: Text(
+                                  'Las contraseñas no coinciden',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ));
+                            }
+                          } else {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               backgroundColor: Colors.orange,
                               content: Text(
-                                'Debes aceptar los términos y condiciones.',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                            ));
-                          } else if (passwordController.text !=
-                              repeatpasswordController.text) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              backgroundColor: Colors.orange,
-                              content: Text(
-                                'Las contraseñas no coinciden',
+                                'Ya existe un usuario con este email',
                                 style: TextStyle(fontSize: 18),
                               ),
                             ));
                           }
                         }
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          backgroundColor: Colors.orange,
-                          content: Text(
-                            'Ya existe un usuario con este email',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ));
                       },
                       text: isLastStep ? 'Confirmar' : 'Siguiente',
                     ),
@@ -156,20 +185,38 @@ class _RegistroScreenState extends State<RegistroScreen> {
           birthday: birthdayController.text,
           file: image!,
         );
-        await UserRep().createUser(user);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.green,
-          content: Text(
-            'Registro completado con éxito.',
-            style: TextStyle(fontSize: 18),
+        await UserRep().createUserWithEmailAndPassword(user);
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          dialogBackgroundColor: Colors.transparent,
+          headerAnimationLoop: false,
+          showCloseIcon: true,
+          animType: AnimType.leftSlide,
+          title: 'Usuario registrado',
+          titleTextStyle: TextStyle(
+            color: Colors.white,
           ),
-        ));
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => LoginPage(),
+          reverseBtnOrder: true,
+          btnOkOnPress: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginPage(),
+              ),
+            );
+          },
+          btnOkIcon: Icons.check_circle,
+          onDismissCallback: (type) {
+            debugPrint('Dialog Dissmiss from callback $type');
+          },
+          desc: "Tu registro ha sido completado con éxito!!",
+          descTextStyle: TextStyle(
+            color: Colors.white,
           ),
-        );
+          btnOkText: 'Aceptar',
+          btnCancelText: 'Cancelar',
+        ).show();
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.red,
@@ -390,15 +437,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
           ),
         ),
       ];
-
-  void selectImage() async {
-    Uint8List img = await pickerImage(ImageSource.gallery);
-    setState(() {
-      this.image = img;
-    });
-  }
-
-  void saveProfile() async {}
 
   bool isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);

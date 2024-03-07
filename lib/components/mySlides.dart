@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
 import '../Design/login.dart';
 
 final controller = PageController();
@@ -63,13 +62,6 @@ Widget buildSlide(BuildContext context, String imagePath, String text,
                     );
                   },
                   backgroundColor: AppColors.buttonCoLor,
-                ),
-                const SizedBox(height: 10),
-                CustomButton(
-                  text: 'Registrarse',
-                  onPressed: () {},
-                  borderColor: const Color.fromRGBO(44, 75, 124, 1),
-                  backgroundColor: const Color.fromRGBO(44, 75, 124, 0),
                 ),
               ],
             ),

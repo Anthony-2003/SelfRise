@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/inputs.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:flutter_proyecto_final/services/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
 import '../components/loginwith.dart';
@@ -23,7 +22,6 @@ class _LoginPageState extends State<LoginPage> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   @override
   Widget build(BuildContext context) {
@@ -158,19 +156,12 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         loginwith(
-                          rute: 'assets/iconos/google.png',
+                          text: "Logueate con google",
+                          route: 'assets/iconos/google.png',
                           onTap: () {
                             _auth.signInGoogle(context);
                           },
                         ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        loginwith(
-                            rute: 'assets/iconos/facebook.png',
-                            onTap: () {
-                              FirebaseAuthServ().signInWithFacebook();
-                            }),
                       ],
                     ),
                     const SizedBox(height: 40),
@@ -252,8 +243,6 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
-
-
 
   bool isValidEmail(String email) {
     // Simple regex for email validation

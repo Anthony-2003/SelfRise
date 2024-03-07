@@ -1,8 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
+import 'package:flutter_proyecto_final/Design/booksview.dart';
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
+import 'package:flutter_proyecto_final/Design/booksPage.dart';
 
 class DrawerMenu extends StatefulWidget {
   const DrawerMenu({super.key});
@@ -103,7 +105,13 @@ class _DrawerMenuState extends State<DrawerMenu> {
                     child: ListTile(
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),
                         onTap: () {
-                          //FUNCIONES AQUIIIIIIIIII
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  BookListScreen(), // Aquí se crea la instancia de BookListScreen
+                            ),
+                          );
                         },
                         leading: SizedBox(
                           height: 34,
@@ -281,7 +289,6 @@ class _DrawerMenuState extends State<DrawerMenu> {
                     child: ListTile(
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),
                         onTap: () {
-                          //FUNCIONES AQUIIIIIIIIII
                           FirebaseAuth.instance.signOut();
                           signOutFromGoogle();
                           Navigator.pushNamed(context, '/login');
@@ -319,22 +326,52 @@ class InfoCard extends StatelessWidget {
     super.key,
   });
 
-  @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: AppColors.white_trans,
-        radius: 30,
-        child: Image.asset('assets/icon-menu/user-icon.png'),
-      ),
-      title: Text(
-        "Julio Alimaña",
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      subtitle: Text("Usuario: @julioali"),
-      textColor: AppColors.white,
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: AuthService.getUserData(AuthService.getUserId()),
+      builder: (BuildContext context,
+          AsyncSnapshot<Map<String, dynamic>?> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Mientras espera la respuesta del futuro, puedes mostrar un indicador de carga.
+          return CircularProgressIndicator();
+        } else {
+          if (snapshot.hasError || snapshot.data == null) {
+            // Si hay un error en el futuro o los datos son nulos, muestra un mensaje de error.
+            return Text('Error al obtener los datos del usuario');
+          } else {
+            // Si se completa correctamente, muestra el nombre y la foto del usuario en el ListTile.
+            final userData = snapshot.data!;
+            final name = userData['name'] ?? 'Nombre de usuario no disponible';
+            final photoUrl = userData['imageLink'];
+            final email = userData['email'];
+            return ListTile(
+              leading: ClipOval(
+                child: CircleAvatar(
+                  backgroundColor: AppColors.white_trans,
+                  radius: 25,
+                  child: photoUrl != null
+                      ? Image.network(
+                          photoUrl,
+                          fit: BoxFit.cover,
+                          width: 50,
+                          height: 50,
+                        )
+                      : Icon(Icons.account_circle),
+                ),
+              ),
+              title: Text(
+                name,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+              subtitle: Text(
+                email,
+                style: TextStyle(fontSize: 10),
+              ),
+              textColor: AppColors.white,
+            );
+          }
+        }
+      },
     );
   }
 }

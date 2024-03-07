@@ -103,6 +103,44 @@ class InputsRegister extends StatelessWidget {
   }
 }
 
+class CustomTextInput extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final IconData? prefixIcon;
+  final bool obscureText;
+  final TextInputType? keyboardType;
+  final Function(String)? onChanged;
+
+  const CustomTextInput({
+    required this.controller,
+    required this.hintText,
+    this.prefixIcon,
+    this.obscureText = false,
+    this.keyboardType,
+    this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      onChanged: onChanged, // Agrega la devolución de llamada onChanged
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade200,
+        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+      ),
+    );
+  }
+}
+
 class ImputDate extends StatefulWidget {
   final DateTime? selectedDate;
   final IconData icono;

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FrasesMotivacionales {
   static Future<Map<String, dynamic>> obtenerFraseAleatoria() async {
