@@ -30,27 +30,58 @@ class _SeleccionarCategoriaPantallaState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Seleccionar una categoría para tu hábito',
-          style: TextStyle(fontSize: 15),
-        ),
-      ),
       body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: ListView(
-          // Agrega padding vertical
-          children: [
-            for (int i = 0; i < categorias.length; i += 2)
-              _buildChipRow(
-                categorias[i],
-                icons[i],
-                i + 1 < categorias.length ? categorias[i + 1] : null,
-                i + 1 < categorias.length ? icons[i + 1] : null,
+        padding: const EdgeInsets.all(1.0),
+        child: Container(
+          margin: EdgeInsets.only(top: 70.0), // Margen superior
+          // Relleno interno
+          child: Stack(
+            children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        children: [
+                          for (int i = 0; i < categorias.length; i += 2)
+                            _buildChipRow(
+                              categorias[i],
+                              icons[i],
+                              i + 1 < categorias.length
+                                  ? categorias[i + 1]
+                                  : null,
+                              i + 1 < categorias.length ? icons[i + 1] : null,
+                            ),
+                          _buildChip('Crear nueva categoría', Icons.add,
+                              () => _showCrearCategoriaDialog(context)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            _buildChip('Crear nueva categoría', Icons.add,
-                () => _showCrearCategoriaDialog(context)),
-          ],
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 20,
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 1),
+                  child: Text(
+                    'Selecciona una categoría para tu hábito',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -65,8 +96,7 @@ class _SeleccionarCategoriaPantallaState
           Expanded(
             child: _buildChip(label1, icon1),
           ),
-          SizedBox(
-              width: 8.0), // Ajusta el espacio horizontal entre los elementos
+          SizedBox(width: 8.0),
           if (label2 != null && icon2 != null)
             Expanded(
               child: _buildChip(label2, icon2),
@@ -87,7 +117,8 @@ class _SeleccionarCategoriaPantallaState
             ),
           );
         } else {
-          _showCrearCategoriaDialog(context); // Ejecutar la función para mostrar el diálogo de nueva categoría
+          _showCrearCategoriaDialog(
+              context); // Ejecutar la función para mostrar el diálogo de nueva categoría
         }
       },
       child: Container(
@@ -186,10 +217,4 @@ class _SeleccionarCategoriaPantallaState
       });
     }
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: SeleccionarCategoriaPantalla(),
-  ));
 }

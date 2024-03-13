@@ -16,7 +16,6 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: Center(
         child: ListView(
           padding: EdgeInsets.all(20.0),

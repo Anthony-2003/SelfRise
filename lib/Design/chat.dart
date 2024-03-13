@@ -13,7 +13,7 @@ class PantallaChat extends StatelessWidget {
 
   Future<void> sendMessage(String message) async {
     final chat = Chat(
-        senderId: currentUser ?? 'UsuarioDesconocido',
+        senderId: currentUser ?? 'Cargando nombre...',
         content: message,
         timestamp: DateTime.now());
 
@@ -29,70 +29,72 @@ class PantallaChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Center(child: const Text('Chat')),
-        automaticallyImplyLeading: false,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: CustomAppBar(),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('chat')
-                  .orderBy('timestamp', descending: false)
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                      child: SpinKitFadingCircle(
-                    color: Colors.blueGrey,
-                    size: 50.0,
-                  ));
-                }
+      body: Container(
+        margin: EdgeInsets.only(top: 20.0),
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.79,
+          child: Column(
+            children: [
+              Expanded(
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('chat')
+                      .orderBy('timestamp', descending: false)
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                          child: SpinKitFadingCircle(
+                        color: Colors.blueGrey,
+                        size: 50.0,
+                      ));
+                    }
 
-                final chats = snapshot.data?.docs
-                        .map((doc) => Chat.fromMap(
-                            doc.data() as Map<String, dynamic>,
-                            doc.id)) // Pasar el ID del documento
-                        .toList() ??
-                    [];
+                    final chats = snapshot.data?.docs
+                            .map((doc) => Chat.fromMap(
+                                doc.data() as Map<String, dynamic>, doc.id))
+                            .toList() ??
+                        [];
 
-                return ListView.builder(
-                  controller: _scrollController,
-                  itemCount: chats.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final chat = chats[index];
-                    final isMe = chat.senderId == currentUser;
-                    return FutureBuilder<Map<String, dynamic>?>(
-                      future: AuthService.getUserData(
-                          chat.senderId), // Obtener datos del usuario
-                      builder: (context,
-                          AsyncSnapshot<Map<String, dynamic>?>
-                              userDataSnapshot) {
-                        final senderName = isMe
-                            ? 'Yo'
-                            : userDataSnapshot.data?['name'] ??
-                                'Usuario Desconocido';
+                    return ListView.builder(
+                      controller: _scrollController,
+                      itemCount: chats.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final chat = chats[index];
+                        final isMe = chat.senderId == currentUser;
+                        return FutureBuilder<Map<String, dynamic>?>(
+                          future: AuthService.getUserData(chat.senderId),
+                          builder: (context,
+                              AsyncSnapshot<Map<String, dynamic>?>
+                                  userDataSnapshot) {
+                            final senderName = isMe
+                                ? 'Yo'
+                                : userDataSnapshot.data?['name'] ??
+                                    'Cargando usuario...';
 
-                        return _buildMessage(
-                          context: context,
-                          isMe: isMe,
-                          message: chat.content,
-                          senderName:
-                              senderName, // Usar el nombre del remitente obtenido
-                          userPhotoUrl: userDataSnapshot.data?[
-                              'imageLink'], // Obtener URL de la foto del usuario
+                            return _buildMessage(
+                              context: context,
+                              isMe: isMe,
+                              message: chat.content,
+                              senderName: senderName,
+                              userPhotoUrl: userDataSnapshot.data?['imageLink'],
+                            );
+                          },
                         );
                       },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+              _buildInputField(),
+            ],
           ),
-          _buildInputField(),
-        ],
+        ),
       ),
     );
   }
@@ -103,7 +105,6 @@ class PantallaChat extends StatelessWidget {
     required String message,
     required String senderName,
     required String? userPhotoUrl,
-    dynamic Function()? onTap,
   }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -205,6 +206,24 @@ class PantallaChat extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CustomAppBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+      return Container(
+      padding: EdgeInsets.only(top: 58.0), 
+      alignment: Alignment.center, 
+      child: Text(
+        'Chat',
+        style: TextStyle(
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
       ),
     );
   }
