@@ -11,10 +11,11 @@ import 'package:share/share.dart';
 import '../Colors/colors.dart';
 import '../services/frases_motivacionales.dart';
 import './chat.dart';
-import './habitos.dart';
+import './habitos.dart';  
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
+
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -27,6 +28,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
     with SingleTickerProviderStateMixin {
   late SMIBool isSideBarClosed;
   bool isSideMenuClose = true;
+  bool _isKeyboardVisible = false;
 
   late AnimationController _animationController;
   late Animation<double> animation;
@@ -201,7 +203,6 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
   void initState() {
     super.initState();
     _obtenerFraseAleatoria();
-    // Configurar el temporizador para obtener una nueva frase cada 24 horas
     Timer.periodic(Duration(hours: 24), (timer) {
       _obtenerFraseAleatoria();
     });
@@ -230,8 +231,6 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
           return;
         }
       }
-
-      // Si no hay frase guardada o ha pasado más de un día, obtenemos una nueva frase aleatoria
       Map<String, dynamic> frase =
           await FrasesMotivacionales.obtenerFraseAleatoria();
       await prefs.setString('frase', frase['frase']);
@@ -262,7 +261,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
             future: AuthService.getUserName(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator(); // O cualquier otro indicador de carga
+                return CircularProgressIndicator(); 
               }
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
@@ -329,7 +328,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
             width: 50,
             height: 50,
           ),
-          const SizedBox(height: 5), // Espacio entre la imagen y el texto
+          const SizedBox(height: 5), 
           Text(
             texto,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
@@ -362,7 +361,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
           color: AppColors.darkGray,
           borderRadius: BorderRadius.circular(10),
         ),
-      ); // o cualquier otro widget de reemplazo o mensaje de error
+      ); 
     }
 
     return SizedBox(

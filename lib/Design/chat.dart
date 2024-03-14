@@ -1,31 +1,48 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../entity/AuthService.dart';
 import '../entity/Chat.dart';
 
-class PantallaChat extends StatelessWidget {
-  final String? currentUser = AuthService.getUserId();
-  final ScrollController _scrollController = ScrollController();
-
+class PantallaChat extends StatefulWidget {
   PantallaChat({Key? key}) : super(key: key);
+
+  @override
+  _PantallaChatState createState() => _PantallaChatState();
+}
+
+class _PantallaChatState extends State<PantallaChat> {
+  final String? currentUser = AuthService.getUserId();
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  void scrollToBottom() {
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+  }
 
   Future<void> sendMessage(String message) async {
     final chat = Chat(
-        senderId: currentUser ?? 'Cargando nombre...',
-        content: message,
-        timestamp: DateTime.now());
+      senderId: currentUser ?? 'Cargando nombre...',
+      content: message,
+      timestamp: DateTime.now(),
+    );
 
     await FirebaseFirestore.instance.collection('chat').add(chat.toMap());
 
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
       duration: Duration(milliseconds: 300),
-      curve: Curves.bounceInOut,
+      curve: Curves.easeInOut,
     );
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,65 +52,70 @@ class PantallaChat extends StatelessWidget {
       ),
       body: Container(
         margin: EdgeInsets.only(top: 20.0),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.79,
-          child: Column(
-            children: [
-              Expanded(
-                child: StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('chat')
-                      .orderBy('timestamp', descending: false)
-                      .snapshots(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                          child: SpinKitFadingCircle(
+        height: MediaQuery.of(context).size.height * 0.79,
+        child: Column(
+          children: [
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('chat')
+                    .orderBy('timestamp', descending: false)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: SpinKitFadingCircle(
                         color: Colors.blueGrey,
                         size: 50.0,
-                      ));
-                    }
-
-                    final chats = snapshot.data?.docs
-                            .map((doc) => Chat.fromMap(
-                                doc.data() as Map<String, dynamic>, doc.id))
-                            .toList() ??
-                        [];
-
-                    return ListView.builder(
-                      controller: _scrollController,
-                      itemCount: chats.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final chat = chats[index];
-                        final isMe = chat.senderId == currentUser;
-                        return FutureBuilder<Map<String, dynamic>?>(
-                          future: AuthService.getUserData(chat.senderId),
-                          builder: (context,
-                              AsyncSnapshot<Map<String, dynamic>?>
-                                  userDataSnapshot) {
-                            final senderName = isMe
-                                ? 'Yo'
-                                : userDataSnapshot.data?['name'] ??
-                                    'Cargando usuario...';
-
-                            return _buildMessage(
-                              context: context,
-                              isMe: isMe,
-                              message: chat.content,
-                              senderName: senderName,
-                              userPhotoUrl: userDataSnapshot.data?['imageLink'],
-                            );
-                          },
-                        );
-                      },
+                      ),
                     );
-                  },
-                ),
+                  }
+
+                  final chats = snapshot.data?.docs
+                          .map((doc) => Chat.fromMap(
+                                doc.data() as Map<String, dynamic>,
+                                doc.id,
+                              ))
+                          .toList() ??
+                      [];
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    scrollToBottom();
+                  });
+
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: chats.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final chat = chats[index];
+                      final isMe = chat.senderId == currentUser;
+                      return FutureBuilder<Map<String, dynamic>?>(
+                        future: AuthService.getUserData(chat.senderId),
+                        builder: (context,
+                            AsyncSnapshot<Map<String, dynamic>?>
+                                userDataSnapshot) {
+                          final senderName = isMe
+                              ? 'Yo'
+                              : userDataSnapshot.data?['name'] ??
+                                  'Cargando usuario...';
+
+                          return _buildMessage(
+                            context: context,
+                            isMe: isMe,
+                            message: chat.content,
+                            senderName: senderName,
+                            userPhotoUrl: userDataSnapshot.data?['imageLink'],
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
               ),
-              _buildInputField(),
-            ],
-          ),
+            ),
+            _buildInputField(),
+          ],
         ),
       ),
     );
@@ -214,9 +236,9 @@ class PantallaChat extends StatelessWidget {
 class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-      return Container(
-      padding: EdgeInsets.only(top: 58.0), 
-      alignment: Alignment.center, 
+    return Container(
+      padding: EdgeInsets.only(top: 58.0),
+      alignment: Alignment.center,
       child: Text(
         'Chat',
         style: TextStyle(
