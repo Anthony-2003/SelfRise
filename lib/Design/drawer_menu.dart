@@ -344,7 +344,7 @@ class InfoCard extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(
                   top:
-                      35.0), // Ajusta el valor del margen inferior según sea necesario
+                      60.0), // Ajusta el valor del margen inferior según sea necesario
               child: ListTile(
                 leading: ClipOval(
                   child: CircleAvatar(

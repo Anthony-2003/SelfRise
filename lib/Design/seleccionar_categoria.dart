@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Design/defineHabito.dart';
 
 class SeleccionarCategoriaPantalla extends StatefulWidget {
+  final PageController pageController;
+
+  SeleccionarCategoriaPantalla(this.pageController);
+
   @override
   _SeleccionarCategoriaPantallaState createState() =>
       _SeleccionarCategoriaPantallaState();
@@ -19,7 +22,6 @@ class _SeleccionarCategoriaPantallaState
 
   IconData? nuevoIcono = Icons.access_alarm;
 
-  // Mapa para almacenar el icono seleccionado para cada categoría
   Map<String, IconData?> categoriaIconos = {
     'Meditación': Icons.access_alarm,
     'Finanzas': Icons.attach_money,
@@ -33,14 +35,21 @@ class _SeleccionarCategoriaPantallaState
       body: Padding(
         padding: const EdgeInsets.all(1.0),
         child: Container(
-          margin: EdgeInsets.only(top: 70.0), // Margen superior
-          // Relleno interno
+          margin: EdgeInsets.only(top: 70.0),
           child: Stack(
             children: [
               Container(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    Text(
+                      'Selecciona una categoría para tu hábito',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     Expanded(
                       child: ListView(
                         shrinkWrap: true,
@@ -61,23 +70,6 @@ class _SeleccionarCategoriaPantallaState
                       ),
                     ),
                   ],
-                ),
-              ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 20,
-                child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 1),
-                  child: Text(
-                    'Selecciona una categoría para tu hábito',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
               ),
             ],
@@ -110,20 +102,15 @@ class _SeleccionarCategoriaPantallaState
     return GestureDetector(
       onTap: () {
         if (label != 'Crear nueva categoría') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DefineHabitoScreen(),
-            ),
-          );
+          widget.pageController.animateToPage(1,
+              duration: Duration(milliseconds: 300), curve: Curves.ease);
         } else {
-          _showCrearCategoriaDialog(
-              context); // Ejecutar la función para mostrar el diálogo de nueva categoría
+          _showCrearCategoriaDialog(context);
         }
       },
       child: Container(
         height: 50,
-        margin: EdgeInsets.symmetric(vertical: 4.0),
+        margin: EdgeInsets.symmetric(vertical: 2.0),
         padding: EdgeInsets.symmetric(horizontal: 16.0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
@@ -210,10 +197,8 @@ class _SeleccionarCategoriaPantallaState
     if (nuevaCategoria != null && nuevaCategoria.isNotEmpty) {
       setState(() {
         categorias.add(nuevaCategoria);
-        icons.add(nuevoIcono ??
-            Icons.add); // Agregar el nuevo ícono a la lista de íconos
-        categoriaIconos[nuevaCategoria] =
-            nuevoIcono ?? Icons.add; // Establecer el icono por defecto
+        icons.add(nuevoIcono ?? Icons.add);
+        categoriaIconos[nuevaCategoria] = nuevoIcono ?? Icons.add;
       });
     }
   }
