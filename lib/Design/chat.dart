@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../entity/AuthService.dart';
 import '../entity/Chat.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class PantallaChat extends StatefulWidget {
   PantallaChat({Key? key}) : super(key: key);
@@ -43,80 +44,79 @@ class _PantallaChatState extends State<PantallaChat> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
         child: CustomAppBar(),
       ),
-      body: Container(
-        margin: EdgeInsets.only(top: 20.0),
-        height: MediaQuery.of(context).size.height * 0.79,
-        child: Column(
-          children: [
-            Expanded(
-              child: StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection('chat')
-                    .orderBy('timestamp', descending: false)
-                    .snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: SpinKitFadingCircle(
-                        color: Colors.blueGrey,
-                        size: 50.0,
-                      ),
-                    );
-                  }
-
-                  final chats = snapshot.data?.docs
-                          .map((doc) => Chat.fromMap(
-                                doc.data() as Map<String, dynamic>,
-                                doc.id,
-                              ))
-                          .toList() ??
-                      [];
-
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    scrollToBottom();
-                  });
-
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: chats.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final chat = chats[index];
-                      final isMe = chat.senderId == currentUser;
-                      return FutureBuilder<Map<String, dynamic>?>(
-                        future: AuthService.getUserData(chat.senderId),
-                        builder: (context,
-                            AsyncSnapshot<Map<String, dynamic>?>
-                                userDataSnapshot) {
-                          final senderName = isMe
-                              ? 'Yo'
-                              : userDataSnapshot.data?['name'] ??
-                                  'Cargando usuario...';
-
-                          return _buildMessage(
-                            context: context,
-                            isMe: isMe,
-                            message: chat.content,
-                            senderName: senderName,
-                            userPhotoUrl: userDataSnapshot.data?['imageLink'],
-                          );
-                        },
-                      );
-                    },
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('chat')
+                  .orderBy('timestamp', descending: false)
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: SpinKitFadingCircle(
+                      color: Colors.blueGrey,
+                      size: 50.0,
+                    ),
                   );
-                },
-              ),
+                }
+
+                final chats = snapshot.data?.docs
+                        .map((doc) => Chat.fromMap(
+                              doc.data() as Map<String, dynamic>,
+                              doc.id,
+                            ))
+                        .toList() ??
+                    [];
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  scrollToBottom();
+                });
+
+                return ListView.builder(
+                  controller: _scrollController,
+                  itemCount: chats.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final chat = chats[index];
+                    final isMe = chat.senderId == currentUser;
+                    return FutureBuilder<Map<String, dynamic>?>(
+                      future: AuthService.getUserData(chat.senderId),
+                      builder: (context,
+                          AsyncSnapshot<Map<String, dynamic>?>
+                              userDataSnapshot) {
+                        final senderName = isMe
+                            ? 'Yo'
+                            : userDataSnapshot.data?['name'] ??
+                                'Cargando usuario...';
+
+                        return _buildMessage(
+                          context: context,
+                          isMe: isMe,
+                          message: chat.content,
+                          senderName: senderName,
+                          userPhotoUrl: userDataSnapshot.data?['imageLink'],
+                        );
+                      },
+                    );
+                  },
+                );
+              },
             ),
-            _buildInputField(),
-          ],
-        ),
+          ),
+          KeyboardVisibilityBuilder(
+            builder: (context, isKeyboardVisible) {
+              return _buildInputField(isKeyboardVisible);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -135,7 +135,7 @@ class _PantallaChatState extends State<PantallaChat> {
             isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isMe) // Si el mensaje no es del usuario actual
+          if (!isMe)
             CircleAvatar(
               backgroundImage: userPhotoUrl != null
                   ? CachedNetworkImageProvider(userPhotoUrl)
@@ -143,10 +143,7 @@ class _PantallaChatState extends State<PantallaChat> {
                       as ImageProvider<Object>,
               radius: 20.0,
             ),
-          SizedBox(
-              width: isMe
-                  ? 8.0
-                  : 0), // Agrega un espacio entre el avatar y el mensaje si es del usuario actual
+          SizedBox(width: isMe ? 8.0 : 0),
           Expanded(
             child: Column(
               crossAxisAlignment:
@@ -181,7 +178,7 @@ class _PantallaChatState extends State<PantallaChat> {
               ],
             ),
           ),
-          if (isMe) // Si el mensaje es del usuario actual
+          if (isMe)
             CircleAvatar(
               backgroundImage: userPhotoUrl != null
                   ? CachedNetworkImageProvider(userPhotoUrl)
@@ -195,11 +192,12 @@ class _PantallaChatState extends State<PantallaChat> {
     );
   }
 
-  Widget _buildInputField() {
+  Widget _buildInputField(bool isKeyboardVisible) {
     TextEditingController messageController = TextEditingController();
 
     return Container(
       padding: EdgeInsets.all(16.0),
+      margin: EdgeInsets.only(bottom: 65.0),
       child: Row(
         children: [
           Expanded(

@@ -11,11 +11,11 @@ import 'package:share/share.dart';
 import '../Colors/colors.dart';
 import '../services/frases_motivacionales.dart';
 import './chat.dart';
-import './habitos.dart';  
+import './habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
-
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -145,7 +145,9 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
           Align(
             alignment: Alignment.bottomCenter,
             child: Transform.translate(
-              offset: Offset(0, 150 * animation.value),
+              offset: _isKeyboardVisible
+                  ? Offset(1000, 150 * animation.value)
+                  : Offset(0, 150 * animation.value),
               child: CurvedNavigationBar(
                 index: _selectedTab,
                 height: 50,
@@ -261,7 +263,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
             future: AuthService.getUserName(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator(); 
+                return CircularProgressIndicator();
               }
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
@@ -328,7 +330,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
             width: 50,
             height: 50,
           ),
-          const SizedBox(height: 5), 
+          const SizedBox(height: 5),
           Text(
             texto,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
@@ -361,7 +363,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
           color: AppColors.darkGray,
           borderRadius: BorderRadius.circular(10),
         ),
-      ); 
+      );
     }
 
     return SizedBox(
