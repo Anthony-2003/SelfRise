@@ -62,7 +62,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
               'Cada día',
               style: TextStyle(
                 fontSize:
-                    20.0, // Ajusta el tamaño de fuente según tus necesidades
+                    18.0, // Ajusta el tamaño de fuente según tus necesidades
               ),
             ),
             value: 0,
@@ -81,7 +81,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
               'Días específicos de la semana',
               style: TextStyle(
                 fontSize:
-                    20.0, // Ajusta el tamaño de fuente según tus necesidades
+                    18.0, // Ajusta el tamaño de fuente según tus necesidades
               ),
             ),
             value: 1,
@@ -101,7 +101,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
               'Días específicos del mes',
               style: TextStyle(
                 fontSize:
-                    20.0, // Ajusta el tamaño de fuente según tus necesidades
+                    18.0, // Ajusta el tamaño de fuente según tus necesidades
               ),
             ),
             value: 2,
@@ -121,7 +121,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
               'Repetir',
               style: TextStyle(
                 fontSize:
-                    20.0, // Ajusta el tamaño de fuente según tus necesidades
+                    18.0, // Ajusta el tamaño de fuente según tus necesidades
               ),
             ),
             value: 3,
