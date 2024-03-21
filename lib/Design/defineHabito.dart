@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class DefineHabitoScreen extends StatefulWidget {
+  final Function(String) onHabitoChanged;
+
+  DefineHabitoScreen({Key? key, required this.onHabitoChanged})
+      : super(key: key);
+
   @override
   _DefineHabitoScreenState createState() => _DefineHabitoScreenState();
 }
@@ -21,7 +27,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
           child: Column(
             children: [
               Container(
-                margin: EdgeInsets.only(top: 50.0), // Margen top deseado
+                margin: EdgeInsets.only(top: 50.0),
                 child: Text(
                   'Define tu hábito',
                   textAlign: TextAlign.center,
@@ -40,6 +46,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                   setState(() {
                     _habito = value;
                   });
+                  widget.onHabitoChanged(value);
                 },
               ),
               SizedBox(height: 20.0),
@@ -58,6 +65,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                   });
                 },
               ),
+              SizedBox(height: 20.0),
             ],
           ),
         ),
