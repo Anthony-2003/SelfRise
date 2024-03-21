@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../Design/menu_principal.dart';
-import 'package:http/http.dart' as http;
 
 class FirebaseAuthServ {
   final FirebaseAuth _auth = FirebaseAuth.instance;

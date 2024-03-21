@@ -31,21 +31,17 @@ class UserRep extends GetxController {
   static UserRep get instance => Get.find();
   Future<void> createUserWithEmailAndPassword(UserModel user) async {
     try {
-      // Crear usuario en Firebase Authentication
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: user.email,
         password: user.password,
       );
 
-      // Obtener el ID del usuario generado por Firebase Authentication
       String userId = userCredential.user!.uid;
 
-      // Subir la imagen de perfil a Firebase Storage y obtener su URL
       String imageUrl =
           await user.uploadImageStorage('ImagenDePerfil', user.file);
 
-      // Crear un nuevo documento en Firestore con el ID de usuario como ID de documento
       await db.doc(userId).set({
         "name": user.name + ' ' + user.lastname,
         'email': user.email,

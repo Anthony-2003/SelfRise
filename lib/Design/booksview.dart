@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Design/booksPage.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:provider/provider.dart';
 import '../components/favorite_provider.dart';
 
 class BookViewPage extends StatefulWidget {
-  final List<Book> favoriteBooks;
-  final VoidCallback? onFavoriteChanged;
   final ImageProvider<Object>? imageProvider;
   final PreferredSizeWidget? appBarCustom;
   final Book book;
@@ -19,8 +18,6 @@ class BookViewPage extends StatefulWidget {
 
   BookViewPage({
     Key? key,
-    required this.favoriteBooks,
-    this.onFavoriteChanged,
     required this.imageProvider,
     required this.title,
     required this.authors,
@@ -28,7 +25,7 @@ class BookViewPage extends StatefulWidget {
     required this.description,
     required this.publisher,
     required this.publishedDate,
-    required this.appBarCustom,
+    this.appBarCustom,
     required this.book,
   }) : super(key: key);
 
@@ -37,25 +34,41 @@ class BookViewPage extends StatefulWidget {
 }
 
 class _BookViewPageState extends State<BookViewPage> {
-  late bool isFavorite;
+  late bool isFavorite = false;
 
   void initState() {
     super.initState();
-    isFavorite = widget.favoriteBooks.contains(widget.book);
+    checkFavoriteStatus();
+  }
+
+  void checkFavoriteStatus() async {
+    final provider = Provider.of<FavoriteProvider>(context, listen: false);
+    final userId = AuthService.getUserId();
+    if (userId != null) {
+      final favorites = await provider.getFavorites(userId);
+      print(favorites.length);
+      setState(() {
+        isFavorite = favorites.any((book) => book.id == widget.book.id);
+      });
+    } else {
+      setState(() {
+        isFavorite = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<FavoriteProvider>(context);
-
+    final String? userId = AuthService.getUserId();
     return Scaffold(
-      appBar: widget.appBarCustom,
+      appBar: widget.appBarCustom ?? AppBar(),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              height: 140.0,
+              height: 144.0,
               child: Padding(
                 padding:
                     const EdgeInsets.only(left: 8.0, right: 8.0, top: 10.0),
@@ -108,20 +121,23 @@ class _BookViewPageState extends State<BookViewPage> {
                         ],
                       ),
                     ),
-                    // Botón de favoritos
                     GestureDetector(
                       onTap: () {
-                        provider.ToggleFavorite(widget.book);
+                        if (userId != null) {
+                          provider.toggleFavorite(widget.book, userId);
+                          setState(() {
+                            isFavorite = !isFavorite;
+                          });
+                        } else {
+                          print("Error: userId es null");
+                        }
                       },
                       child: Icon(
-                        provider.isExist(widget.book)
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        size: 32,
-                        color:
-                            provider.isExist(widget.book) ? Colors.red : null,
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.red : null,
+                        size: 30,
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),

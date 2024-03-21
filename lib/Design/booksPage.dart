@@ -1,7 +1,4 @@
-// ignore_for_file: file_names, unrelated_type_equality_checks
-
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Design/booksview.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../components/favorite_provider.dart';
 import 'booksController.dart';
 import 'favoriteBooks.dart';
+import '../entity/authservice.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -29,6 +27,7 @@ ImageProvider<Object> _getImageProvider(String? thumbnailUrl) {
 }
 
 class Book {
+  final String id; // Nuevo campo id
   final String title;
   final String subtitle;
   final List<String> authors;
@@ -38,6 +37,7 @@ class Book {
   final String description;
 
   Book({
+    required this.id,
     required this.title,
     required this.authors,
     required this.thumbnailUrl,
@@ -60,7 +60,10 @@ class Book {
     final publishedDate = volumeInfo['publishedDate'] ?? '';
     final description = volumeInfo['description'] ?? '';
 
+    final id = json['id'] ?? '';
+
     return Book(
+      id: id,
       title: title,
       authors: authors,
       thumbnailUrl: thumbnailUrl,
@@ -70,19 +73,28 @@ class Book {
       description: description,
     );
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'subtitle': subtitle,
+      'authors': authors,
+      'thumbnailUrl': thumbnailUrl,
+      'publisher': publisher,
+      'publishedDate': publishedDate,
+      'description': description,
+    };
+  }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is Book &&
-        other.title == title &&
-        listEquals(other.authors, authors) &&
-        other.thumbnailUrl == thumbnailUrl;
+    return other is Book && other.id == id;
   }
 
   @override
-  int get hashCode => title.hashCode ^ authors.hashCode ^ thumbnailUrl.hashCode;
+  int get hashCode => id.hashCode;
 }
 
 class _BookListScreenState extends State<BookListScreen> {
@@ -97,12 +109,14 @@ class _BookListScreenState extends State<BookListScreen> {
   int _startIndex = 0;
   final int _maxResults = 10;
   bool _loading = false;
+  String? userId;
 
   @override
   void initState() {
     super.initState();
     _futureBooks = fetchBooks();
     _scrollController.addListener(_scrollListener);
+    userId = AuthService.getUserId();
     _favoriteBooks = List.from(_favoriteBooks);
     _updateFavoriteList();
   }
@@ -190,31 +204,43 @@ class _BookListScreenState extends State<BookListScreen> {
     });
   }
 
-  PreferredSizeWidget? appBarCustom(
-    String titulo,
-    List<Book> fbooks,
-  ) {
+  PreferredSizeWidget? appBarCustom(String titulo, String? userId) {
+    print(userId);
     return AppBar(
       centerTitle: true,
-      title: Text(
-        titulo,
-      ),
+      title: Text(titulo),
       actions: <Widget>[
         Consumer<FavoriteProvider>(
           builder: (context, provider, _) {
-            return IconButton(
-              icon: Badge(
-                label: favoritelength(provider.favoriteBooks.length) !=
-                        provider.favoriteBooks.isEmpty
-                    ? Text('${favoritelength(provider.favoriteBooks.length)}')
-                    : const Text('.'),
-                child: const Icon(Icons.bookmark_border),
-              ),
-              tooltip: 'Libros favoritos',
-              onPressed: () {
-                final route =
-                    MaterialPageRoute(builder: ((context) => const FavoritePage()));
-                Navigator.push(context, route);
+            return FutureBuilder<List<Book>>(
+              future: provider.getFavorites(userId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return IconButton(
+                    icon: const Icon(Icons.bookmark_border),
+                    onPressed: () {},
+                  );
+                } else if (snapshot.hasError) {
+                  return IconButton(
+                    icon: Icon(Icons.error),
+                    onPressed: () {},
+                  );
+                } else {
+                  final List<Book> favoriteBooks = snapshot.data ?? [];
+                  return IconButton(
+                    icon: Badge(
+                      label: Text('${favoriteBooks.length}'),
+                      child: const Icon(Icons.bookmark_border),
+                    ),
+                    tooltip: 'Libros favoritos',
+                    onPressed: () {
+                      final route = MaterialPageRoute(
+                        builder: ((context) => const FavoritePage()),
+                      );
+                      Navigator.push(context, route);
+                    },
+                  );
+                }
               },
             );
           },
@@ -224,13 +250,17 @@ class _BookListScreenState extends State<BookListScreen> {
     );
   }
 
+  int favoritelength(List<Book> favoriteBooks) {
+    return favoriteBooks.length;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<FavoriteProvider>(context);
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
     return Scaffold(
       appBar: appBarCustom(
         'Libros recomendados',
-        provider.favoriteBooks,
+        userId,
       ),
       body: Column(
         children: [
@@ -287,23 +317,18 @@ class _BookListScreenState extends State<BookListScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => BookViewPage(
-                                    appBarCustom: appBarCustom(
-                                        'Descripción de libros',
-                                        provider.favoriteBooks),
-                                    imageProvider:
-                                        _getImageProvider(book.thumbnailUrl),
-                                    title: book.title,
-                                    subtitle: book.subtitle,
-                                    authors: book.authors,
-                                    publisher: book.publisher,
-                                    publishedDate: book.publishedDate,
-                                    description: book.description,
-                                    book: book,
-                                    onFavoriteChanged: () {
-                                      setState(() {
-                                        _updateFavoriteList();
-                                      });
-                                    }, favoriteBooks: _favoriteBooks,),
+                                  appBarCustom: appBarCustom(
+                                      'Descripción de libros', userId),
+                                  imageProvider:
+                                      _getImageProvider(book.thumbnailUrl),
+                                  title: book.title,
+                                  subtitle: book.subtitle,
+                                  authors: book.authors,
+                                  publisher: book.publisher,
+                                  publishedDate: book.publishedDate,
+                                  description: book.description,
+                                  book: book,
+                                ),
                               ),
                             );
                           },
@@ -345,32 +370,35 @@ class _BookListScreenState extends State<BookListScreen> {
                                         ),
                                         Text(
                                           book.subtitle,
-                                          style: const TextStyle(fontSize: 14.0),
+                                          style:
+                                              const TextStyle(fontSize: 14.0),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         const SizedBox(height: 8.0),
                                         Text(
                                           '- ${book.authors.join(',')}',
-                                          style: const TextStyle(fontSize: 12.0),
+                                          style:
+                                              const TextStyle(fontSize: 12.0),
                                         ),
                                       ],
                                     ),
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      provider.ToggleFavorite(book);
+                                      favoriteProvider.toggleFavorite(
+                                          book, userId);
                                     },
                                     child: Icon(
-                                      provider.isExist(book)
+                                      _favoriteBooks.contains(book)
                                           ? Icons.favorite
                                           : Icons.favorite_border,
                                       size: 32,
-                                      color: provider.isExist(book)
+                                      color: _favoriteBooks.contains(book)
                                           ? Colors.red
                                           : null,
                                     ),
-                                  ),
+                                  )
                                 ],
                               ),
                             ),
@@ -387,8 +415,4 @@ class _BookListScreenState extends State<BookListScreen> {
       ),
     );
   }
-}
-
-int favoritelength(int length) {
-  return length;
 }

@@ -7,7 +7,6 @@ class AuthService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  // Método para iniciar sesión con Google
   static Future<void> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleSignInAccount =
@@ -22,7 +21,6 @@ class AuthService {
           await _firebaseAuth.signInWithCredential(credential);
       final User? user = authResult.user;
 
-      // Guardar los datos del usuario en Firestore
       if (user != null) {
         await _saveUserData(user.uid, {
           'name': user.displayName,
@@ -105,7 +103,7 @@ class AuthService {
         final DocumentSnapshot userDataSnapshot =
             await _firestore.collection('user').doc(userId).get();
         return userDataSnapshot.data() as Map<String,
-            dynamic>?; // Asegúrate de devolver un Map<String, dynamic>?
+            dynamic>?;
       }
       return null;
     } catch (error) {
