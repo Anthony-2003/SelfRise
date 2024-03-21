@@ -1,4 +1,6 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_key_in_widget_constructors
+
+import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import '../Design/login.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';

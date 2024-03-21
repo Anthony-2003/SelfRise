@@ -15,6 +15,8 @@ class FrasesMotivacionales {
 
       Map<String, dynamic> fraseAleatoria = frases[index];
 
+      print(fraseAleatoria);
+
       return fraseAleatoria;
     } catch (error) {
       print(error);

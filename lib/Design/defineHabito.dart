@@ -20,10 +20,9 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: Center(
         child: ListView(
-          padding: const EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(20.0),
           children: [
             TextFormField(
               decoration: InputDecoration(
@@ -35,14 +34,14 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                 });
               },
             ),
-            const SizedBox(height: 20.0),
-            const Text(
+            SizedBox(height: 20.0),
+            Text(
               'Texto aquí',
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20.0),
+            SizedBox(height: 20.0),
             TextFormField(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Descripción (Opcional)',
               ),
               onChanged: (value) {
@@ -51,7 +50,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                 });
               },
             ),
-            const SizedBox(height: 20.0),
+            SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
                 // Aquí guardamos el hábito y navegamos a la pantalla de frecuencia
@@ -66,7 +65,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                   ),
                 );
               },
-              child: const Text('Guardar'),
+              child: Text('Guardar'),
             ),
           ],
         ),
@@ -80,7 +79,7 @@ class FrecuenciaScreen extends StatefulWidget {
   final bool seleccionarDiasMes;
   final bool repetir;
 
-  const FrecuenciaScreen({super.key, 
+  FrecuenciaScreen({
     required this.seleccionarDiasSemana,
     required this.seleccionarDiasMes,
     required this.repetir,
@@ -94,11 +93,11 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Frecuencia')),
+      appBar: AppBar(title: Text('Frecuencia')),
       body: Column(
         children: [
           CheckboxListTile(
-            title: const Text('Cada día'),
+            title: Text('Cada día'),
             value: widget.seleccionarDiasSemana,
             onChanged: (value) {
               setState(() {
@@ -107,7 +106,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             },
           ),
           CheckboxListTile(
-            title: const Text('Días específicos de la semana'),
+            title: Text('Días específicos de la semana'),
             value: widget.seleccionarDiasMes,
             onChanged: (value) {
               setState(() {
@@ -116,7 +115,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             },
           ),
           CheckboxListTile(
-            title: const Text('Días específicos del mes'),
+            title: Text('Días específicos del mes'),
             value: widget.repetir,
             onChanged: (value) {
               setState(() {
@@ -128,7 +127,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             Column(
               children: [
                 CheckboxListTile(
-                  title: const Text('Lunes'),
+                  title: Text('Lunes'),
                   value: widget.seleccionarDiasSemana,
                   onChanged: (value) {
                     setState(() {
@@ -140,14 +139,14 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
               ],
             ),
           if (widget.seleccionarDiasMes)
-            const Column(
+            Column(
               children: [
                 // Lógica para seleccionar los días del mes
               ],
             ),
           if (widget.repetir)
             TextFormField(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Repetir cada (en días)',
               ),
               keyboardType: TextInputType.number,

@@ -1,37 +1,54 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../entity/AuthService.dart';
 import '../entity/Chat.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
-class PantallaChat extends StatelessWidget {
-  final String? currentUser = AuthService.getUserId();
-  final ScrollController _scrollController = ScrollController();
-
+class PantallaChat extends StatefulWidget {
   PantallaChat({Key? key}) : super(key: key);
+
+  @override
+  _PantallaChatState createState() => _PantallaChatState();
+}
+
+class _PantallaChatState extends State<PantallaChat> {
+  final String? currentUser = AuthService.getUserId();
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  void scrollToBottom() {
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+  }
 
   Future<void> sendMessage(String message) async {
     final chat = Chat(
-        senderId: currentUser ?? 'UsuarioDesconocido',
-        content: message,
-        timestamp: DateTime.now());
+      senderId: currentUser ?? 'Cargando nombre...',
+      content: message,
+      timestamp: DateTime.now(),
+    );
 
     await FirebaseFirestore.instance.collection('chat').add(chat.toMap());
 
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
       duration: Duration(milliseconds: 300),
-      curve: Curves.bounceInOut,
+      curve: Curves.easeInOut,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Center(child: const Text('Chat')),
-        automaticallyImplyLeading: false,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: CustomAppBar(),
       ),
       body: Column(
         children: [
@@ -45,17 +62,23 @@ class PantallaChat extends StatelessWidget {
                   AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                      child: SpinKitFadingCircle(
-                    color: Colors.blueGrey,
-                    size: 50.0,
-                  ));
+                    child: SpinKitFadingCircle(
+                      color: Colors.blueGrey,
+                      size: 50.0,
+                    ),
+                  );
                 }
 
                 final chats = snapshot.data?.docs
                         .map((doc) => Chat.fromMap(
-                            doc.data() as Map<String, dynamic>, doc.id))
+                            doc.data() as Map<String, dynamic>,
+                            doc.id)) // Pasar el ID del documento
                         .toList() ??
                     [];
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  scrollToBottom();
+                });
 
                 return ListView.builder(
                   controller: _scrollController,
@@ -71,7 +94,7 @@ class PantallaChat extends StatelessWidget {
                         final senderName = isMe
                             ? 'Yo'
                             : userDataSnapshot.data?['name'] ??
-                                'Usuario Desconocido';
+                                'Cargando usuario...';
 
                         return _buildMessage(
                           context: context,
@@ -87,7 +110,11 @@ class PantallaChat extends StatelessWidget {
               },
             ),
           ),
-          _buildInputField(),
+          KeyboardVisibilityBuilder(
+            builder: (context, isKeyboardVisible) {
+              return _buildInputField(isKeyboardVisible);
+            },
+          ),
         ],
       ),
     );
@@ -99,7 +126,6 @@ class PantallaChat extends StatelessWidget {
     required String message,
     required String senderName,
     required String? userPhotoUrl,
-    dynamic Function()? onTap,
   }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -108,7 +134,7 @@ class PantallaChat extends StatelessWidget {
             isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isMe) // Si el mensaje no es del usuario actual
+          if (!isMe)
             CircleAvatar(
               backgroundImage: userPhotoUrl != null
                   ? CachedNetworkImageProvider(userPhotoUrl)
@@ -116,10 +142,7 @@ class PantallaChat extends StatelessWidget {
                       as ImageProvider<Object>,
               radius: 20.0,
             ),
-          SizedBox(
-              width: isMe
-                  ? 8.0
-                  : 0), // Agrega un espacio entre el avatar y el mensaje si es del usuario actual
+          SizedBox(width: isMe ? 8.0 : 0),
           Expanded(
             child: Column(
               crossAxisAlignment:
@@ -154,7 +177,7 @@ class PantallaChat extends StatelessWidget {
               ],
             ),
           ),
-          if (isMe) // Si el mensaje es del usuario actual
+          if (isMe)
             CircleAvatar(
               backgroundImage: userPhotoUrl != null
                   ? CachedNetworkImageProvider(userPhotoUrl)
@@ -168,11 +191,12 @@ class PantallaChat extends StatelessWidget {
     );
   }
 
-  Widget _buildInputField() {
+  Widget _buildInputField(bool isKeyboardVisible) {
     TextEditingController messageController = TextEditingController();
 
     return Container(
       padding: EdgeInsets.all(16.0),
+      margin: EdgeInsets.only(bottom: 65.0),
       child: Row(
         children: [
           Expanded(
@@ -207,6 +231,24 @@ class PantallaChat extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CustomAppBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: 58.0),
+      alignment: Alignment.center,
+      child: Text(
+        'Chat',
+        style: TextStyle(
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
       ),
     );
   }
