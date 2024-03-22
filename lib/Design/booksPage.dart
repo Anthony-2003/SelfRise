@@ -203,7 +203,6 @@ class _BookListScreenState extends State<BookListScreen> {
       }
     });
   }
-
   PreferredSizeWidget? appBarCustom(String titulo, String? userId) {
     print(userId);
     return AppBar(
