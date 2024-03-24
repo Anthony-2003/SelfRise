@@ -3,8 +3,8 @@ import 'package:flutter_proyecto_final/Design/defineHabito.dart';
 import 'package:flutter_proyecto_final/Design/evaluar_progreso.dart';
 import 'package:flutter_proyecto_final/Design/fecha_habitos.dart';
 import 'package:flutter_proyecto_final/Design/seleccionar_categoria.dart';
+import 'package:flutter_proyecto_final/Design/frecuenciaHabito.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'frecuenciaHabito.dart';
 
 class HabitosPageView extends StatefulWidget {
   @override

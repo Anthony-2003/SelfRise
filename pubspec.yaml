@@ -56,6 +56,9 @@ dependencies:
   share_plus: ^7.2.2
   shared_preferences: ^2.2.2
   smooth_page_indicator: ^1.1.0
+  flutter_local_notifications: ^17.0.0
+  flutter_timezone: ^1.0.8
+  fluttertoast: ^8.2.4
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
@@ -90,6 +93,7 @@ flutter:
     - assets/imagenes/
     - assets/iconos/
     - assets/icon-menu/
+    - lib/data/frases_motivacionales.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
   # For details regarding adding assets from package dependencies, see

@@ -30,7 +30,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
             Container(
               margin: EdgeInsets.only(left: 10, bottom: 10),
               child: Padding(
-                padding: const EdgeInsets.only(left: 10, top: 32, bottom: 0),
+                padding: const EdgeInsets.only(left: 10, top: 18, bottom: 0),
                 child: Text("Explorar".toUpperCase(),
                     style: Theme.of(context)
                         .textTheme
@@ -187,13 +187,10 @@ class _DrawerMenuState extends State<DrawerMenu> {
                     ),
                   ),
                   Container(
-                    //LEFT, TOP, RIGHT, BOTTOM
                     margin: EdgeInsets.fromLTRB(5, 9, 5, 0),
                     child: ListTile(
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),
-                        onTap: () {
-                          //FUNCIONES AQUIIIIIIIIII
-                        },
+                        onTap: () {},
                         leading: SizedBox(
                           height: 34,
                           width: 34,
@@ -216,7 +213,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
             //   ***** FINAL BOTON NUTRICION *****
 
             Container(
-              margin: EdgeInsets.only(left: 10, bottom: 4, top: 40),
+              margin: EdgeInsets.only(left: 10, bottom: 4),
               child: Padding(
                 padding: const EdgeInsets.only(left: 10, top: 32, bottom: 0),
                 child: Text("Mas Opciones".toUpperCase(),
@@ -245,9 +242,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                     margin: EdgeInsets.fromLTRB(5, 9, 5, 0),
                     child: ListTile(
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),
-                        onTap: () {
-                          //FUNCIONES AQUIIIIIIIIII
-                        },
+                        onTap: () {},
                         leading: SizedBox(
                           height: 34,
                           width: 34,
@@ -268,10 +263,8 @@ class _DrawerMenuState extends State<DrawerMenu> {
                 ],
               ),
             ),
-            //   ***** FINAL BOTON CONFIGURACION *****
-            //   ***** BOTON SALIR ******
+
             Container(
-              //LEFT, TOP, RIGHT, BOTTOM
               margin: EdgeInsets.fromLTRB(5, 10, 5, 0),
               child: Column(
                 children: [
@@ -311,7 +304,6 @@ class _DrawerMenuState extends State<DrawerMenu> {
                 ],
               ),
             ),
-            //   ***** FINAL BOTON SALIR *****
           ]),
         ),
       ),
@@ -319,7 +311,6 @@ class _DrawerMenuState extends State<DrawerMenu> {
   }
 }
 
-//INFORMACION DEL USUARIO
 class InfoCard extends StatelessWidget {
   const InfoCard({
     Key? key,
@@ -344,7 +335,7 @@ class InfoCard extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(
                   top:
-                      60.0), // Ajusta el valor del margen inferior según sea necesario
+                      40.0), // Ajusta el valor del margen inferior según sea necesario
               child: ListTile(
                 leading: ClipOval(
                   child: CircleAvatar(

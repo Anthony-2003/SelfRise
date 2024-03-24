@@ -15,7 +15,6 @@ import './habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({super.key});
@@ -154,7 +153,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 height: 50,
                 items: _construirNavigationBarItems(),
                 backgroundColor: Colors.transparent,
-                color: Colors.blue, // Cambia esto al color que desees
+                color: Colors.blue,
                 animationDuration: const Duration(milliseconds: 300),
                 onTap: (int index) {
                   setState(() {
@@ -210,7 +209,6 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
   void initState() {
     super.initState();
     _obtenerFraseAleatoria();
-    // Configurar el temporizador para obtener una nueva frase cada 24 horas
     Timer.periodic(Duration(hours: 24), (timer) {
       _obtenerFraseAleatoria();
     });
@@ -269,7 +267,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
             future: AuthService.getUserName(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator(); // O cualquier otro indicador de carga
+                return CircularProgressIndicator();
               }
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');

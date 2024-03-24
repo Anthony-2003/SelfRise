@@ -1,8 +1,10 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 
 class SeleccionarCategoriaPantalla extends StatefulWidget {
+  final PageController pageController;
+
+  SeleccionarCategoriaPantalla(this.pageController);
+
   @override
   _SeleccionarCategoriaPantallaState createState() =>
       _SeleccionarCategoriaPantallaState();
