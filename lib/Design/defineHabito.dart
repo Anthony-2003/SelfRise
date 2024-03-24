@@ -2,9 +2,13 @@
 // ignore_for_file: unused_field, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class DefineHabitoScreen extends StatefulWidget {
-  const DefineHabitoScreen({super.key});
+  final Function(String) onHabitoChanged;
+
+  DefineHabitoScreen({Key? key, required this.onHabitoChanged})
+      : super(key: key);
 
   @override
   _DefineHabitoScreenState createState() => _DefineHabitoScreenState();
@@ -21,53 +25,52 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ListView(
-          padding: EdgeInsets.all(20.0),
-          children: [
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Hábito',
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _habito = value;
-                });
-              },
-            ),
-            SizedBox(height: 20.0),
-            Text(
-              'Texto aquí',
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20.0),
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Descripción (Opcional)',
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _descripcion = value;
-                });
-              },
-            ),
-            SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () {
-                // Aquí guardamos el hábito y navegamos a la pantalla de frecuencia
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FrecuenciaScreen(
-                      seleccionarDiasSemana: _seleccionarDiasSemana,
-                      seleccionarDiasMes: _seleccionarDiasMes,
-                      repetir: _repetir,
-                    ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(top: 50.0),
+                child: Text(
+                  'Define tu hábito',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              },
-              child: Text('Guardar'),
-            ),
-          ],
+                ),
+              ),
+              SizedBox(height: 20.0),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Hábito',
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _habito = value;
+                  });
+                  widget.onHabitoChanged(value);
+                },
+              ),
+              SizedBox(height: 20.0),
+              Text(
+                'e.j., leer',
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20.0),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Descripción (Opcional)',
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _descripcion = value;
+                  });
+                },
+              ),
+              SizedBox(height: 20.0),
+            ],
+          ),
         ),
       ),
     );

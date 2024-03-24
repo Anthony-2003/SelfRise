@@ -3,6 +3,7 @@ import 'package:flutter_proyecto_final/Design/defineHabito.dart';
 import 'package:flutter_proyecto_final/Design/evaluar_progreso.dart';
 import 'package:flutter_proyecto_final/Design/fecha_habitos.dart';
 import 'package:flutter_proyecto_final/Design/seleccionar_categoria.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'frecuenciaHabito.dart';
 
 class HabitosPageView extends StatefulWidget {
@@ -13,6 +14,7 @@ class HabitosPageView extends StatefulWidget {
 class _HabitosPageViewState extends State<HabitosPageView> {
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPageIndex = 0;
+  String _habito = '';
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,13 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                 case 1:
                   return EvaluarProgresoScreen(_pageController);
                 case 2:
-                  return DefineHabitoScreen();
+                  return DefineHabitoScreen(
+                    onHabitoChanged: (value) {
+                      setState(() {
+                        _habito = value;
+                      });
+                    },
+                  );
                 case 3:
                   return FrecuenciaScreen();
                 case 4:
@@ -109,10 +117,16 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                     child: IgnorePointer(
                       ignoring: _currentPageIndex <= 1,
                       child: Container(
-                        width: 100, // Ancho fijo deseado
+                        width: 100,
                         child: TextButton(
                           onPressed: () {
-                            if (_currentPageIndex == 4) {
+                            if (_habito.isEmpty) {
+                              Fluttertoast.showToast(
+                                msg: "Por favor ingresa un hábito",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                              );
+                            } else if (_currentPageIndex == 4) {
                               Navigator.pop(context);
                             } else {
                               _pageController.nextPage(
