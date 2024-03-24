@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 class FechaHabitosScreen extends StatefulWidget {
   @override
@@ -14,6 +12,8 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   bool _fechaFinalizacionToggle = false;
   int _diasFinalizacion = 0;
   List<String> _recordatorios = [];
+  TimeOfDay? _horaSeleccionada;
+  late AlertDialog? _currentAlertDialog;
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -272,193 +272,138 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
 
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext scaffoldContext) {
         return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.notifications),
-              SizedBox(width: 10),
-              Text('Recordatorio'),
-            ],
-          ),
-          content: SingleChildScrollView(
+          title: Center(child: Text('Recordatorios')),
+          content: Container(
+            constraints:
+                BoxConstraints(maxWidth: 400), // Ancho máximo del contenedor
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Título'),
-                  onChanged: (value) {
-                    titulo = value;
-                  },
+                Container(
+                  width: double.infinity,
+                  child: Divider(),
                 ),
-                SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Hora (HH:mm)'),
-                  onChanged: (value) {
-                    hora = value;
-                  },
-                ),
-                SizedBox(height: 10),
-                DropdownButton<String>(
-                  value: tipoRecordatorio,
-                  onChanged: (String? value) {
-                    setState(() {
-                      tipoRecordatorio = value!;
-                    });
-                  },
-                  items: <String>['No recordarme', 'Notificación', 'Alarma']
-                      .map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 10),
-                Text('Horario del recordatorio:'),
                 Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    RadioListTile<String>(
-                      title: Text('Siempre disponible'),
-                      value: 'Siempre disponible',
-                      groupValue: horarioRecordatorio,
-                      onChanged: (value) {
-                        setState(() {
-                          horarioRecordatorio = value!;
-                        });
-                      },
+                    Image.asset(
+                      'assets/imagenes/notification.png',
+                      width: 120,
+                      height: 120,
                     ),
-                    RadioListTile<String>(
-                      title: Text('Días específicos de la semana'),
-                      value: 'Días específicos de la semana',
-                      groupValue: horarioRecordatorio,
-                      onChanged: (value) {
-                        setState(() {
-                          horarioRecordatorio = value!;
-                        });
-                      },
-                    ),
-                    if (horarioRecordatorio == 'Días específicos de la semana')
-                      Row(
-                        children: [
-                          for (String dia in [
-                            'Lun',
-                            'Mar',
-                            'Mié',
-                            'Jue',
-                            'Vie',
-                            'Sáb',
-                            'Dom'
-                          ])
-                            Expanded(
-                              child: CheckboxListTile(
-                                title: Text(dia),
-                                value: diaElegido == dia,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value!)
-                                      diaElegido = dia;
-                                    else if (diaElegido == dia)
-                                      diaElegido = null;
-                                  });
-                                },
-                              ),
-                            ),
-                        ],
-                      ),
-                    RadioListTile<String>(
-                      title: Text('Días después de hoy'),
-                      value: 'Días después de hoy',
-                      groupValue: horarioRecordatorio,
-                      onChanged: (value) {
-                        setState(() {
-                          horarioRecordatorio = value!;
-                        });
-                      },
+                    SizedBox(height: 10),
+                    Text(
+                      'No hay recordatorios en esta actividad',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ],
+                ),
+                SizedBox(height: 20),
+                SizedBox(height: 10),
+                Divider(),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(scaffoldContext); // Cierra el diálogo actual
+                    _mostrarDialogoNuevoRecordatorio(context);
+                  },
+                  child: Text('Nuevo recordatorio'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue, // Cambia el color del texto
+                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                Divider(),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(scaffoldContext).pop();
+                  },
+                  child: Text('Cerrar'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.grey, // Cambia el color del texto
+                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () async {
-                // Crear la zona horaria local
-                String? timeZoneName;
-                try {
-                  timeZoneName = await FlutterTimezone.getLocalTimezone();
-                } catch (e) {
-                  debugPrint('Error obteniendo zona horaria: $e');
-                }
-
-                // Convertir la hora ingresada a DateTime
-                DateTime? recordatorioDateTime;
-                try {
-                  recordatorioDateTime = DateTime.parse(
-                      DateTime.now().toIso8601String().substring(0, 11) +
-                          hora +
-                          ':00');
-                } catch (e) {
-                  debugPrint('Error parsing hora: $e');
-                }
-
-                // Configurar la notificación o alarma
-                if (recordatorioDateTime != null && timeZoneName != null) {
-                  var androidPlatformChannelSpecifics =
-                      AndroidNotificationDetails(
-                    'recordatorio_channel',
-                    'Recordatorio',
-                    channelDescription:
-                        'Canal para recordatorios de habitNow', // Argumento con nombre
-                    icon:
-                        'app_icon', // Especifica el nombre correcto del icono aquí
-                    largeIcon: DrawableResourceAndroidBitmap('app_icon'),
-                  );
-
-                  var iOSPlatformChannelSpecifics =
-                      DarwinNotificationDetails(); // Usar DarwinNotificationDetails en lugar de DarwinInitializationSettings
-                  var platformChannelSpecifics = NotificationDetails(
-                    android: androidPlatformChannelSpecifics,
-                    iOS: iOSPlatformChannelSpecifics,
-                  );
-
-                  // Programar la notificación o alarma
-                  await flutterLocalNotificationsPlugin.zonedSchedule(
-                    0,
-                    titulo,
-                    '',
-                    tz.TZDateTime.from(
-                      recordatorioDateTime,
-                      tz.getLocation(timeZoneName),
-                    ),
-                    platformChannelSpecifics,
-                    // ignore: deprecated_member_use
-                    androidAllowWhileIdle: true,
-                    uiLocalNotificationDateInterpretation:
-                        UILocalNotificationDateInterpretation.absoluteTime,
-                    matchDateTimeComponents: DateTimeComponents.time,
-                  );
-
-                  // Agregar el recordatorio a la lista
-                  setState(() {
-                    _recordatorios.add('$titulo - $hora - $tipoRecordatorio');
-                  });
-
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Text('Guardar'),
-            ),
-          ],
         );
+      },
+    );
+  }
+
+  void _mostrarSelectorHora(BuildContext context) async {
+    final TimeOfDay? horaSeleccionada = await showTimePicker(
+      context: context,
+      initialTime: _horaSeleccionada ?? TimeOfDay.now(),
+    );
+
+    if (horaSeleccionada != null) {
+      setState(() {
+        _horaSeleccionada = horaSeleccionada;
+      });
+
+      // Cierra el diálogo actual si existe
+      if (_currentAlertDialog != null) {
+        Navigator.of(context).pop();
+      }
+
+      // Llama a _mostrarDialogoNuevoRecordatorio solo si _horaSeleccionada no es nulo
+      if (_horaSeleccionada != null) {
+        _mostrarDialogoNuevoRecordatorio(context);
+      }
+    }
+  }
+
+  void _mostrarDialogoNuevoRecordatorio(BuildContext context) {
+    // Crea el diálogo y asigna la referencia a _currentAlertDialog
+    _currentAlertDialog = AlertDialog(
+      title: Text('Nuevo Recordatorio'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Divider(),
+          // Sección de la hora y el tipo de recordatorio
+          ListTile(
+            title: Text(
+              _horaSeleccionada != null
+                  ? _horaSeleccionada!.format(context)
+                  : '12:00 PM',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            subtitle: Text(
+              'Tiempo del recordatorio',
+              textAlign: TextAlign.center,
+            ),
+            onTap: () {
+              // Mostrar selector de hora al tocar esta sección
+              _mostrarSelectorHora(context);
+            },
+          ),
+        ],
+      ),
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return _currentAlertDialog!;
       },
     );
   }
