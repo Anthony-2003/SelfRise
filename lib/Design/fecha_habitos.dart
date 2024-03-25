@@ -14,6 +14,9 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   List<String> _recordatorios = [];
   TimeOfDay? _horaSeleccionada;
   late AlertDialog? _currentAlertDialog;
+  bool _notificacionSeleccionada = true;
+  bool _alarmaSeleccionada = false;
+  int? _calendarioSeleccionado;
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -369,35 +372,276 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   }
 
   void _mostrarDialogoNuevoRecordatorio(BuildContext context) {
+    // Variable para almacenar el tipo de recordatorio seleccionado
+    int? _calendarioSeleccionado;
+
+    // Variable para almacenar los días seleccionados de la semana
+    List<String> _diasSemanaSeleccionados = [];
+
     // Crea el diálogo y asigna la referencia a _currentAlertDialog
     _currentAlertDialog = AlertDialog(
-      title: Text('Nuevo Recordatorio'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Divider(),
-          // Sección de la hora y el tipo de recordatorio
-          ListTile(
-            title: Text(
-              _horaSeleccionada != null
-                  ? _horaSeleccionada!.format(context)
-                  : '12:00 PM',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
+      title: Text(
+        'Nuevo recordatorio',
+        textAlign: TextAlign.center,
+      ),
+      content: StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Divider(),
+              ListTile(
+                title: Text(
+                  _horaSeleccionada != null
+                      ? _horaSeleccionada!.format(context)
+                      : '12:00 PM',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 30,
+                  ),
+                ),
+                subtitle: Text(
+                  'Tiempo del recordatorio',
+                  textAlign: TextAlign.center,
+                ),
+                onTap: () {
+                  // Mostrar selector de hora al tocar esta sección
+                  _mostrarSelectorHora(context);
+                },
+              ),
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'Tipo de recordatorio',
+                  textAlign: TextAlign.left, // Alineado a la izquierda
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _notificacionSeleccionada = true;
+                        _alarmaSeleccionada = false;
+                        _calendarioSeleccionado =
+                            null; // Reinicia la selección del calendario
+                      });
+                    },
+                    child: Column(
+                      children: [
+                        Icon(Icons.notifications,
+                            color: _notificacionSeleccionada
+                                ? Colors.blue
+                                : Colors.black),
+                        Text(
+                          'Notificación',
+                          style: TextStyle(
+                            color: _notificacionSeleccionada
+                                ? Colors.blue
+                                : Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _notificacionSeleccionada = false;
+                        _alarmaSeleccionada = true;
+                        _calendarioSeleccionado =
+                            null; // Reinicia la selección del calendario
+                      });
+                    },
+                    child: Column(
+                      children: [
+                        Icon(Icons.alarm,
+                            color: _alarmaSeleccionada
+                                ? Colors.blue
+                                : Colors.black),
+                        Text(
+                          'Alarma',
+                          style: TextStyle(
+                            color: _alarmaSeleccionada
+                                ? Colors.blue
+                                : Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Divider(),
+              Text(
+                'Calendario de recordatorio',
+                textAlign: TextAlign.left, // Alineado a la izquierda
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              SizedBox(height: 20),
+              Column(
+                children: [
+                  RadioListTile(
+                    title: Text('Siempre disponible'),
+                    value: 1,
+                    groupValue: _calendarioSeleccionado,
+                    onChanged: (value) {
+                      setState(() {
+                        _calendarioSeleccionado = value as int?;
+                        _diasSemanaSeleccionados
+                            .clear(); // Limpia la selección de días de la semana
+                      });
+                    },
+                  ),
+                  RadioListTile(
+                    title: Text('Días específicos de la semana'),
+                    value: 2,
+                    groupValue: _calendarioSeleccionado,
+                    onChanged: (value) {
+                      setState(() {
+                        _calendarioSeleccionado = value as int?;
+                      });
+                    },
+                  ),
+                  if (_calendarioSeleccionado == 2) ...[
+                    // Muestra los días de la semana si se selecciona "Días específicos de la semana"
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        for (final day in [
+                          'Lun',
+                          'Mar',
+                          'Mié',
+                          'Jue',
+                          'Vie',
+                          'Sáb',
+                          'Dom'
+                        ])
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (_diasSemanaSeleccionados.contains(day)) {
+                                  _diasSemanaSeleccionados.remove(day);
+                                } else {
+                                  _diasSemanaSeleccionados.add(day);
+                                }
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: _diasSemanaSeleccionados.contains(day)
+                                    ? Colors.blue.withOpacity(0.5)
+                                    : null,
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(
+                                day,
+                                style: TextStyle(
+                                  color: _diasSemanaSeleccionados.contains(day)
+                                      ? Colors.white
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                  RadioListTile(
+                    title: Text('Días después'),
+                    value: 3,
+                    groupValue: _calendarioSeleccionado,
+                    onChanged: (value) {
+                      setState(() {
+                        _calendarioSeleccionado = value as int?;
+                        _diasSemanaSeleccionados
+                            .clear(); // Limpia la selección de días de la semana
+                      });
+                    },
+                  ),
+                  if (_calendarioSeleccionado == 3) ...[
+                    // Muestra un campo de entrada para ingresar los días después si se selecciona "Días después"
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 100, // Ancho deseado para el TextFormField
+                          child: TextFormField(
+                            initialValue: '1', // Valor predeterminado
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            onChanged: (value) {
+                              // Aquí puedes manejar la entrada de días después
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'días después',
+                          style: TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      actions: [
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                // Implementa aquí la lógica para guardar el recordatorio con la configuración seleccionada
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Color de fondo azul
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Guardar',
+                style: TextStyle(color: Colors.white), // Texto en blanco
               ),
             ),
-            subtitle: Text(
-              'Tiempo del recordatorio',
-              textAlign: TextAlign.center,
+            SizedBox(width: 16.0), // Añade un espacio entre los botones
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, // Color de fondo rojo
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.white), // Texto en blanco
+              ),
             ),
-            onTap: () {
-              // Mostrar selector de hora al tocar esta sección
-              _mostrarSelectorHora(context);
-            },
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
 
     showDialog(
