@@ -12,11 +12,12 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   bool _fechaFinalizacionToggle = false;
   int _diasFinalizacion = 0;
   List<String> _recordatorios = [];
-  TimeOfDay? _horaSeleccionada;
+  TimeOfDay? _horaSeleccionada = TimeOfDay(hour: 12, minute: 0);
   late AlertDialog? _currentAlertDialog;
   bool _notificacionSeleccionada = true;
   bool _alarmaSeleccionada = false;
   int? _calendarioSeleccionado;
+  List<String> _diasSemanaSeleccionados = [];
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -90,20 +91,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
             child: _buildRecordatoriosTile(),
           ),
           SizedBox(height: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: _recordatorios
-                .map(
-                  (recordatorio) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Text(
-                      recordatorio,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
         ],
       ),
     );
@@ -280,7 +267,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
           title: Center(child: Text('Recordatorios')),
           content: Container(
             constraints:
-                BoxConstraints(maxWidth: 400), // Ancho máximo del contenedor
+                BoxConstraints(maxWidth: 600), // Ancho máximo del contenedor
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -291,23 +278,69 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                   width: double.infinity,
                   child: Divider(),
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/imagenes/notification.png',
-                      width: 120,
-                      height: 120,
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'No hay recordatorios en esta actividad',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                SizedBox(height: 10),
+                // Aquí se muestran los recordatorios actuales
+                if (_recordatorios.isNotEmpty)
+                  Column(
+                    children: _recordatorios.map((recordatorio) {
+                      List<String> parts = recordatorio.split('\n');
+                      String tipoRecordatorio = parts[0].split(' - ')[0];
+                      String horaRecordatorio = parts[0].split(' - ')[1];
+                      String diasRecordatorio =
+                          parts.length > 1 ? parts[1] : '';
+
+                      return Container(
+                        // Aquí estableces el color de fondo deseado
+                        child: ListTile(
+                          contentPadding: EdgeInsets.all(
+                              0), // Elimina el padding predeterminado del ListTile
+                          leading: tipoRecordatorio == 'Notificación'
+                              ? Icon(Icons.notifications)
+                              : Icon(Icons.alarm),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      horaRecordatorio,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                _recordatorios.remove(recordatorio);
+                              });
+                            },
+                          ),
+                          subtitle: Text(diasRecordatorio),
+                        ),
+                      );
+                    }).toList(),
+                  )
+                else
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/imagenes/notification.png',
+                        width: 100,
+                        height: 120,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'No hay recordatorios en esta actividad',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
                 Divider(),
                 ElevatedButton(
                   onPressed: () {
@@ -371,11 +404,39 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
     }
   }
 
-  void _mostrarDialogoNuevoRecordatorio(BuildContext context) {
-    // Variable para almacenar el tipo de recordatorio seleccionado
-    int? _calendarioSeleccionado;
+  void _guardarRecordatorio() {
+    String tipoRecordatorio =
+        _notificacionSeleccionada ? 'Notificación' : 'Alarma';
+    String horaRecordatorio =
+        _horaSeleccionada != null ? _horaSeleccionada!.format(context) : '';
+    String diasRecordatorio = '';
 
-    // Variable para almacenar los días seleccionados de la semana
+    // Verificar si _horaSeleccionada no es nulo antes de acceder a él
+    if (_horaSeleccionada != null) {
+      // Acceder a _horaSeleccionada solo si no es nulo
+      horaRecordatorio = _horaSeleccionada!.format(context);
+    } else {
+      // Manejar el caso cuando _horaSeleccionada es nulo
+      horaRecordatorio = 'No definida';
+    }
+
+    // Obtener los días seleccionados si el tipo de calendario es "Días específicos de la semana"
+    if (_calendarioSeleccionado == 2) {
+      diasRecordatorio = _diasSemanaSeleccionados.join(', ');
+    }
+
+    // Construir el texto del recordatorio
+    String recordatorio =
+        '$tipoRecordatorio - $horaRecordatorio\n$diasRecordatorio';
+
+    setState(() {
+      _recordatorios.add(recordatorio);
+    });
+  }
+
+  void _mostrarDialogoNuevoRecordatorio(BuildContext context) {
+    int? _calendarioSeleccionado = 1;
+
     List<String> _diasSemanaSeleccionados = [];
 
     // Crea el diálogo y asigna la referencia a _currentAlertDialog
@@ -405,7 +466,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                   textAlign: TextAlign.center,
                 ),
                 onTap: () {
-                  // Mostrar selector de hora al tocar esta sección
                   _mostrarSelectorHora(context);
                 },
               ),
@@ -429,8 +489,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                       setState(() {
                         _notificacionSeleccionada = true;
                         _alarmaSeleccionada = false;
-                        _calendarioSeleccionado =
-                            null; // Reinicia la selección del calendario
                       });
                     },
                     child: Column(
@@ -455,8 +513,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                       setState(() {
                         _notificacionSeleccionada = false;
                         _alarmaSeleccionada = true;
-                        _calendarioSeleccionado =
-                            null; // Reinicia la selección del calendario
                       });
                     },
                     child: Column(
@@ -486,117 +542,126 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                   fontSize: 18,
                 ),
               ),
-              SizedBox(height: 20),
-              Column(
-                children: [
-                  RadioListTile(
-                    title: Text('Siempre disponible'),
-                    value: 1,
-                    groupValue: _calendarioSeleccionado,
-                    onChanged: (value) {
-                      setState(() {
-                        _calendarioSeleccionado = value as int?;
-                        _diasSemanaSeleccionados
-                            .clear(); // Limpia la selección de días de la semana
-                      });
-                    },
-                  ),
-                  RadioListTile(
-                    title: Text('Días específicos de la semana'),
-                    value: 2,
-                    groupValue: _calendarioSeleccionado,
-                    onChanged: (value) {
-                      setState(() {
-                        _calendarioSeleccionado = value as int?;
-                      });
-                    },
-                  ),
-                  if (_calendarioSeleccionado == 2) ...[
-                    // Muestra los días de la semana si se selecciona "Días específicos de la semana"
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        for (final day in [
-                          'Lun',
-                          'Mar',
-                          'Mié',
-                          'Jue',
-                          'Vie',
-                          'Sáb',
-                          'Dom'
-                        ])
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (_diasSemanaSeleccionados.contains(day)) {
-                                  _diasSemanaSeleccionados.remove(day);
-                                } else {
-                                  _diasSemanaSeleccionados.add(day);
-                                }
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: _diasSemanaSeleccionados.contains(day)
-                                    ? Colors.blue.withOpacity(0.5)
-                                    : null,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Text(
-                                day,
-                                style: TextStyle(
+              Container(
+                // Color de fondo deseado
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RadioListTile(
+                      title: Text('Siempre disponible',
+                          style: TextStyle(fontSize: 14)),
+                      contentPadding: EdgeInsets.zero,
+                      value: 1,
+                      groupValue: _calendarioSeleccionado,
+                      onChanged: (value) {
+                        setState(() {
+                          _calendarioSeleccionado = value;
+                          _diasSemanaSeleccionados
+                              .clear(); // Limpia la selección de días de la semana
+                        });
+                      },
+                    ),
+                    RadioListTile(
+                      title: Text('Días específicos de la semana',
+                          style: TextStyle(fontSize: 14)),
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      value: 2,
+                      groupValue: _calendarioSeleccionado,
+                      onChanged: (value) {
+                        setState(() {
+                          _calendarioSeleccionado = value;
+                        });
+                      },
+                    ),
+                    if (_calendarioSeleccionado == 2) ...[
+                      // Muestra los días de la semana si se selecciona "Días específicos de la semana"
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (final day in [
+                            'Lun',
+                            'Mar',
+                            'Mié',
+                            'Jue',
+                            'Vie',
+                            'Sáb',
+                            'Dom'
+                          ])
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (_diasSemanaSeleccionados.contains(day)) {
+                                    _diasSemanaSeleccionados.remove(day);
+                                  } else {
+                                    _diasSemanaSeleccionados.add(day);
+                                  }
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(7),
+                                decoration: BoxDecoration(
                                   color: _diasSemanaSeleccionados.contains(day)
-                                      ? Colors.white
+                                      ? Colors.blue.withOpacity(0.5)
                                       : null,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(
+                                  day,
+                                  style: TextStyle(
+                                    color:
+                                        _diasSemanaSeleccionados.contains(day)
+                                            ? Colors.white
+                                            : null,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
+                    ],
+                    RadioListTile(
+                      title:
+                          Text('Días después', style: TextStyle(fontSize: 14)),
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      value: 3,
+                      groupValue: _calendarioSeleccionado,
+                      onChanged: (value) {
+                        setState(() {
+                          _calendarioSeleccionado = value;
+                          _diasSemanaSeleccionados
+                              .clear(); // Limpia la selección de días de la semana
+                        });
+                      },
                     ),
-                  ],
-                  RadioListTile(
-                    title: Text('Días después'),
-                    value: 3,
-                    groupValue: _calendarioSeleccionado,
-                    onChanged: (value) {
-                      setState(() {
-                        _calendarioSeleccionado = value as int?;
-                        _diasSemanaSeleccionados
-                            .clear(); // Limpia la selección de días de la semana
-                      });
-                    },
-                  ),
-                  if (_calendarioSeleccionado == 3) ...[
-                    // Muestra un campo de entrada para ingresar los días después si se selecciona "Días después"
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 100, // Ancho deseado para el TextFormField
-                          child: TextFormField(
-                            initialValue: '1', // Valor predeterminado
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.center,
-                            onChanged: (value) {
-                              // Aquí puedes manejar la entrada de días después
-                            },
+                    if (_calendarioSeleccionado == 3) ...[
+                      // Muestra un campo de entrada para ingresar los días después si se selecciona "Días después"
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 100, // Ancho deseado para el TextFormField
+                            child: TextFormField(
+                              initialValue: '1', // Valor predeterminado
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          'días después',
-                          style: TextStyle(
-                            fontSize: 16,
+                          SizedBox(width: 5),
+                          Text(
+                            'días después',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ],
           );
@@ -604,11 +669,13 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
       ),
       actions: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             ElevatedButton(
               onPressed: () {
                 // Implementa aquí la lógica para guardar el recordatorio con la configuración seleccionada
-                Navigator.of(context).pop();
+                _guardarRecordatorio(); // Llama al método para guardar el recordatorio
+                Navigator.of(context).pop(); // Cierra el diálogo
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue, // Color de fondo azul
@@ -622,7 +689,8 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                 style: TextStyle(color: Colors.white), // Texto en blanco
               ),
             ),
-            SizedBox(width: 16.0), // Añade un espacio entre los botones
+
+            SizedBox(width: 5.0), // Añade un espacio entre los botones
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra el diálogo
@@ -647,7 +715,11 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return _currentAlertDialog!;
+        return Center(
+          child: SingleChildScrollView(
+            child: _currentAlertDialog!,
+          ),
+        );
       },
     );
   }
