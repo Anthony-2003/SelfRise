@@ -16,8 +16,12 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   late AlertDialog? _currentAlertDialog;
   bool _notificacionSeleccionada = true;
   bool _alarmaSeleccionada = false;
-  int? _calendarioSeleccionado;
+  int? _calendarioSeleccionado = 1;
   List<String> _diasSemanaSeleccionados = [];
+
+  bool _dialogoNuevoRecordatorioAbierto = false;
+  bool _dialogoAbierto = false;
+  int? _diasDespuesSeleccionados = 1;
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -219,13 +223,35 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   }
 
   Widget _buildRecordatoriosTile() {
-    return Container(
-      padding: EdgeInsets.all(0),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-        onTap: () => _mostrarDialogoRecordatorios(context),
-        leading: Icon(Icons.alarm),
-        title: Text('Recordatorios'),
+    return InkWell(
+      onTap: () => _mostrarDialogoRecordatorios(context),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.alarm),
+                SizedBox(width: 10),
+                Text('Recordatorios'),
+              ],
+            ),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.blue, // Color de fondo del círculo
+              ),
+              padding: EdgeInsets.all(5), // Espaciado dentro del círculo
+              child: Text(
+                '${_recordatorios.length}',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white), // Estilo del texto dentro del círculo
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -253,6 +279,14 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
+  void _eliminarRecordatorio(String recordatorio) {
+    setState(() {
+      _recordatorios.remove(recordatorio); // Marca el diálogo como cerrado
+    });
+    _mostrarDialogoRecordatorios(
+        context); // Llama a la función para mostrar el diálogo de recordatorios actualizado
+  }
+
   void _mostrarDialogoRecordatorios(BuildContext context) {
     String titulo = '';
     String hora = '';
@@ -266,8 +300,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
         return AlertDialog(
           title: Center(child: Text('Recordatorios')),
           content: Container(
-            constraints:
-                BoxConstraints(maxWidth: 600), // Ancho máximo del contenedor
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -289,7 +321,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                           parts.length > 1 ? parts[1] : '';
 
                       return Container(
-                        // Aquí estableces el color de fondo deseado
+                    
                         child: ListTile(
                           contentPadding: EdgeInsets.all(
                               0), // Elimina el padding predeterminado del ListTile
@@ -306,21 +338,35 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                                     Text(
                                       horaRecordatorio,
                                       textAlign: TextAlign.center,
-                                    ),
+                                    )
                                   ],
                                 ),
                               ),
                             ],
                           ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () {
-                              setState(() {
-                                _recordatorios.remove(recordatorio);
-                              });
-                            },
+                          trailing: Container(
+                            // Contenedor para el IconButton
+                            padding: EdgeInsets
+                                .zero, // Elimina el padding del contenedor
+                            child: IconButton(
+                              padding: EdgeInsets.all(0),
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                setState(() {
+                                  Navigator.pop(scaffoldContext);
+                                  _eliminarRecordatorio(recordatorio);
+                                });
+                              },
+                            ),
                           ),
-                          subtitle: Text(diasRecordatorio),
+                          subtitle: Text(
+                            diasRecordatorio,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors
+                                  .blue, // Cambia "Colors.blue" al color que desees
+                            ),
+                          ),
                         ),
                       );
                     }).toList(),
@@ -381,7 +427,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
     );
   }
 
-  void _mostrarSelectorHora(BuildContext context) async {
+  void _mostrarSelectorHora(BuildContext context, StateSetter setState) async {
     final TimeOfDay? horaSeleccionada = await showTimePicker(
       context: context,
       initialTime: _horaSeleccionada ?? TimeOfDay.now(),
@@ -391,54 +437,37 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
       setState(() {
         _horaSeleccionada = horaSeleccionada;
       });
-
-      // Cierra el diálogo actual si existe
-      if (_currentAlertDialog != null) {
-        Navigator.of(context).pop();
-      }
-
-      // Llama a _mostrarDialogoNuevoRecordatorio solo si _horaSeleccionada no es nulo
-      if (_horaSeleccionada != null) {
-        _mostrarDialogoNuevoRecordatorio(context);
-      }
     }
   }
 
   void _guardarRecordatorio() {
     String tipoRecordatorio =
         _notificacionSeleccionada ? 'Notificación' : 'Alarma';
-    String horaRecordatorio =
-        _horaSeleccionada != null ? _horaSeleccionada!.format(context) : '';
-    String diasRecordatorio = '';
+    String horaRecordatorio = _horaSeleccionada != null
+        ? _horaSeleccionada!.format(context)
+        : '12:00 PM';
+    String opcionesSeleccionadas = '';
 
-    // Verificar si _horaSeleccionada no es nulo antes de acceder a él
-    if (_horaSeleccionada != null) {
-      // Acceder a _horaSeleccionada solo si no es nulo
-      horaRecordatorio = _horaSeleccionada!.format(context);
-    } else {
-      // Manejar el caso cuando _horaSeleccionada es nulo
-      horaRecordatorio = 'No definida';
+    if (_calendarioSeleccionado == 1) {
+      opcionesSeleccionadas = 'Siempre disponible';
+    } else if (_calendarioSeleccionado == 2) {
+      opcionesSeleccionadas = _diasSemanaSeleccionados.join(', ');
+    } else if (_calendarioSeleccionado == 3) {
+      opcionesSeleccionadas = '$_diasDespuesSeleccionados días después';
     }
 
-    // Obtener los días seleccionados si el tipo de calendario es "Días específicos de la semana"
-    if (_calendarioSeleccionado == 2) {
-      diasRecordatorio = _diasSemanaSeleccionados.join(', ');
-    }
-
-    // Construir el texto del recordatorio
     String recordatorio =
-        '$tipoRecordatorio - $horaRecordatorio\n$diasRecordatorio';
+        '$tipoRecordatorio - $horaRecordatorio\n$opcionesSeleccionadas';
 
+    print("xddd" + opcionesSeleccionadas);
+
+    // Actualizar la interfaz de usuario
     setState(() {
       _recordatorios.add(recordatorio);
     });
   }
 
   void _mostrarDialogoNuevoRecordatorio(BuildContext context) {
-    int? _calendarioSeleccionado = 1;
-
-    List<String> _diasSemanaSeleccionados = [];
-
     // Crea el diálogo y asigna la referencia a _currentAlertDialog
     _currentAlertDialog = AlertDialog(
       title: Text(
@@ -466,7 +495,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                   textAlign: TextAlign.center,
                 ),
                 onTap: () {
-                  _mostrarSelectorHora(context);
+                  _mostrarSelectorHora(context, setState);
                 },
               ),
               Divider(),
@@ -556,8 +585,9 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                       onChanged: (value) {
                         setState(() {
                           _calendarioSeleccionado = value;
-                          _diasSemanaSeleccionados
-                              .clear(); // Limpia la selección de días de la semana
+                          if (value == 2) {
+                            _diasSemanaSeleccionados.clear();
+                          } // Limpia la selección de días de la semana
                         });
                       },
                     ),
@@ -648,6 +678,13 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                               initialValue: '1', // Valor predeterminado
                               keyboardType: TextInputType.number,
                               textAlign: TextAlign.center,
+                              onChanged: (value) {
+                                setState(() {
+                                  // Actualiza el valor de _diasDespuesSeleccionados cuando el campo de entrada cambie
+                                  _diasDespuesSeleccionados =
+                                      int.tryParse(value);
+                                });
+                              },
                             ),
                           ),
                           SizedBox(width: 5),
@@ -675,7 +712,8 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
               onPressed: () {
                 // Implementa aquí la lógica para guardar el recordatorio con la configuración seleccionada
                 _guardarRecordatorio(); // Llama al método para guardar el recordatorio
-                Navigator.of(context).pop(); // Cierra el diálogo
+                Navigator.of(context).pop();
+                _mostrarDialogoRecordatorios(context); // Cierra el diálogo
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue, // Color de fondo azul
