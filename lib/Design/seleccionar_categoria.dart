@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
 
+// ignore: must_be_immutable
 class SeleccionarCategoriaPantalla extends StatefulWidget {
   final PageController pageController;
 
@@ -102,8 +104,12 @@ class _SeleccionarCategoriaPantallaState
     return GestureDetector(
       onTap: () {
         if (label != 'Crear nueva categoría') {
-          widget.pageController.animateToPage(1,
-              duration: Duration(milliseconds: 300), curve: Curves.ease);
+          setState(() {
+            Habito.category = label;
+            Habito.categoryIcon = (icon ?? categoriaIconos[label])!;
+            widget.pageController.animateToPage(1,
+                duration: Duration(milliseconds: 300), curve: Curves.ease);
+          });
         } else {
           _showCrearCategoriaDialog(context);
         }

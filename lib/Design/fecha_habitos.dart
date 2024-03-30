@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
 
 class FechaHabitosScreen extends StatefulWidget {
   @override
@@ -18,9 +20,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   bool _alarmaSeleccionada = false;
   int? _calendarioSeleccionado = 1;
   List<String> _diasSemanaSeleccionados = [];
-
-  bool _dialogoNuevoRecordatorioAbierto = false;
-  bool _dialogoAbierto = false;
   int? _diasDespuesSeleccionados = 1;
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -56,6 +55,29 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(Habito.habitName);
+    print(Habito.habitDescription);
+    print(Habito.frequency?.nombre);
+
+    if (Habito.frequency != null &&
+        Habito.frequency!.nombre == 'Días específicos de la semana') {
+      print(Frecuencia.diasSemana);
+    }
+
+    if (Habito.frequency != null &&
+        Habito.frequency!.nombre == 'Días específicos del mes') {
+      print(Frecuencia.diasMes);
+    }
+
+    if (Habito.frequency != null && Habito.frequency!.nombre == 'Repetir') {
+      print(Frecuencia.diasDespues);
+    }
+
+    print(Habito.category);
+    print(Habito.categoryIcon);
+
+    Habito.startDate = _fechaInicio;
+
     return Scaffold(
       body: ListView(
         children: [
@@ -159,6 +181,14 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
               onChanged: (value) {
                 setState(() {
                   _fechaFinalizacionToggle = value;
+                  if (_fechaFinalizacionToggle == true) {
+                    Habito.endDate == _fechaFinalizacion;
+                    print(_fechaFinalizacion);
+                  } else {
+                    Habito.endDate = null;
+                    print("fecha xd");
+                    print(Habito.endDate);
+                  }
                 });
               },
             ),
@@ -169,7 +199,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   }
 
   Widget _buildDiasInput() {
-    // Calcula la fecha de finalización basada en la fecha de inicio y los días ingresados
     DateTime fechaFinal = _fechaInicio.add(Duration(days: _diasFinalizacion));
 
     // Actualiza la fecha de finalización en el estado del widget
@@ -190,11 +219,12 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
               onChanged: (value) {
                 setState(() {
                   _diasFinalizacion = int.tryParse(value) ?? 0;
-                  // Recalcula la fecha final basada en la nueva cantidad de días
                   fechaFinal =
                       _fechaInicio.add(Duration(days: _diasFinalizacion));
-                  // Actualiza la fecha de finalización en el estado del widget
                   _fechaFinalizacion = fechaFinal;
+                  Habito.endDate = _fechaFinalizacion;
+                  print("Fecha: ");
+                  print(Habito.endDate);
                 });
               },
             ),
@@ -240,14 +270,12 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.blue, // Color de fondo del círculo
+                color: Colors.blue,
               ),
-              padding: EdgeInsets.all(5), // Espaciado dentro del círculo
+              padding: EdgeInsets.all(5),
               child: Text(
                 '${_recordatorios.length}',
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white), // Estilo del texto dentro del círculo
+                style: TextStyle(fontSize: 12, color: Colors.white),
               ),
             ),
           ],
@@ -288,12 +316,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   }
 
   void _mostrarDialogoRecordatorios(BuildContext context) {
-    String titulo = '';
-    String hora = '';
-    String tipoRecordatorio = 'No recordarme';
-    String horarioRecordatorio = 'Siempre disponible';
-    String? diaElegido;
-
     showDialog(
       context: context,
       builder: (BuildContext scaffoldContext) {
@@ -321,7 +343,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                           parts.length > 1 ? parts[1] : '';
 
                       return Container(
-                    
                         child: ListTile(
                           contentPadding: EdgeInsets.all(
                               0), // Elimina el padding predeterminado del ListTile

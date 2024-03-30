@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class DefineHabitoScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(Habito.evaluateProgress);
     return Scaffold(
       body: Center(
         child: Padding(
@@ -45,6 +47,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                 onChanged: (value) {
                   setState(() {
                     _habito = value;
+                    Habito.habitName = _habito;
                   });
                   widget.onHabitoChanged(value);
                 },
@@ -62,6 +65,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                 onChanged: (value) {
                   setState(() {
                     _descripcion = value;
+                    Habito.habitDescription = _descripcion;
                   });
                 },
               ),

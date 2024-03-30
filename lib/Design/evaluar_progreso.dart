@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
 
 class EvaluarProgresoScreen extends StatefulWidget {
   final PageController pageController;
+  final String? categoriaSeleccionada;
+  final IconData? iconoSeleccionado;
 
-  EvaluarProgresoScreen(this.pageController);
+  EvaluarProgresoScreen(
+      {required this.pageController,
+      this.categoriaSeleccionada,
+      this.iconoSeleccionado});
 
   @override
   _EvaluarProgresoScreenState createState() => _EvaluarProgresoScreenState();
@@ -23,8 +29,7 @@ class _EvaluarProgresoScreenState extends State<EvaluarProgresoScreen> {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(
-              20.0),
+          padding: const EdgeInsets.all(20.0),
           child: ListView(
             children: [
               SizedBox(height: 20.0),
@@ -39,6 +44,7 @@ class _EvaluarProgresoScreenState extends State<EvaluarProgresoScreen> {
               SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () {
+                  Habito.evaluateProgress = "si o no";
                   animateToPage();
                 },
                 child: Text('Con si o no'),
@@ -51,6 +57,7 @@ class _EvaluarProgresoScreenState extends State<EvaluarProgresoScreen> {
               SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () {
+                  Habito.evaluateProgress = "valor numerico";
                   animateToPage();
                 },
                 child: Text('Con valor numérico'),

@@ -3,8 +3,12 @@ import 'package:flutter_proyecto_final/Design/defineHabito.dart';
 import 'package:flutter_proyecto_final/Design/evaluar_progreso.dart';
 import 'package:flutter_proyecto_final/Design/fecha_habitos.dart';
 import 'package:flutter_proyecto_final/Design/seleccionar_categoria.dart';
+import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'frecuenciaHabito.dart';
+import 'package:flutter_proyecto_final/services/habitos_services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HabitosPageView extends StatefulWidget {
   @override
@@ -37,7 +41,9 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                 case 0:
                   return SeleccionarCategoriaPantalla(_pageController);
                 case 1:
-                  return EvaluarProgresoScreen(_pageController);
+                  return EvaluarProgresoScreen(
+                    pageController: _pageController,
+                  );
                 case 2:
                   return DefineHabitoScreen(
                     onHabitoChanged: (value) {
@@ -119,7 +125,7 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                       child: Container(
                         width: 100,
                         child: TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_habito.isEmpty) {
                               Fluttertoast.showToast(
                                 msg: "Por favor ingresa un hábito",
@@ -127,6 +133,46 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                                 gravity: ToastGravity.CENTER,
                               );
                             } else if (_currentPageIndex == 4) {
+                              print("Guardando hábito...");
+
+                              dynamic frecuenciaValor;
+
+                              switch (Habito.frequency.nombre) {
+                                case 'Días específicos de la semana':
+                                  frecuenciaValor = Frecuencia.diasSemana;
+                                  break;
+                                case 'Días específicos del mes':
+                                  frecuenciaValor = Frecuencia.diasMes;
+                                  break;
+                                case 'Repetir':
+                                  frecuenciaValor = Frecuencia.diasDespues;
+                                  break;
+                                default:
+                                  throw ArgumentError(
+                                      'Frecuencia no válida: ${Habito.frequency.nombre}');
+                              }
+
+                              try {
+                                await HabitosService().guardarHabito(
+                                    Habito.category,
+                                    Habito.categoryIcon,
+                                    Habito.habitName,
+                                    Habito.evaluateProgress,
+                                    Habito.frequency,
+                                    frecuenciaValor,
+                                    Habito.startDate,
+                                    Habito.endDate,
+                                    Habito.habitDescription
+                                    );
+                                Fluttertoast.showToast(
+                                  msg: "Hábito guardado correctamente!",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                );
+                              } catch (e) {
+                                print('Error al guardar el hábito: $e');
+                              }
+
                               Navigator.pop(context);
                             } else {
                               _pageController.nextPage(

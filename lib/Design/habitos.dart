@@ -14,83 +14,134 @@ class _PantallaSeguimientoHabitosState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          _buildCustomAppBar(), // Mostrar el encabezado personalizado
-          Expanded(
-            child: _buildHabitsList(), // Contenido principal
-          ),
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.only(
-            bottom: 60.0), // Ajusta los márgenes según sea necesario
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HabitosPageView(),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text('Rastreador de hábitos', textAlign: TextAlign.center),
+          centerTitle: true,
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(48.0), // Altura del TabBar
+            child: Container(
+              margin: EdgeInsets.only(
+                  bottom: 8.0), // Ajusta el margen inferior según sea necesario
+              child: TabBar(
+                tabs: [
+                  Tab(text: 'HOY'),
+                  Tab(text: 'HÁBITOS'),
+                ],
               ),
-            );
-          },
-          child: Icon(Icons.add),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCustomAppBar() {
-    return Container(
-      // Color de fondo del encabezado
-      padding: EdgeInsets.only(top: 65.0), // Espaciado interno
-      alignment: Alignment.center, // Alineación del contenido al centro
-      child: Text(
-        'Rastreador de hábitos',
-        style: TextStyle(
-          fontSize: 20.0,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHabitsList() {
-    return habits.isEmpty
-        ? Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'No hay hábitos activos',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Siempre es un buen día para empezar.',
-                ),
-              ],
             ),
-          )
-        : ListView.builder(
-            itemCount: habits.length,
-            itemBuilder: (context, index) {
-              final habit = habits[index];
-              return ListTile(
-                title: Text(habit.name),
-                subtitle: Text(habit.description),
-                trailing: Checkbox(
-                  value: habit.isTracked,
-                  onChanged: (value) {
-                    setState(() {
-                      habit.isTracked = value ?? false;
-                    });
-                  },
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _buildHoyTab(),
+            _buildHabitosTab(),
+          ],
+        ),
+        floatingActionButton: Container(
+          margin: EdgeInsets.only(bottom: 60.0),
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HabitosPageView(),
                 ),
               );
             },
-          );
+            child: Icon(Icons.add),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHoyTab() {
+    return Column(
+      children: [
+        Expanded(
+          child: habits.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'No hay nada agendado',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Intenta agregar nuevas actividades.',
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: habits.length,
+                  itemBuilder: (context, index) {
+                    final habit = habits[index];
+                    return ListTile(
+                      title: Text(Habito.habitName),
+                      subtitle: Text(Habito.habitDescription ?? ''),
+                      trailing: Checkbox(
+                        value: Habito.isTracked,
+                        onChanged: (value) {
+                          setState(() {
+                            Habito.isTracked = value ?? false;
+                          });
+                        },
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHabitosTab() {
+    return Column(
+      children: [
+        Expanded(
+          child: habits.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'No hay hábitos activos',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Siempre es un buen día para empezar.',
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: habits.length,
+                  itemBuilder: (context, index) {
+                    final habit = habits[index];
+                    return ListTile(
+                      title: Text(Habito.habitName),
+                      subtitle: Text(Habito.habitDescription ?? ''),
+                      trailing: Checkbox(
+                        value: Habito.isTracked,
+                        onChanged: (value) {
+                          setState(() {
+                            Habito.isTracked = value ?? false;
+                          });
+                        },
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
   }
 }

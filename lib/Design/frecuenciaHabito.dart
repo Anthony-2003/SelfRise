@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
 
 class FrecuenciaScreen extends StatefulWidget {
   final bool repetir;
@@ -25,6 +27,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
   Map<int, bool> _isSelected = {};
 
   Widget build(BuildContext context) {
+    print(Habito.habitName);
     return Scaffold(
       body: ListView(
         children: [
@@ -70,6 +73,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             onChanged: (value) {
               setState(() {
                 _currentIndex = value as int;
+                Habito.frequency = Frecuencia.CADA_DIA;
               });
             },
           ),
@@ -89,6 +93,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             onChanged: (value) {
               setState(() {
                 _currentIndex = value as int;
+                Habito.frequency = Frecuencia.DIAS_ESPECIFICOS;
               });
             },
           ),
@@ -109,6 +114,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             onChanged: (value) {
               setState(() {
                 _currentIndex = value as int;
+                Habito.frequency = Frecuencia.DIAS_MES;
               });
             },
           ),
@@ -129,6 +135,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             onChanged: (value) {
               setState(() {
                 _currentIndex = value as int;
+                Habito.frequency = Frecuencia.REPETIR;
               });
             },
           ),
@@ -144,6 +151,9 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
         onTap: () {
           setState(() {
             _diasSeleccionados[dia] = !_diasSeleccionados[dia]!;
+            Frecuencia.actualizarDiasSemana(_diasSeleccionados.keys
+                .where((dia) => _diasSeleccionados[dia]!)
+                .toSet());
           });
         },
         child: Container(
@@ -206,6 +216,14 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                 onTap: () {
                   setState(() {
                     _isSelected.update(day, (isSelected) => !isSelected);
+                    Habito.frequency = Frecuencia.DIAS_MES;
+                    Frecuencia.actualizarDiasMes(_isSelected.keys
+                        .toList()
+                        .where((day) => _isSelected[day]!)
+                        .toList()
+                        .cast<int>()
+                        .toSet());
+                    print(Frecuencia.diasMes);
                   });
                 },
                 child: Container(
@@ -235,6 +253,10 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
 
   Widget _buildRepetirTextBox() {
     TextEditingController _controller = TextEditingController();
+
+    _controller.addListener(() {
+      Frecuencia.actualizarDiasDespues(_controller.text);
+    });
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
