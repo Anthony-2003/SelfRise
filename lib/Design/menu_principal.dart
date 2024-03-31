@@ -60,112 +60,112 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
     super.dispose();
   }
 
-  Future<void> obtenerNombreUsuario() async {
-    final nombre = await AuthService.getUserName();
-    setState(() {
-      _nombreUsuario = nombre ?? 'Usuario';
-    });
-  }
+    Future<void> obtenerNombreUsuario() async {
+      final nombre = await AuthService.getUserName();
+      setState(() {
+        _nombreUsuario = nombre ?? 'Usuario';
+      });
+    }
 
-  final List<Widget> _pages = [
-    PantallaPrincipal(),
-    PantallaChat(),
-    PantallaAsignaciones(),
-    PantallaSeguimientoHabitos(),
-    PantallaPerfil(),
-  ];
+    final List<Widget> _pages = [
+      PantallaPrincipal(),
+      PantallaChat(),
+      PantallaAsignaciones(),
+      PantallaSeguimientoHabitos(),
+      PantallaPerfil(),
+    ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.drawer,
-      body: Stack(
-        children: [
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 200),
-            curve: Curves.fastOutSlowIn,
-            width: 288,
-            left: isSideMenuClose ? -288 : 0,
-            height: MediaQuery.of(context).size.height,
-            child: DrawerMenu(),
-          ),
-          Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateY(animation.value - 30 * animation.value * pi / 180),
-            child: Transform.translate(
-                offset: Offset(animation.value * 265, 0),
-                child: Transform.scale(
-                    scale: scalAnimation.value,
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(24)),
-                        child: _pages[_selectedTab]))),
-          ),
-
-          // Button animado
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 200),
-            left: isSideMenuClose ? 0 : 220,
-            top: 16,
-            child: menubtn(
-              riveOnInit: (artboard) {
-                StateMachineController controller = RiveUtils.getRiveController(
-                    artboard,
-                    stateMachineName: "Morph");
-                isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
-                isSideBarClosed.value = true;
-              },
-              press: () {
-                isSideBarClosed.value = !isSideBarClosed.value;
-                if (isSideMenuClose) {
-                  _animationController.forward();
-
-                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                    statusBarColor: AppColors.drawer,
-                    systemNavigationBarIconBrightness: Brightness.light,
-                    systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
-                  ));
-                } else {
-                  _animationController.reverse();
-                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                    statusBarColor: Color.fromARGB(255, 191, 188, 191),
-                    systemNavigationBarIconBrightness: Brightness.light,
-                    systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
-                  ));
-                }
-                setState(() {
-                  isSideMenuClose = isSideBarClosed.value;
-                });
-              },
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        backgroundColor: AppColors.drawer,
+        body: Stack(
+          children: [
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 200),
+              curve: Curves.fastOutSlowIn,
+              width: 288,
+              left: isSideMenuClose ? -288 : 0,
+              height: MediaQuery.of(context).size.height,
+              child: DrawerMenu(),
             ),
-          ),
-          // Barra de navegación curvada
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Transform.translate(
-              offset: _isKeyboardVisible
-                  ? Offset(1000, 150 * animation.value)
-                  : Offset(0, 150 * animation.value),
-              child: CurvedNavigationBar(
-                index: _selectedTab,
-                height: 50,
-                items: _construirNavigationBarItems(),
-                backgroundColor: Colors.transparent,
-                color: Colors.blue, // Cambia esto al color que desees
-                animationDuration: const Duration(milliseconds: 300),
-                onTap: (int index) {
+            Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(animation.value - 30 * animation.value * pi / 180),
+              child: Transform.translate(
+                  offset: Offset(animation.value * 265, 0),
+                  child: Transform.scale(
+                      scale: scalAnimation.value,
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(24)),
+                          child: _pages[_selectedTab]))),
+            ),
+
+            // Button animado
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 200),
+              left: isSideMenuClose ? 0 : 220,
+              top: 16,
+              child: menubtn(
+                riveOnInit: (artboard) {
+                  StateMachineController controller = RiveUtils.getRiveController(
+                      artboard,
+                      stateMachineName: "Morph");
+                  isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
+                  isSideBarClosed.value = true;
+                },
+                press: () {
+                  isSideBarClosed.value = !isSideBarClosed.value;
+                  if (isSideMenuClose) {
+                    _animationController.forward();
+
+                    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                      statusBarColor: AppColors.drawer,
+                      systemNavigationBarIconBrightness: Brightness.light,
+                      systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
+                    ));
+                  } else {
+                    _animationController.reverse();
+                    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                      statusBarColor: Color.fromARGB(255, 191, 188, 191),
+                      systemNavigationBarIconBrightness: Brightness.light,
+                      systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
+                    ));
+                  }
                   setState(() {
-                    _selectedTab = index;
+                    isSideMenuClose = isSideBarClosed.value;
                   });
                 },
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            // Barra de navegación curvada
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Transform.translate(
+                offset: _isKeyboardVisible
+                    ? Offset(1000, 150 * animation.value)
+                    : Offset(0, 150 * animation.value),
+                child: CurvedNavigationBar(
+                  index: _selectedTab,
+                  height: 50,
+                  items: _construirNavigationBarItems(),
+                  backgroundColor: Colors.transparent,
+                  color: Colors.blue, // Cambia esto al color que desees
+                  animationDuration: const Duration(milliseconds: 300),
+                  onTap: (int index) {
+                    setState(() {
+                      _selectedTab = index;
+                    });
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
   List<Widget> _construirNavigationBarItems() {
     return [

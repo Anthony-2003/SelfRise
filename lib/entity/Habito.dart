@@ -36,4 +36,6 @@ class Habito {
     Habito.category;
     Habito.categoryIcon;
   }
+
+  static fromMap(Map<String, dynamic> data) {}
 }

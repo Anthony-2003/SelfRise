@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
+import 'package:flutter_proyecto_final/services/habitos_services.dart';
 import 'habitos_stepper.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
 
@@ -10,7 +12,34 @@ class PantallaSeguimientoHabitos extends StatefulWidget {
 
 class _PantallaSeguimientoHabitosState
     extends State<PantallaSeguimientoHabitos> {
-  List<Habito> habits = [];
+  List<Map<String, dynamic>> habitData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Llenar la lista de hábitos al iniciar la pantalla
+    _loadHabits();
+    print(habitData);
+  }
+
+  // Método para cargar los hábitos del usuario actual
+  void _loadHabits() async {
+    final String? currentUserId = AuthService.getUserId();
+    try {
+      habitData = await HabitosService().obtenerHabitos(currentUserId!);
+
+      if (habitData.isEmpty) {
+        print('No se encontraron hábitos para el usuario actual.');
+      } else {
+        print('Se encontraron hábitos para el usuario actual.');
+        print(habitData);
+      }
+
+      setState(() {});
+    } catch (e) {
+      print('Error al cargar los hábitos: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +92,7 @@ class _PantallaSeguimientoHabitosState
     return Column(
       children: [
         Expanded(
-          child: habits.isEmpty
+          child: habitData.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -80,17 +109,20 @@ class _PantallaSeguimientoHabitosState
                   ),
                 )
               : ListView.builder(
-                  itemCount: habits.length,
+                  itemCount: habitData.length,
                   itemBuilder: (context, index) {
-                    final habit = habits[index];
+                    final habit = habitData[index];
                     return ListTile(
-                      title: Text(Habito.habitName),
-                      subtitle: Text(Habito.habitDescription ?? ''),
+                      title: Text(habit['nombreHabito']),
+                      subtitle: Text(habit['descripcionHabito'] ?? ''),
                       trailing: Checkbox(
-                        value: Habito.isTracked,
+                        value: habit['completado'],
                         onChanged: (value) {
                           setState(() {
-                            Habito.isTracked = value ?? false;
+                            // Actualizar el estado del checkbox
+                            habitData[index]['completado'] = value;
+                            // Actualizar la base de datos con el cambio de estado
+                            // Aquí deberías llamar a un método para actualizar el hábito en la base de datos
                           });
                         },
                       ),
@@ -106,7 +138,7 @@ class _PantallaSeguimientoHabitosState
     return Column(
       children: [
         Expanded(
-          child: habits.isEmpty
+          child: habitData.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -123,17 +155,20 @@ class _PantallaSeguimientoHabitosState
                   ),
                 )
               : ListView.builder(
-                  itemCount: habits.length,
+                  itemCount: habitData.length,
                   itemBuilder: (context, index) {
-                    final habit = habits[index];
+                    final habit = habitData[index];
                     return ListTile(
-                      title: Text(Habito.habitName),
-                      subtitle: Text(Habito.habitDescription ?? ''),
+                      title: Text(habit['nombreHabito']),
+                      subtitle: Text(habit['descripcionHabito'] ?? ''),
                       trailing: Checkbox(
-                        value: Habito.isTracked,
+                        value: habit['completado'],
                         onChanged: (value) {
                           setState(() {
-                            Habito.isTracked = value ?? false;
+                            // Actualizar el estado del checkbox
+                            habitData[index]['completado'] = value;
+                            // Actualizar la base de datos con el cambio de estado
+                            // Aquí deberías llamar a un método para actualizar el hábito en la base de datos
                           });
                         },
                       ),

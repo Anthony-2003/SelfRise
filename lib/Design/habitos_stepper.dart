@@ -3,12 +3,12 @@ import 'package:flutter_proyecto_final/Design/defineHabito.dart';
 import 'package:flutter_proyecto_final/Design/evaluar_progreso.dart';
 import 'package:flutter_proyecto_final/Design/fecha_habitos.dart';
 import 'package:flutter_proyecto_final/Design/seleccionar_categoria.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'frecuenciaHabito.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class HabitosPageView extends StatefulWidget {
   @override
@@ -136,8 +136,15 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                               print("Guardando hábito...");
 
                               dynamic frecuenciaValor;
+                              String? userId = AuthService.getUserId();
+
+
+                              print(userId);
 
                               switch (Habito.frequency.nombre) {
+                                case 'Cada día':
+                                  frecuenciaValor = Frecuencia.cadaDia;
+                                  break;
                                 case 'Días específicos de la semana':
                                   frecuenciaValor = Frecuencia.diasSemana;
                                   break;
@@ -154,16 +161,18 @@ class _HabitosPageViewState extends State<HabitosPageView> {
 
                               try {
                                 await HabitosService().guardarHabito(
-                                    Habito.category,
-                                    Habito.categoryIcon,
-                                    Habito.habitName,
-                                    Habito.evaluateProgress,
-                                    Habito.frequency,
-                                    frecuenciaValor,
-                                    Habito.startDate,
-                                    Habito.endDate,
-                                    Habito.habitDescription
-                                    );
+                                  userId,
+                                  Habito.category,
+                                  Habito.categoryIcon,
+                                  Habito.habitName,
+                                  Habito.evaluateProgress,
+                                  Habito.frequency,
+                                  frecuenciaValor,
+                                  Habito.startDate,
+                                  Habito.endDate,
+                                  false,
+                                  Habito.habitDescription,
+                                );
                                 Fluttertoast.showToast(
                                   msg: "Hábito guardado correctamente!",
                                   toastLength: Toast.LENGTH_SHORT,
@@ -172,6 +181,15 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                               } catch (e) {
                                 print('Error al guardar el hábito: $e');
                               }
+
+                              Habito.category = "";
+                              Habito.categoryIcon = Icons.sports_soccer;
+                              Habito.habitName = "";
+                              Habito.evaluateProgress = "";
+                              Habito.frequency = Frecuencia.CADA_DIA;
+                              Habito.startDate = DateTime.now();
+                              Habito.endDate = null;
+                              Habito.habitDescription = "";
 
                               Navigator.pop(context);
                             } else {

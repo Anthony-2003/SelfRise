@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
+import 'package:get/get.dart';
 
 class FrecuenciaScreen extends StatefulWidget {
   final bool repetir;
@@ -26,8 +27,19 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
   // Definir _isSelected fuera del método build
   Map<int, bool> _isSelected = {};
 
+    @override
+  void initState() {
+    super.initState();
+    Habito.frequency = Frecuencia.CADA_DIA;
+  
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+  }
+
   Widget build(BuildContext context) {
-    print(Habito.habitName);
     return Scaffold(
       body: ListView(
         children: [
@@ -115,6 +127,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
               setState(() {
                 _currentIndex = value as int;
                 Habito.frequency = Frecuencia.DIAS_MES;
+                print(Habito.frequency.nombre);
               });
             },
           ),

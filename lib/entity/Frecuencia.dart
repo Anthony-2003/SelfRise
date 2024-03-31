@@ -1,5 +1,14 @@
 class Frecuencia {
   final String nombre;
+  static Set<String>? cadaDia = {
+    'Lun', // Lunes
+    'Mar', // Martes
+    'Mié', // Miércoles
+    'Jue', // Jueves
+    'Vie', // Viernes
+    'Sáb', // Sábado
+    'Dom', // Domingo
+  };
   static late Set<String>? diasSemana = null;
   static late Set<int>? diasMes;
   static late String? diasDespues;
