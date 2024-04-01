@@ -59,6 +59,8 @@ dependencies:
   fluttertoast: ^8.2.4
   flutter_local_notifications: ^17.0.0
   flutter_timezone: ^1.0.8
+  carousel_slider: ^4.0.0
+  url_launcher: ^6.2.5
 
 
 
@@ -98,6 +100,12 @@ flutter:
    - assets/imagenes/
    - assets/iconos/
    - assets/icon-menu/
+   - assets/podcast-carousel/
+   - assets/podcast-carousel/motivacion/
+   - assets/podcast-carousel/salud-mental/
+   - assets/podcast-carousel/desarrollo-personal/
+   - assets/podcast-carousel/bienestar-fisico/
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
