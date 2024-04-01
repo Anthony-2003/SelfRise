@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Design/seleccionar_categoria.dart';
+import 'habitos_stepper.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
 
 class PantallaSeguimientoHabitos extends StatefulWidget {
@@ -10,25 +10,49 @@ class PantallaSeguimientoHabitos extends StatefulWidget {
 
 class _PantallaSeguimientoHabitosState
     extends State<PantallaSeguimientoHabitos> {
-  List<Habito> habits = []; // Lista para almacenar hábitos
+  List<Habito> habits = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text('Rastreador de Hábitos'),
+      body: Column(
+        children: [
+          _buildCustomAppBar(), // Mostrar el encabezado personalizado
+          Expanded(
+            child: _buildHabitsList(), // Contenido principal
+          ),
+        ],
       ),
-      body: _buildHabitsList(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => SeleccionarCategoriaPantalla()),
-          );
-        },
-        child: Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(
+            bottom: 60.0), // Ajusta los márgenes según sea necesario
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HabitosPageView(),
+              ),
+            );
+          },
+          child: Icon(Icons.add),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomAppBar() {
+    return Container(
+      // Color de fondo del encabezado
+      padding: EdgeInsets.only(top: 65.0), // Espaciado interno
+      alignment: Alignment.center, // Alineación del contenido al centro
+      child: Text(
+        'Rastreador de hábitos',
+        style: TextStyle(
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
       ),
     );
   }
@@ -68,65 +92,5 @@ class _PantallaSeguimientoHabitosState
               );
             },
           );
-  }
-
-  void _addNewHabit() async {
-    final newHabit = await showDialog<Habito>(
-      context: context,
-      builder: (context) => AddHabitDialog(),
-    );
-
-    if (newHabit != null) {
-      setState(() {
-        habits.add(newHabit);
-      });
-    }
-  }
-}
-
-// Paso 4: Diálogo para agregar un nuevo hábito
-class AddHabitDialog extends StatelessWidget {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Agregar Nuevo Hábito'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _nameController,
-            decoration: InputDecoration(labelText: 'Nombre del hábito'),
-          ),
-          TextField(
-            controller: _descriptionController,
-            decoration: InputDecoration(labelText: 'Descripción del hábito'),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text('Cancelar'),
-        ),
-        TextButton(
-          onPressed: () {
-            final newHabit = Habito(
-              name: _nameController.text,
-              description: _descriptionController.text,
-              frequency:
-                  'Daily', // Definir la frecuencia predeterminada o agregar lógica para configurarla
-              isTracked: false,
-            );
-            Navigator.pop(context, newHabit);
-          },
-          child: Text('Guardar'),
-        ),
-      ],
-    );
   }
 }

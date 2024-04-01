@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Design/defineHabito.dart';
 
 class SeleccionarCategoriaPantalla extends StatefulWidget {
+  final PageController pageController;
+
+  SeleccionarCategoriaPantalla(this.pageController);
+
   @override
   _SeleccionarCategoriaPantallaState createState() =>
       _SeleccionarCategoriaPantallaState();
@@ -19,7 +22,6 @@ class _SeleccionarCategoriaPantallaState
 
   IconData? nuevoIcono = Icons.access_alarm;
 
-  // Mapa para almacenar el icono seleccionado para cada categoría
   Map<String, IconData?> categoriaIconos = {
     'Meditación': Icons.access_alarm,
     'Finanzas': Icons.attach_money,
@@ -30,27 +32,48 @@ class _SeleccionarCategoriaPantallaState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Seleccionar una categoría para tu hábito',
-          style: TextStyle(fontSize: 15),
-        ),
-      ),
       body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: ListView(
-          // Agrega padding vertical
-          children: [
-            for (int i = 0; i < categorias.length; i += 2)
-              _buildChipRow(
-                categorias[i],
-                icons[i],
-                i + 1 < categorias.length ? categorias[i + 1] : null,
-                i + 1 < categorias.length ? icons[i + 1] : null,
+        padding: const EdgeInsets.all(1.0),
+        child: Container(
+          margin: EdgeInsets.only(top: 70.0),
+          child: Stack(
+            children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Selecciona una categoría para tu hábito',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        children: [
+                          for (int i = 0; i < categorias.length; i += 2)
+                            _buildChipRow(
+                              categorias[i],
+                              icons[i],
+                              i + 1 < categorias.length
+                                  ? categorias[i + 1]
+                                  : null,
+                              i + 1 < categorias.length ? icons[i + 1] : null,
+                            ),
+                          _buildChip('Crear nueva categoría', Icons.add,
+                              () => _showCrearCategoriaDialog(context)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            _buildChip('Crear nueva categoría', Icons.add,
-                () => _showCrearCategoriaDialog(context)),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -65,8 +88,7 @@ class _SeleccionarCategoriaPantallaState
           Expanded(
             child: _buildChip(label1, icon1),
           ),
-          SizedBox(
-              width: 8.0), // Ajusta el espacio horizontal entre los elementos
+          SizedBox(width: 8.0),
           if (label2 != null && icon2 != null)
             Expanded(
               child: _buildChip(label2, icon2),
@@ -80,19 +102,15 @@ class _SeleccionarCategoriaPantallaState
     return GestureDetector(
       onTap: () {
         if (label != 'Crear nueva categoría') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DefineHabitoScreen(),
-            ),
-          );
+          widget.pageController.animateToPage(1,
+              duration: Duration(milliseconds: 300), curve: Curves.ease);
         } else {
-          _showCrearCategoriaDialog(context); // Ejecutar la función para mostrar el diálogo de nueva categoría
+          _showCrearCategoriaDialog(context);
         }
       },
       child: Container(
         height: 50,
-        margin: EdgeInsets.symmetric(vertical: 4.0),
+        margin: EdgeInsets.symmetric(vertical: 2.0),
         padding: EdgeInsets.symmetric(horizontal: 16.0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
@@ -179,17 +197,9 @@ class _SeleccionarCategoriaPantallaState
     if (nuevaCategoria != null && nuevaCategoria.isNotEmpty) {
       setState(() {
         categorias.add(nuevaCategoria);
-        icons.add(nuevoIcono ??
-            Icons.add); // Agregar el nuevo ícono a la lista de íconos
-        categoriaIconos[nuevaCategoria] =
-            nuevoIcono ?? Icons.add; // Establecer el icono por defecto
+        icons.add(nuevoIcono ?? Icons.add);
+        categoriaIconos[nuevaCategoria] = nuevoIcono ?? Icons.add;
       });
     }
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: SeleccionarCategoriaPantalla(),
-  ));
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/booksview.dart';
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
@@ -323,51 +322,54 @@ class _DrawerMenuState extends State<DrawerMenu> {
 //INFORMACION DEL USUARIO
 class InfoCard extends StatelessWidget {
   const InfoCard({
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>?>(
       future: AuthService.getUserData(AuthService.getUserId()),
       builder: (BuildContext context,
           AsyncSnapshot<Map<String, dynamic>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Mientras espera la respuesta del futuro, puedes mostrar un indicador de carga.
           return CircularProgressIndicator();
         } else {
           if (snapshot.hasError || snapshot.data == null) {
-            // Si hay un error en el futuro o los datos son nulos, muestra un mensaje de error.
             return Text('Error al obtener los datos del usuario');
           } else {
-            // Si se completa correctamente, muestra el nombre y la foto del usuario en el ListTile.
             final userData = snapshot.data!;
             final name = userData['name'] ?? 'Nombre de usuario no disponible';
             final photoUrl = userData['imageLink'];
             final email = userData['email'];
-            return ListTile(
-              leading: ClipOval(
-                child: CircleAvatar(
-                  backgroundColor: AppColors.white_trans,
-                  radius: 25,
-                  child: photoUrl != null
-                      ? Image.network(
-                          photoUrl,
-                          fit: BoxFit.cover,
-                          width: 50,
-                          height: 50,
-                        )
-                      : Icon(Icons.account_circle),
+            return Padding(
+              padding: const EdgeInsets.only(
+                  top:
+                      60.0), // Ajusta el valor del margen inferior según sea necesario
+              child: ListTile(
+                leading: ClipOval(
+                  child: CircleAvatar(
+                    backgroundColor: AppColors.white_trans,
+                    radius: 25,
+                    child: photoUrl != null
+                        ? Image.network(
+                            photoUrl,
+                            fit: BoxFit.cover,
+                            width: 50,
+                            height: 50,
+                          )
+                        : Icon(Icons.account_circle),
+                  ),
                 ),
+                title: Text(
+                  name,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                subtitle: Text(
+                  email,
+                  style: TextStyle(fontSize: 10),
+                ),
+                textColor: AppColors.white,
               ),
-              title: Text(
-                name,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-              subtitle: Text(
-                email,
-                style: TextStyle(fontSize: 10),
-              ),
-              textColor: AppColors.white,
             );
           }
         }
