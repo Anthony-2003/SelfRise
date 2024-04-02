@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
+import 'package:flutter_proyecto_final/utils/iconos_disponibles.dart';
 
-// ignore: must_be_immutable
 class SeleccionarCategoriaPantalla extends StatefulWidget {
   final PageController pageController;
 
@@ -31,6 +31,37 @@ class _SeleccionarCategoriaPantallaState
     'Deportes': Icons.sports_soccer
   };
 
+  Map<String, Color> categoriaColores = {
+    'Meditación': Colors.blue.withOpacity(0.8),
+    'Finanzas': Colors.green.withOpacity(0.8),
+    'Artes': Colors.orange.withOpacity(0.8),
+    'Deportes': Colors.red.withOpacity(0.8),
+    'Tecnología': Colors.purple.withOpacity(0.8),
+    'Cocina': Colors.amber.withOpacity(0.8),
+    'Moda': Colors.pink.withOpacity(0.8),
+    'Viajes': Colors.teal.withOpacity(0.8),
+    'Educación': Colors.indigo.withOpacity(0.8),
+    'Salud': Colors.deepOrange.withOpacity(0.8),
+    'Música': Colors.blueAccent.withOpacity(0.8),
+    'Entretenimiento': Colors.cyan.withOpacity(0.8),
+  };
+
+  List<Widget> categoriaChips = []; // Lista de chips de categoría
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa la lista de chips de categoría con las categorías existentes
+    _initializeCategoriaChips();
+  }
+
+  void _initializeCategoriaChips() {
+    categoriaChips.clear();
+    for (String categoria in categorias) {
+      categoriaChips.add(_buildChip(categoria, categoriaIconos[categoria]));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,15 +88,12 @@ class _SeleccionarCategoriaPantallaState
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         children: [
-                          for (int i = 0; i < categorias.length; i += 2)
+                          for (int i = 0; i < categoriaChips.length; i += 2)
                             _buildChipRow(
-                              categorias[i],
-                              icons[i],
-                              i + 1 < categorias.length
-                                  ? categorias[i + 1]
-                                  : null,
-                              i + 1 < categorias.length ? icons[i + 1] : null,
-                            ),
+                                categoriaChips[i],
+                                i + 1 < categoriaChips.length
+                                    ? categoriaChips[i + 1]
+                                    : null),
                           _buildChip('Crear nueva categoría', Icons.add,
                               () => _showCrearCategoriaDialog(context)),
                         ],
@@ -81,20 +109,16 @@ class _SeleccionarCategoriaPantallaState
     );
   }
 
-  Widget _buildChipRow(
-      String label1, IconData? icon1, String? label2, IconData? icon2) {
+  Widget _buildChipRow(Widget chip1, [Widget? chip2]) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
           Expanded(
-            child: _buildChip(label1, icon1),
+            child: chip1,
           ),
-          SizedBox(width: 8.0),
-          if (label2 != null && icon2 != null)
-            Expanded(
-              child: _buildChip(label2, icon2),
-            ),
+          if (chip2 != null) SizedBox(width: 8.0),
+          if (chip2 != null) Expanded(child: chip2),
         ],
       ),
     );
@@ -116,17 +140,38 @@ class _SeleccionarCategoriaPantallaState
       },
       child: Container(
         height: 50,
-        margin: EdgeInsets.symmetric(vertical: 2.0),
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        margin: EdgeInsets.symmetric(vertical: 10.0),
+        padding: EdgeInsets.symmetric(horizontal: 10.0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
-            Icon(icon ?? categoriaIconos[label]),
+            Container(
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: categoriaColores[label],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon ?? categoriaIconos[label],
+                color: Colors.black,
+              ),
+            ),
             SizedBox(width: 8),
-            Text(label),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -134,64 +179,190 @@ class _SeleccionarCategoriaPantallaState
   }
 
   void _showCrearCategoriaDialog(BuildContext context) async {
-    String? nuevaCategoria = await showDialog<String>(
+    String? nuevaCategoriaText;
+    IconData? nuevoIcono;
+    Color? nuevoColor;
+    IconData? iconoSeleccionado;
+    String tituloDialogo = 'Nueva categoría';
+
+    showDialog(
       context: context,
-      builder: (BuildContext context) {
-        String nuevaCategoriaText = '';
+      builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Crear nueva categoría'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
+              contentPadding: EdgeInsets.zero,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextField(
-                    onChanged: (value) => nuevaCategoriaText = value,
-                    decoration: InputDecoration(
-                      hintText: 'Nombre de la nueva categoría',
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  DropdownButtonFormField<IconData>(
-                    value: nuevoIcono,
-                    onChanged: (value) {
-                      setState(() {
-                        nuevoIcono = value;
-                      });
-                    },
-                    items: [
-                      DropdownMenuItem(
-                        value: Icons.access_alarm,
-                        child: Icon(Icons.access_alarm),
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(2),
+                        child: Icon(
+                          Icons.circle,
+                          size: 15,
+                          color: nuevoColor ?? Colors.grey,
+                        ),
                       ),
-                      DropdownMenuItem(
-                        value: Icons.attach_money,
-                        child: Icon(Icons.attach_money),
-                      ),
-                      DropdownMenuItem(
-                        value: Icons.palette,
-                        child: Icon(Icons.palette),
-                      ),
-                      DropdownMenuItem(
-                        value: Icons.sports_soccer,
-                        child: Icon(Icons.sports_soccer),
+                      SizedBox(width: 8),
+                      Text(
+                        tituloDialogo,
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
                       ),
                     ],
                   ),
+                  Container(
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: nuevoColor ?? Colors.grey,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      iconoSeleccionado ?? Icons.category,
+                      color: Colors.black,
+                    ),
+                  )
                 ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Divider(),
+                    ListTile(
+                      leading: Icon(Icons.edit),
+                      title: Text('Nombre de la categoría'),
+                      onTap: () {
+                        _mostrarDialogoNombreCategoria(context,
+                            (nuevoNombreCategoria) {
+                          setState(() {
+                            nuevaCategoriaText = nuevoNombreCategoria;
+                            tituloDialogo = '$nuevaCategoriaText';
+                          });
+                        });
+                      },
+                    ),
+                    Divider(),
+                    ListTile(
+                      leading: Icon(Icons.image),
+                      title: Text('Icono de la categoría'),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('Selecciona un icono'),
+                              content: Container(
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.5,
+                                child: GridView.count(
+                                  crossAxisCount: 4,
+                                  children: iconosDisponibles.map((icono) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          nuevoIcono = icono;
+                                          iconoSeleccionado =
+                                              icono; // Actualiza el icono seleccionado
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.all(8.0),
+                                        decoration: BoxDecoration(
+                                          color: nuevoIcono == icono
+                                              ? Colors.grey.withOpacity(0.5)
+                                              : null,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(icono, size: 40),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    Divider(),
+                    ListTile(
+                      leading: Icon(Icons.color_lens),
+                      title: Text('Color de la categoría'),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('Selecciona un color'),
+                              content: Container(
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                child: Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 8.0,
+                                  children: [
+                                    for (Color color in categoriaColores.values)
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            nuevoColor = color;
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                        child: Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: nuevoColor == color
+                                              ? Icon(Icons.check,
+                                                  color: Colors.white)
+                                              : null,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    Divider(),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    if (nuevaCategoriaText != null &&
+                        nuevaCategoriaText!.isNotEmpty &&
+                        nuevoIcono != null &&
+                        nuevoColor != null) {
+                      setState(() {
+                        categorias.add(nuevaCategoriaText!);
+                        categoriaIconos[nuevaCategoriaText!] = nuevoIcono;
+                        categoriaColores[nuevaCategoriaText!] = nuevoColor!;
+
+                        // Agregar el nuevo chip de categoría
+                        Widget nuevoChip =
+                            _buildChip(nuevaCategoriaText!, nuevoIcono);
+                        categoriaChips.add(nuevoChip);
+
+                        // Actualizar la lista de chips de categoría
+                        _initializeCategoriaChips();
+                      });
+                      Navigator.pop(context);
+                    }
                   },
-                  child: Text('Cancelar'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(nuevaCategoriaText);
-                  },
-                  child: Text('Guardar'),
+                  child: Text('Crear categoría'),
                 ),
               ],
             );
@@ -199,13 +370,45 @@ class _SeleccionarCategoriaPantallaState
         );
       },
     );
+  }
 
-    if (nuevaCategoria != null && nuevaCategoria.isNotEmpty) {
-      setState(() {
-        categorias.add(nuevaCategoria);
-        icons.add(nuevoIcono ?? Icons.add);
-        categoriaIconos[nuevaCategoria] = nuevoIcono ?? Icons.add;
-      });
-    }
+  void _mostrarDialogoNombreCategoria(
+      BuildContext context, Function(String?) onChanged) {
+    String? nuevoNombreCategoria;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Nombre de la categoría'),
+          content: TextField(
+            onChanged: (value) {
+              nuevoNombreCategoria = value;
+            },
+            decoration: InputDecoration(
+              hintText: 'Ingresa el nombre',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (nuevoNombreCategoria != null &&
+                    nuevoNombreCategoria!.isNotEmpty) {
+                  onChanged(nuevoNombreCategoria);
+                  Navigator.pop(context, nuevoNombreCategoria);
+                }
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

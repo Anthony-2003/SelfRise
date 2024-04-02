@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 
 class HabitosService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   Future<void> guardarHabito(
       String? userId,
       String categoria,
@@ -51,6 +53,22 @@ class HabitosService {
     } catch (e) {
       print('Error al obtener los hábitos: $e');
       throw e;
+    }
+  }
+
+  Future<void> actualizarEstadoHabito(String habitId, bool completado) async {
+    try {
+      // Obtener la referencia al documento del hábito
+      DocumentReference habitRef =
+          _firestore.collection('habitos').doc(habitId);
+
+      // Actualizar el campo 'completado' del documento
+      await habitRef.update({
+        'completado': completado,
+      });
+    } catch (e) {
+      // Manejar cualquier error que ocurra durante la actualización
+      throw Exception('Error al actualizar el estado del hábito: $e');
     }
   }
 }

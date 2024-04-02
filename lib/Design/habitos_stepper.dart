@@ -11,6 +11,10 @@ import 'frecuenciaHabito.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 
 class HabitosPageView extends StatefulWidget {
+  final Function() onHabitSaved;
+
+  HabitosPageView({required this.onHabitSaved});
+
   @override
   _HabitosPageViewState createState() => _HabitosPageViewState();
 }
@@ -138,9 +142,6 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                               dynamic frecuenciaValor;
                               String? userId = AuthService.getUserId();
 
-
-                              print(userId);
-
                               switch (Habito.frequency.nombre) {
                                 case 'Cada día':
                                   frecuenciaValor = Frecuencia.cadaDia;
@@ -173,6 +174,9 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                                   false,
                                   Habito.habitDescription,
                                 );
+
+                                widget.onHabitSaved();
+
                                 Fluttertoast.showToast(
                                   msg: "Hábito guardado correctamente!",
                                   toastLength: Toast.LENGTH_SHORT,
