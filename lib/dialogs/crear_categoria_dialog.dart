@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/entity/categoria.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
@@ -10,12 +11,11 @@ class CrearCategoriaDialog extends StatefulWidget {
   final bool showDeleteButton;
   final Categoria? categoria;
 
-  CrearCategoriaDialog({
-    required this.categoriaColores,
-    required this.onCategoriaAdded,
-    this.showDeleteButton = false,
-    this.categoria
-  });
+  CrearCategoriaDialog(
+      {required this.categoriaColores,
+      required this.onCategoriaAdded,
+      this.showDeleteButton = false,
+      this.categoria});
 
   @override
   _CrearCategoriaDialogState createState() => _CrearCategoriaDialogState();
@@ -28,11 +28,13 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
 
   @override
   Widget build(BuildContext context) {
-
-
-    nuevaCategoriaText = widget.showDeleteButton ? widget.categoria!.nombre : 'Nueva categoría' ;
-    nuevoIcono = widget.showDeleteButton ? widget.categoria!.icono : Icons.category;
-    nuevoColor = (widget.showDeleteButton ? widget.categoria?.color : Color(0xFFBBDEFB))!;
+    nuevaCategoriaText =
+        widget.showDeleteButton ? widget.categoria!.nombre : 'Nueva categoría';
+    nuevoIcono =
+        widget.showDeleteButton ? widget.categoria!.icono : Icons.category;
+    nuevoColor = (widget.showDeleteButton
+        ? widget.categoria?.color
+        : Color(0xFFBBDEFB))!;
 
     return StatefulBuilder(
       builder: (context, setState) {
@@ -187,9 +189,8 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                     onTap: () {
                       _mostrarDialogoEliminarCategoria(context);
                     },
-                    
                   ),
-                if(widget.showDeleteButton)  Divider(),
+                if (widget.showDeleteButton) Divider(),
               ],
             ),
           ),
@@ -212,7 +213,9 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                   Navigator.pop(context);
                 }
               },
-              child: widget.showDeleteButton? Text('Modificar categoría') : Text('Crear categoría'),
+              child: widget.showDeleteButton
+                  ? Text('Modificar categoría')
+                  : Text('Crear categoría'),
             ),
           ],
         );
@@ -260,5 +263,30 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
     );
   }
 
-  void _mostrarDialogoEliminarCategoria(BuildContext context) {}
+  void _mostrarDialogoEliminarCategoria(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text('Eliminar categoría'),
+          content: Text('¿Estás seguro de que deseas eliminar esta categoría?'),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text('Eliminar'),
+              onPressed: () {
+                // Aquí puedes agregar la lógica para eliminar la categoría
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

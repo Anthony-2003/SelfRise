@@ -111,8 +111,11 @@ class _PantallaSeguimientoHabitosState
           ],
         ),
         floatingActionButton: Container(
+        
           margin: EdgeInsets.only(bottom: 70.0),
           child: FloatingActionButton(
+            backgroundColor: Color(0xFF2773B9),
+            focusColor: Colors.white,
             onPressed: () {
               Navigator.push(
                 context,
@@ -124,7 +127,7 @@ class _PantallaSeguimientoHabitosState
                 ),
               );
             },
-            child: Icon(Icons.add),
+            child: Icon(Icons.add, color: Colors.white),
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,

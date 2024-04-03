@@ -102,15 +102,22 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: _buildFechaInicioTile(context),
           ),
+          Divider(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: _buildFechaFinalizacionTile(),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildFechaFinalizacionTile(),
+                SizedBox(height: _fechaFinalizacionToggle ? 10 : 0),
+                if (_fechaFinalizacionToggle) ...[
+                  _buildDiasInput(),
+                  Divider(),
+                ],
+              ],
+            ),
           ),
-          SizedBox(height: _fechaFinalizacionToggle ? 10 : 0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: _fechaFinalizacionToggle ? _buildDiasInput() : SizedBox(),
-          ),
+          if (!_fechaFinalizacionToggle) Divider(),
           SizedBox(height: _fechaFinalizacionToggle ? 10 : 0),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 1.0),
@@ -139,7 +146,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
             Container(
               padding: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.2),
+                color: Color(0xFF2773B9),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -148,7 +155,8 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                         _fechaInicio.day == DateTime.now().day
                     ? 'Hoy'
                     : _formattedDate(_fechaInicio),
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
           ],
@@ -165,7 +173,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
         });
       },
       child: Container(
-        margin: EdgeInsets.only(top: 10),
         child: Row(
           children: [
             Icon(Icons.date_range),
@@ -186,11 +193,10 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                     print(_fechaFinalizacion);
                   } else {
                     Habito.endDate = null;
-                    print("fecha xd");
-                    print(Habito.endDate);
                   }
                 });
               },
+              activeTrackColor: Color(0xFF2773B9),
             ),
           ],
         ),
@@ -223,8 +229,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                       _fechaInicio.add(Duration(days: _diasFinalizacion));
                   _fechaFinalizacion = fechaFinal;
                   Habito.endDate = _fechaFinalizacion;
-                  print("Fecha: ");
-                  print(Habito.endDate);
                 });
               },
             ),
@@ -238,16 +242,16 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
 
   Widget _buildFechaFinalizacionSpan() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       margin: EdgeInsets.only(top: 10),
       constraints: BoxConstraints(maxWidth: 100),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.2),
+        color: Color(0xFF2773B9),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         _formattedDate(_fechaFinalizacion),
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
       ),
     );
   }
@@ -256,7 +260,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
     return InkWell(
       onTap: () => _mostrarDialogoRecordatorios(context),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: EdgeInsets.symmetric(horizontal: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -264,15 +268,15 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
               children: [
                 Icon(Icons.alarm),
                 SizedBox(width: 10),
-                Text('Recordatorios'),
+                Text('Recordatorios',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               ],
             ),
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.blue,
+                color: Color(0xFF2773B9),
               ),
-              padding: EdgeInsets.all(5),
+              padding: EdgeInsets.all(10),
               child: Text(
                 '${_recordatorios.length}',
                 style: TextStyle(fontSize: 12, color: Colors.white),

@@ -18,6 +18,27 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   bool _seleccionarDiasSemana = false;
   bool _seleccionarDiasMes = false;
   bool _repetir = false;
+  FocusNode _focusNode = FocusNode();
+  FocusNode _descripcionFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      setState(() {});
+    });
+
+    _descripcionFocusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _descripcionFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +62,23 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
               ),
               SizedBox(height: 20.0),
               TextFormField(
+                focusNode: _focusNode,
+                onTap: () {
+                  setState(() {
+                    FocusScope.of(context).requestFocus(_focusNode);
+                  });
+                },
                 decoration: InputDecoration(
                   labelText: 'Hábito',
+                  labelStyle: TextStyle(
+                    color: _focusNode.hasFocus
+                        ? Color.fromARGB(255, 24, 85, 142)
+                        : Colors.black,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Color.fromARGB(255, 24, 85, 142)),
+                  ),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -59,8 +95,18 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
               ),
               SizedBox(height: 20.0),
               TextFormField(
+                focusNode: _descripcionFocusNode,
                 decoration: InputDecoration(
                   labelText: 'Descripción (Opcional)',
+                  labelStyle: TextStyle(
+                    color: _descripcionFocusNode.hasFocus
+                        ? Color.fromARGB(255, 24, 85, 142)
+                        : Colors.black,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Color.fromARGB(255, 24, 85, 142)),
+                  ),
                 ),
                 onChanged: (value) {
                   setState(() {

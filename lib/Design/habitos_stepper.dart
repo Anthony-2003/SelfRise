@@ -72,7 +72,7 @@ class _HabitosPageViewState extends State<HabitosPageView> {
 
   Widget _buildBottomNavigationBar() {
     return Container(
-      color: Colors.grey[200],
+      color: Color(0xFF2773B9),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -97,7 +97,7 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                       },
                       child: Text(
                         _currentPageIndex != 0 ? 'Atrás' : 'Cancelar',
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
                     ),
                   ),
@@ -113,7 +113,7 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                             Icons.circle,
                             size: 16.0,
                             color: i == _currentPageIndex
-                                ? Colors.blue
+                                ? Colors.white
                                 : Colors.grey,
                           ),
                         ),
@@ -205,7 +205,7 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                           },
                           child: Text(
                             _currentPageIndex == 4 ? 'Finalizar' : 'Siguiente',
-                            style: TextStyle(color: Colors.black),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
                         ),
                       ),

@@ -27,11 +27,12 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
   // Definir _isSelected fuera del método build
   Map<int, bool> _isSelected = {};
 
-    @override
+  Color selectedColor = Color(0xFF2773B9); // Color seleccionado
+
+  @override
   void initState() {
     super.initState();
     Habito.frequency = Frecuencia.CADA_DIA;
-  
   }
 
   @override
@@ -88,6 +89,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                 Habito.frequency = Frecuencia.CADA_DIA;
               });
             },
+            activeColor: selectedColor,
           ),
         ),
         Transform.scale(
@@ -108,6 +110,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                 Habito.frequency = Frecuencia.DIAS_ESPECIFICOS;
               });
             },
+            activeColor: selectedColor,
           ),
         ),
         if (_currentIndex == 1) _buildDiasSemanaCheckboxes(),
@@ -130,6 +133,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                 print(Habito.frequency.nombre);
               });
             },
+            activeColor: selectedColor,
           ),
         ),
         if (_currentIndex == 2) _buildDiasMesCheckboxes(),
@@ -151,6 +155,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                 Habito.frequency = Frecuencia.REPETIR;
               });
             },
+            activeColor: selectedColor,
           ),
         ),
         if (_currentIndex == 3) _buildRepetirTextBox(),
@@ -179,6 +184,18 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                     _diasSeleccionados[dia] = value!;
                   });
                 },
+                checkColor:
+                    Colors.white, // Color del tick cuando está seleccionado
+                fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    // Cambia el color de fondo del checkbox cuando está seleccionado
+                    if (states.contains(MaterialState.selected)) {
+                      return Color(
+                          0xFF2773B9); // Color cuando está seleccionado
+                    }
+                    return Colors.transparent; // Color por defecto
+                  },
+                ),
               ),
               Text(
                 dia,
@@ -243,7 +260,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _isSelected[day]!
-                        ? Colors.lightBlueAccent
+                        ? Color(0xFF2773B9)
                         : Colors.transparent,
                   ),
                   child: Center(
@@ -291,6 +308,11 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 hintText: '',
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Color(
+                          0xFF2773B9)), // Color del borde cuando el TextField está activo
+                ),
               ),
             ),
           ),

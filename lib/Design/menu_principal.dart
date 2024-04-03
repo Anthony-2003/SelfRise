@@ -78,7 +78,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
     @override
     Widget build(BuildContext context) {
       return Scaffold(
-        backgroundColor: AppColors.drawer,
+        backgroundColor: Color(0xFF2773B9),
         body: Stack(
           children: [
             AnimatedPositioned(
@@ -122,14 +122,14 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                     _animationController.forward();
 
                     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                      statusBarColor: AppColors.drawer,
+                      statusBarColor: Color(0xFF2773B9),
                       systemNavigationBarIconBrightness: Brightness.light,
                       systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
                     ));
                   } else {
                     _animationController.reverse();
                     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                      statusBarColor: Color.fromARGB(255, 191, 188, 191),
+                      statusBarColor: Colors.white,
                       systemNavigationBarIconBrightness: Brightness.light,
                       systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
                     ));
@@ -152,7 +152,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                   height: 50,
                   items: _construirNavigationBarItems(),
                   backgroundColor: Colors.transparent,
-                  color: Colors.blue, // Cambia esto al color que desees
+                  color: Color(0xFF2773B9), // Cambia esto al color que desees
                   animationDuration: const Duration(milliseconds: 300),
                   onTap: (int index) {
                     setState(() {
@@ -178,7 +178,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
   }
 
   Widget _construirNavigationBarItem(IconData icon) {
-    return Icon(icon, size: 30);
+    return Icon(icon, size: 30, color: Colors.white);
   }
 }
 
