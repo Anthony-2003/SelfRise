@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
-import 'package:flutter_proyecto_final/utils/iconos_disponibles.dart';
+import 'package:flutter_proyecto_final/dialogs/crear_categoria_dialog.dart';
 import 'package:flutter_proyecto_final/entity/categoria.dart';
 import 'package:flutter_proyecto_final/services/categoria_services.dart';
+import 'package:flutter_proyecto_final/const/colores_categorias.dart';
+import 'package:flutter_proyecto_final/const/iconos_por_defecto.dart';
 
 class SeleccionarCategoriaPantalla extends StatefulWidget {
   final PageController pageController;
@@ -17,51 +19,27 @@ class SeleccionarCategoriaPantalla extends StatefulWidget {
 
 class _SeleccionarCategoriaPantallaState
     extends State<SeleccionarCategoriaPantalla> {
-  List<String> categorias = ['Meditación', 'Finanzas', 'Artes', 'Deportes'];
-
-  Map<String, IconData?> categoriaIconos = {
-    'Meditación': Icons.access_alarm,
-    'Finanzas': Icons.attach_money,
-    'Artes': Icons.palette,
-    'Deportes': Icons.sports_soccer
-  };
-
-  Map<String, Color> categoriaColores = {
-    'Meditación': Color(0xFFBBDEFB), // Azul claro
-    'Finanzas': Color(0xFFC8E6C9), // Verde claro
-    'Artes': Color(0xFFFFE0B2), // Naranja claro
-    'Deportes': Color(0xFFFFCCBC), // Rosa claro
-    'Tecnología': Color(0xFFD1C4E9), // Púrpura claro
-    'Cocina': Color(0xFFFFD180), // Naranja claro
-    'Moda': Color(0xFFFFAB91), // Rojo anaranjado claro
-    'Viajes': Color(0xFFB2DFDB), // Turquesa claro
-    'Educación': Color(0xFFB39DDB), // Púrpura claro
-    'Salud': Color(0xFF81C784), // Verde claro
-    'Música': Color(0xFF90CAF9), // Azul claro
-    'Entretenimiento': Color(0xFFCE93D8), // Violeta claro
-  };
-
   List<Widget> categoriaChips = [];
-  List<String> categoriasUsuario =
-      []; 
+  List<String> categoriasUsuario = [];
+  List<String> categorias = ['Meditación', 'Finanzas', 'Artes', 'Deportes'];
 
   @override
   void initState() {
     super.initState();
-      _subscribeToCategoryChanges();
     _initializeCategoriaChips();
+    _subscribeToCategoryChanges();
   }
 
   void _updateCategoriaChipsList() {
-    List<String> todasCategorias = [
-      ...categorias,
-      ...categoriasUsuario
-    ]; // Fusionar las categorías
     setState(() {
-      categoriaChips.clear(); // Limpiar los chips de categoría
-      for (String categoria in todasCategorias) {
-        categoriaChips.add(_buildChip(categoria, categoriaIconos[categoria],
-            categoriaColores[categoria]!));
+      for (String categoria in categoriasUsuario) {
+        if (!categoriaChips.any((chip) => chip.key.toString() == categoria)) {
+          categoriaChips.add(_buildChip(
+            categoria,
+            categoriaIconos[categoria],
+            categoriaColores[categoria]!,
+          ));
+        }
       }
     });
   }
@@ -73,14 +51,15 @@ class _SeleccionarCategoriaPantallaState
         List<Categoria> userCategories =
             await CategoriesService.getCategoriesByUserId(currentUserId);
         setState(() {
-          categoriasUsuario
-              .clear(); 
           for (Categoria categoria in userCategories) {
-            categoriasUsuario.add(
-                categoria.nombre); 
+            categoriaChips.add(_buildChip(
+              categoria.nombre,
+              categoria.icono,
+              categoria.color,
+            ));
           }
-          _updateCategoriaChipsList();
         });
+        _updateCategoriaChipsList();
       } catch (error) {
         print('Error al obtener las categorías del usuario: $error');
       }
@@ -88,7 +67,6 @@ class _SeleccionarCategoriaPantallaState
   }
 
   void _initializeCategoriaChips() {
-    categoriaChips.clear();
     for (String categoria in categorias) {
       categoriaChips.add(_buildChip(
           categoria, categoriaIconos[categoria], categoriaColores[categoria]!));
@@ -176,6 +154,19 @@ class _SeleccionarCategoriaPantallaState
           _showCrearCategoriaDialog(context);
         }
       },
+      onLongPress: () {
+        if (label != 'Crear nueva categoría') {
+
+           IconData iconoAUsar = icon ?? Icons.category;
+
+           Categoria categoriaAEditar = Categoria(
+                    nombre: label,
+                    icono: iconoAUsar,
+                    color: color,
+                  );
+          _showCrearCategoriaDialog(context, showDeleteButton: true, categoria: categoriaAEditar);
+        }
+      },
       child: Container(
         height: 50,
         margin: EdgeInsets.symmetric(vertical: 10.0),
@@ -217,12 +208,14 @@ class _SeleccionarCategoriaPantallaState
     );
   }
 
-  void _showCrearCategoriaDialog(BuildContext context) async {
+  void _showCrearCategoriaDialog(BuildContext context, {Categoria? categoria, bool showDeleteButton = false}) async {
     showDialog(
       context: context,
       builder: (context) => CrearCategoriaDialog(
         categoriaColores: categoriaColores,
-        agregarCategoria: _agregarCategoria,
+        onCategoriaAdded: _agregarCategoria,
+        showDeleteButton: showDeleteButton,
+        categoria: categoria, 
       ),
     );
   }
@@ -233,249 +226,13 @@ class _SeleccionarCategoriaPantallaState
       categorias.add(nuevaCategoriaText);
       categoriaIconos[nuevaCategoriaText] = nuevoIcono;
       categoriaColores[nuevaCategoriaText] = nuevoColor;
-      _updateCategoriaChips(nuevaCategoriaText, nuevoIcono);
-    });
-    _subscribeToCategoryChanges();
-  }
-
-  void _updateCategoriaChips(String categoria, IconData icono) {
-    setState(() {
-      categoriaChips.add(_buildChip(categoria, icono, Colors.red));
+      _updateCategoriaChipsList();
+      categoriaChips.add(_buildChip(
+        nuevaCategoriaText,
+        nuevoIcono,
+        nuevoColor,
+      ));
     });
   }
 }
 
-class CrearCategoriaDialog extends StatefulWidget {
-  final Map<String, Color> categoriaColores;
-  final Function(String, IconData, Color) agregarCategoria;
-
-  CrearCategoriaDialog({
-    required this.categoriaColores,
-    required this.agregarCategoria,
-  });
-
-  @override
-  _CrearCategoriaDialogState createState() => _CrearCategoriaDialogState();
-}
-
-class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
-  String nuevaCategoriaText = 'Nueva categoría';
-  IconData nuevoIcono = Icons.category;
-  Color nuevoColor = Color(0xFFBBDEFB);
-
-  @override
-  Widget build(BuildContext context) {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(2),
-                    child: Icon(
-                      Icons.circle,
-                      size: 20,
-                      color: nuevoColor,
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    nuevaCategoriaText,
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  color: nuevoColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  nuevoIcono,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Divider(),
-                ListTile(
-                  leading: Icon(Icons.edit),
-                  title: Text('Nombre de la categoría'),
-                  onTap: () {
-                    _mostrarDialogoNombreCategoria(
-                      context,
-                      (nuevoNombreCategoria) {
-                        setState(() {
-                          nuevaCategoriaText = nuevoNombreCategoria!;
-                        });
-                      },
-                    );
-                  },
-                ),
-                Divider(),
-                ListTile(
-                  leading: Icon(Icons.image),
-                  title: Text('Icono de la categoría'),
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Selecciona un icono'),
-                          content: Container(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            height: MediaQuery.of(context).size.height * 0.5,
-                            child: GridView.count(
-                              crossAxisCount: 4,
-                              children: iconosDisponibles.map((icono) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      nuevoIcono = icono;
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(8.0),
-                                    decoration: BoxDecoration(
-                                      color: nuevoIcono == icono
-                                          ? Colors.grey.withOpacity(0.5)
-                                          : null,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(icono, size: 40),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                Divider(),
-                ListTile(
-                  leading: Icon(Icons.color_lens),
-                  title: Text('Color de la categoría'),
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Selecciona un color'),
-                          content: Container(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            child: Wrap(
-                              spacing: 8.0,
-                              runSpacing: 8.0,
-                              children: widget.categoriaColores.entries
-                                  .take(12)
-                                  .map((entry) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      nuevoColor = entry.value;
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: entry.value,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: nuevoColor == entry.value
-                                        ? Icon(Icons.check, color: Colors.white)
-                                        : null,
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                Divider(),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                if (nuevaCategoriaText.isNotEmpty &&
-                    !widget.categoriaColores.containsKey(nuevaCategoriaText)) {
-                  Categoria nuevaCategoria = Categoria(
-                    nombre: nuevaCategoriaText,
-                    icono: nuevoIcono,
-                    color: nuevoColor,
-                  );
-
-                  final String? currentUserId = AuthService.getUserId();
-
-                  CategoriesService.addCategory(currentUserId!, nuevaCategoria);
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Crear categoría'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _mostrarDialogoNombreCategoria(
-      BuildContext context, Function(String?) onChanged) {
-    String? nuevoNombreCategoria;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Nombre de la categoría'),
-          content: TextField(
-            onChanged: (value) {
-              nuevoNombreCategoria = value;
-            },
-            decoration: InputDecoration(
-              hintText: 'Ingresa el nombre',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (nuevoNombreCategoria != null &&
-                    nuevoNombreCategoria!.isNotEmpty) {
-                  onChanged(nuevoNombreCategoria);
-                  Navigator.pop(context, nuevoNombreCategoria);
-                }
-              },
-              child: Text('Aceptar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
