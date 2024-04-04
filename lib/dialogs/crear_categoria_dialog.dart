@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/entity/categoria.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/services/categoria_services.dart';
@@ -39,7 +40,8 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
     return StatefulBuilder(
       builder: (context, setState) {
         return AlertDialog(
-          contentPadding: EdgeInsets.zero,
+          backgroundColor: AppColors.drawer,
+          contentPadding: EdgeInsets.all(20),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -57,8 +59,9 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                   Text(
                     nuevaCategoriaText,
                     style: TextStyle(
-                      fontSize: 15,
-                    ),
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -81,7 +84,8 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
               children: [
                 Divider(),
                 ListTile(
-                  leading: Icon(Icons.edit),
+                  textColor: Colors.white,
+                  leading: Icon(Icons.edit, color: Colors.white),
                   title: Text('Nombre de la categoría'),
                   onTap: () {
                     _mostrarDialogoNombreCategoria(
@@ -96,14 +100,16 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                 ),
                 Divider(),
                 ListTile(
-                  leading: Icon(Icons.image),
+                  textColor: Colors.white,
+                  leading: Icon(Icons.image, color: Colors.white),
                   title: Text('Icono de la categoría'),
                   onTap: () {
                     showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: Text('Selecciona un icono'),
+                          backgroundColor: AppColors.drawer,
+                          title: Text('Selecciona un icono', style: TextStyle(color: Colors.white),),
                           content: Container(
                             width: MediaQuery.of(context).size.width * 0.8,
                             height: MediaQuery.of(context).size.height * 0.5,
@@ -125,7 +131,7 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                                           : null,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(icono, size: 40),
+                                    child: Icon(icono, size: 40, color: Colors.white,),
                                   ),
                                 );
                               }).toList(),
@@ -138,14 +144,19 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                 ),
                 Divider(),
                 ListTile(
-                  leading: Icon(Icons.color_lens),
+                  textColor: Colors.white,
+                  leading: Icon(
+                    Icons.color_lens,
+                    color: Colors.white,
+                  ),
                   title: Text('Color de la categoría'),
                   onTap: () {
                     showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: Text('Selecciona un color'),
+                          backgroundColor: AppColors.drawer,
+                          title: Text('Selecciona un color', style: TextStyle(color: Colors.white),),
                           content: Container(
                             width: MediaQuery.of(context).size.width * 0.8,
                             child: Wrap(
@@ -184,7 +195,8 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                 Divider(),
                 if (widget.showDeleteButton)
                   ListTile(
-                    leading: Icon(Icons.delete),
+                    textColor: Colors.white,
+                    leading: Icon(Icons.delete, color: Colors.white),
                     title: Text('Eliminar categoría'),
                     onTap: () {
                       _mostrarDialogoEliminarCategoria(context);
@@ -213,9 +225,29 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                   Navigator.pop(context);
                 }
               },
-              child: widget.showDeleteButton
-                  ? Text('Modificar categoría')
-                  : Text('Crear categoría'),
+              child: Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Color(0xFF2773B9),
+                    borderRadius: BorderRadius.circular(
+                        20.0), // Ajusta el radio según sea necesario
+                  ),
+                  padding: EdgeInsets.all(
+                      10.0), // Ajusta el relleno según sea necesario
+                  child: widget.showDeleteButton
+                      ? Text(
+                          'Modificar categoría',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18), // Color del texto
+                        )
+                      : Text(
+                          'Crear categoría',
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 18), // Color del texto
+                        ),
+                ),
+              ),
             ),
           ],
         );
@@ -226,36 +258,100 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
   void _mostrarDialogoNombreCategoria(
       BuildContext context, Function(String?) onChanged) {
     String? nuevoNombreCategoria;
+    TextEditingController controller = TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Nombre de la categoría'),
+          backgroundColor: AppColors.drawer,
+          title: Text('Nombre de la categoría',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           content: TextField(
+            controller: controller,
             onChanged: (value) {
-              nuevoNombreCategoria = value;
+              setState(() {
+                nuevoNombreCategoria = value;
+              });
             },
+            style: TextStyle(
+              color: Colors.white,
+            ),
             decoration: InputDecoration(
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white, width: 2.0),
+                borderRadius: BorderRadius.circular(50.0), // Borde redondeado
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.white.withOpacity(0.5),
+                  width: 1.0,
+                ),
+                borderRadius: BorderRadius.circular(20.0), // Borde redondeado
+              ),
               hintText: 'Ingresa el nombre',
+              hintStyle: TextStyle(
+                color: Colors.grey,
+              ),
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancelar'),
+            Container(
+              margin:
+                  EdgeInsets.all(8.0), // Ajusta el margen según sea necesario
+              decoration: BoxDecoration(
+                color: Color(0xFF2773B9), // Color de fondo
+                borderRadius: BorderRadius.circular(20), // Bordes redondeados
+              ),
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                      vertical: 12.0,
+                      horizontal:
+                          24.0), // Ajusta el padding según sea necesario
+                  // Otros estilos de botón, como el color del borde, pueden ser ajustados aquí
+                ),
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Colors.white, // Color del texto
+                  ),
+                ),
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                if (nuevoNombreCategoria != null &&
-                    nuevoNombreCategoria!.isNotEmpty) {
-                  onChanged(nuevoNombreCategoria);
-                  Navigator.pop(context, nuevoNombreCategoria);
-                }
-              },
-              child: Text('Aceptar'),
+            Container(
+              margin:
+                  EdgeInsets.all(8.0), // Ajusta el margen según sea necesario
+              decoration: BoxDecoration(
+                color: Color(0xFF2773B9), // Color de fondo
+                borderRadius: BorderRadius.circular(20), // Bordes redondeados
+              ),
+              child: OutlinedButton(
+                onPressed: () {
+                  if (nuevoNombreCategoria != null &&
+                      nuevoNombreCategoria!.isNotEmpty) {
+                    onChanged(nuevoNombreCategoria);
+                    Navigator.pop(context, nuevoNombreCategoria);
+                  }
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                      vertical: 12.0,
+                      horizontal:
+                          24.0), // Ajusta el padding según sea necesario
+                  // Otros estilos de botón, como el color del borde, pueden ser ajustados aquí
+                ),
+                child: Text(
+                  'Aceptar',
+                  style: TextStyle(
+                    color: Colors.white, // Color del texto
+                  ),
+                ),
+              ),
             ),
           ],
         );

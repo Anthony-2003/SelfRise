@@ -6,6 +6,7 @@ import 'package:flutter_proyecto_final/entity/categoria.dart';
 import 'package:flutter_proyecto_final/services/categoria_services.dart';
 import 'package:flutter_proyecto_final/const/colores_categorias.dart';
 import 'package:flutter_proyecto_final/const/iconos_por_defecto.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SeleccionarCategoriaPantalla extends StatefulWidget {
   final PageController pageController;
@@ -22,6 +23,13 @@ class _SeleccionarCategoriaPantallaState
   List<Widget> categoriaChips = [];
   List<String> categoriasUsuario = [];
   List<String> categorias = ['Meditación', 'Finanzas', 'Artes', 'Deportes'];
+  List<String> categoriasNoPermitidas = [
+    'Meditación',
+    'Finanzas',
+    'Artes',
+    'Deportes',
+    'Crear nueva categoría'
+  ];
 
   @override
   void initState() {
@@ -77,7 +85,6 @@ class _SeleccionarCategoriaPantallaState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Padding(
         padding: const EdgeInsets.all(1.0),
         child: Container(
@@ -156,16 +163,27 @@ class _SeleccionarCategoriaPantallaState
         }
       },
       onLongPress: () {
-        if (label != 'Crear nueva categoría') {
+        if (categoriasNoPermitidas.contains(label)) {
+          // Muestra el toast indicando que la categoría por defecto no puede modificarse
+          Fluttertoast.showToast(
+            msg: "Las categorías por defecto no pueden modificarse",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+          );
+        } else {
+          // Si no está en la lista de categorías no permitidas, puedes ejecutar la función para editar la categoría
+          IconData iconoAUsar = icon ?? Icons.category;
 
-           IconData iconoAUsar = icon ?? Icons.category;
+          Categoria categoriaAEditar = Categoria(
+            nombre: label,
+            icono: iconoAUsar,
+            color: color,
+          );
 
-           Categoria categoriaAEditar = Categoria(
-                    nombre: label,
-                    icono: iconoAUsar,
-                    color: color,
-                  );
-          _showCrearCategoriaDialog(context, showDeleteButton: true, categoria: categoriaAEditar);
+          _showCrearCategoriaDialog(context,
+              showDeleteButton: true, categoria: categoriaAEditar);
         }
       },
       child: Container(
@@ -209,14 +227,15 @@ class _SeleccionarCategoriaPantallaState
     );
   }
 
-  void _showCrearCategoriaDialog(BuildContext context, {Categoria? categoria, bool showDeleteButton = false}) async {
+  void _showCrearCategoriaDialog(BuildContext context,
+      {Categoria? categoria, bool showDeleteButton = false}) async {
     showDialog(
       context: context,
       builder: (context) => CrearCategoriaDialog(
         categoriaColores: categoriaColores,
         onCategoriaAdded: _agregarCategoria,
         showDeleteButton: showDeleteButton,
-        categoria: categoria, 
+        categoria: categoria,
       ),
     );
   }
@@ -236,4 +255,3 @@ class _SeleccionarCategoriaPantallaState
     });
   }
 }
-

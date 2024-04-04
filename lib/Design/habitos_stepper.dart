@@ -97,7 +97,10 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                       },
                       child: Text(
                         _currentPageIndex != 0 ? 'Atrás' : 'Cancelar',
-                        style: TextStyle(color: Colors.white, fontSize: 18,                 fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -205,7 +208,10 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                           },
                           child: Text(
                             _currentPageIndex == 4 ? 'Finalizar' : 'Siguiente',
-                            style: TextStyle(color: Colors.white, fontSize: 18,                 fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),

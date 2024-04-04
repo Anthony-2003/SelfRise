@@ -170,7 +170,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
       Icons.home,
       Icons.chat,
       Icons.assignment,
-      Icons.track_changes,
+      Icons.directions_run,
       Icons.person,
     ].map((icon) => _construirNavigationBarItem(icon)).toList();
   }

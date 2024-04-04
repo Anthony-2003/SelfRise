@@ -66,6 +66,22 @@ class _PantallaSeguimientoHabitosState
     _hoyTabStreamController.add(data);
   }
 
+  List<DateTime> _generateAllDaysOfYear() {
+    final now = DateTime.now();
+    final startOfYear = DateTime(now.year, 1, 1);
+    final endOfYear = DateTime(now.year, 12, 31);
+
+    final List<DateTime> allDaysOfYear = [];
+    for (var date = startOfYear;
+        date.isBefore(endOfYear);
+        date = date.add(Duration(days: 1))) {
+      allDaysOfYear.add(date);
+    }
+    allDaysOfYear.add(endOfYear); // Agregar el último día del año
+
+    return allDaysOfYear;
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -84,6 +100,7 @@ class _PantallaSeguimientoHabitosState
                 child: DatePicker(
                   DateTime.now(),
                   initialSelectedDate: DateTime.now(),
+                  activeDates: _generateAllDaysOfYear(),
                   selectionColor: Color(0xFF2773B9),
                   selectedTextColor: Colors.white,
                   locale: 'es',
@@ -185,7 +202,8 @@ class _PantallaSeguimientoHabitosState
                           ),
                         )
                       : Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10), // Margen superior de 20 píxeles
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10), // Margen superior de 20 píxeles
                           child: SizedBox(
                             height: 200,
                             child: ListView.builder(
