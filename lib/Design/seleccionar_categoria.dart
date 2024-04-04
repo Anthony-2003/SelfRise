@@ -77,6 +77,7 @@ class _SeleccionarCategoriaPantallaState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       body: Padding(
         padding: const EdgeInsets.all(1.0),
         child: Container(

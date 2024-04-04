@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../services/AuthService.dart';
 import '../entity/Chat.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
 
 class PantallaChat extends StatefulWidget {
   PantallaChat({Key? key}) : super(key: key);
@@ -48,7 +49,7 @@ class _PantallaChatState extends State<PantallaChat> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
-        child: CustomAppBar(),
+        child: CustomAppBar(titleText: 'Chat'),
       ),
       body: Column(
         children: [
@@ -238,44 +239,3 @@ class _PantallaChatState extends State<PantallaChat> {
     );
   }
 }
-
-/// This Dart class named CustomAppBar extends StatelessWidget.
-class CustomAppBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      elevation: 0, // Establece la elevación del AppBar en 0 para que no tenga una sombra predeterminada
-      backgroundColor: Color(0xFF2773B9),
-      automaticallyImplyLeading: false, // Para evitar que se muestre el botón de regreso
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(25),
-          bottomRight: Radius.circular(25),
-        ),
-      ),
-      shadowColor: Color(0xFF000000).withOpacity(1), // Color y opacidad de la sombra
-      title: Container(
-        padding: EdgeInsets.only(top: 35),
-        alignment: Alignment.center,
-        child: ClipRRect(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-          ),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Text(
-              'Chat',
-              style: TextStyle(
-                fontSize: 30.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.white, // Color del texto
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-

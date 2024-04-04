@@ -4,6 +4,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_proyecto_final/Design/drawer_menu.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/components/buttons.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:rive/rive.dart';
@@ -121,9 +122,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 if (isSideMenuClose) {
                   _animationController.forward();
                   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                    statusBarColor: AppColors.drawer,
-                    systemNavigationBarIconBrightness: Brightness.light,
-                    systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
+                    systemNavigationBarIconBrightness: Brightness.dark,
                   ));
                 } else {
                   _animationController.reverse();
@@ -247,12 +246,18 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildContent();
+    return Scaffold(
+            appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: CustomAppBar(titleText: 'Inicio'),
+      ),
+      body: _buildContent(),
+    );
   }
 
   Widget _buildContent() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(15, 80, 15, 15),
+      padding: EdgeInsets.fromLTRB(15, 5, 15, 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -401,8 +406,8 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
               ),
               const SizedBox(height: 16),
               Container(
-                padding: EdgeInsets.all(
-                    0), // Ajusta el padding según sea necesario
+                padding:
+                    EdgeInsets.all(0), // Ajusta el padding según sea necesario
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Color(0xFF2773B9), // Cambia el color del círculo aquí

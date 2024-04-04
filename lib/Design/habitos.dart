@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Design/habitos_stepper.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
-import 'habitos_stepper.dart';
+import 'package:date_picker_timeline/date_picker_timeline.dart';
 
 class PantallaSeguimientoHabitos extends StatefulWidget {
   @override
@@ -19,18 +21,14 @@ class PantallaSeguimientoHabitos extends StatefulWidget {
 class _PantallaSeguimientoHabitosState
     extends State<PantallaSeguimientoHabitos> {
   late StreamController<List<Map<String, dynamic>>> _hoyTabStreamController;
-  late StreamController<List<Map<String, dynamic>>> _habitosTabStreamController;
   late List<Map<String, dynamic>> _hoyHabitData = [];
   late List<Map<String, dynamic>> _habitosHabitData = [];
   // ignore: unused_field
-  int _currentTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _hoyTabStreamController =
-        StreamController<List<Map<String, dynamic>>>.broadcast();
-    _habitosTabStreamController =
         StreamController<List<Map<String, dynamic>>>.broadcast();
     _initializeHabitData();
   }
@@ -38,7 +36,6 @@ class _PantallaSeguimientoHabitosState
   @override
   void dispose() {
     _hoyTabStreamController.close();
-    _habitosTabStreamController.close();
     super.dispose();
   }
 
@@ -60,7 +57,6 @@ class _PantallaSeguimientoHabitosState
       }).toList();
       _habitosHabitData = habitData;
       _updateHoyTabData(_hoyHabitData);
-      _updateHabitosTabData(_habitosHabitData);
     } catch (e) {
       print('Error al cargar los hábitos: $e');
     }
@@ -70,51 +66,50 @@ class _PantallaSeguimientoHabitosState
     _hoyTabStreamController.add(data);
   }
 
-  void _updateHabitosTabData(List<Map<String, dynamic>> data) {
-    _habitosTabStreamController.add(data);
-  }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text('Rastreador de hábitos', textAlign: TextAlign.center),
-          centerTitle: true,
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(48.0),
-            child: Container(
-              margin: EdgeInsets.only(bottom: 8.0),
-              child: TabBar(
-                tabs: [
-                  Tab(text: 'HOY'),
-                  Tab(text: 'HÁBITOS'),
-                ],
-                indicatorColor: Color(0xFF2773B9),
-                labelColor: Color(0xFF2773B9),
-                 
-                onTap: (index) {
-                  setState(() {
-                    _currentTabIndex = index;
-                  });
-                  // Llama a _initializeHabitData() cuando se cambie de pestaña
-                  _initializeHabitData();
-                },
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(80.0),
+          child: CustomAppBar(titleText: 'Rastreador de hábitos'),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 10, right: 10, top: 10),
+              child: SizedBox(
+                height: 100, // Altura ajustable según sea necesario
+                child: DatePicker(
+                  DateTime.now(),
+                  initialSelectedDate: DateTime.now(),
+                  selectionColor: Color(0xFF2773B9),
+                  selectedTextColor: Colors.white,
+                  locale: 'es',
+                  height: 10,
+                  onDateChange: (date) {
+                    // New date selected
+                    setState(() {
+                      // Handle selected date
+                    });
+                  },
+                ),
               ),
             ),
-          ),
-        ),
-        body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
-          children: [
-            _buildTab(0),
-            _buildTab(1),
+            Expanded(
+              child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  _buildTab(0),
+                  _buildTab(1),
+                ],
+              ),
+            ),
           ],
         ),
         floatingActionButton: Container(
-          margin: EdgeInsets.only(bottom: 70.0),
+          margin: EdgeInsets.only(bottom: 60.0),
           child: FloatingActionButton(
             backgroundColor: Color(0xFF2773B9),
             focusColor: Colors.white,
@@ -138,8 +133,7 @@ class _PantallaSeguimientoHabitosState
   }
 
   Widget _buildTab(int index) {
-    final streamController =
-        index == 0 ? _hoyTabStreamController : _habitosTabStreamController;
+    final streamController = _hoyTabStreamController;
 
     return StreamBuilder<List<Map<String, dynamic>>>(
         stream: streamController.stream,
@@ -191,93 +185,99 @@ class _PantallaSeguimientoHabitosState
                           ),
                         )
                       : Padding(
-                          padding: EdgeInsets.only(bottom: 16.0),
-                          child: ListView.builder(
-                            itemCount: filteredHabits.length,
-                            itemBuilder: (context, index) {
-                              final habit = filteredHabits[index];
-                              return Column(
-                                children: [
-                                  ListTile(
-                                    title: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              IconData(habit['iconoCategoria'],
-                                                  fontFamily: 'MaterialIcons'),
-                                              size: 24,
-                                            ),
-                                            SizedBox(width: 8),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  habit['nombreHabito'],
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                                if (habit['descripcionHabito'] !=
-                                                        null &&
-                                                    habit['descripcionHabito']
-                                                        .isNotEmpty)
-                                                  Column(
-                                                    children: [
-                                                      SizedBox(
-                                                          height:
-                                                              8), // Espacio entre el título y la descripción
-                                                      Text(
-                                                        habit[
-                                                            'descripcionHabito'],
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                    ],
+                          padding: EdgeInsets.symmetric(vertical: 10), // Margen superior de 20 píxeles
+                          child: SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              itemCount: filteredHabits.length,
+                              itemBuilder: (context, index) {
+                                final habit = filteredHabits[index];
+                                return Column(
+                                  children: [
+                                    SizedBox(width: 18),
+                                    ListTile(
+                                      title: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                IconData(
+                                                    habit['iconoCategoria'],
+                                                    fontFamily:
+                                                        'MaterialIcons'),
+                                                size: 24,
+                                              ),
+                                              SizedBox(width: 8),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    habit['nombreHabito'],
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    trailing: Checkbox(
-                                      value: habit['completado'],
-                                      onChanged: (value) async {
-                                        // Actualizar el estado del hábito localmente
-                                        setState(() {
-                                          habit['completado'] = value;
-                                        });
-
-                                        // Llamar al método para actualizar el estado del hábito en la base de datos
-                                        try {
-                                          await HabitosService()
-                                              .actualizarEstadoHabito(
-                                                  habit['id'], value!);
-                                          // Mostrar un mensaje o realizar alguna acción adicional si es necesario
-                                        } catch (e) {
-                                          print(
-                                              'Error al actualizar el estado del hábito: $e');
-                                          // Si ocurre un error, puedes revertir el cambio del estado local si es necesario
+                                                  if (habit['descripcionHabito'] !=
+                                                          null &&
+                                                      habit['descripcionHabito']
+                                                          .isNotEmpty)
+                                                    Column(
+                                                      children: [
+                                                        SizedBox(
+                                                            height:
+                                                                8), // Espacio entre el título y la descripción
+                                                        Text(
+                                                          habit[
+                                                              'descripcionHabito'],
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      trailing: Checkbox(
+                                        value: habit['completado'],
+                                        onChanged: (value) async {
+                                          // Actualizar el estado del hábito localmente
                                           setState(() {
-                                            habit['completado'] = !value!;
+                                            habit['completado'] = value;
                                           });
-                                        }
-                                      },
+
+                                          // Llamar al método para actualizar el estado del hábito en la base de datos
+                                          try {
+                                            await HabitosService()
+                                                .actualizarEstadoHabito(
+                                                    habit['id'], value!);
+                                            // Mostrar un mensaje o realizar alguna acción adicional si es necesario
+                                          } catch (e) {
+                                            print(
+                                                'Error al actualizar el estado del hábito: $e');
+                                            // Si ocurre un error, puedes revertir el cambio del estado local si es necesario
+                                            setState(() {
+                                              habit['completado'] = !value!;
+                                            });
+                                          }
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                  Divider(
-                                    // Agrega una línea debajo de cada ListTile
-                                    height: 1,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              );
-                            },
+                                    Divider(
+                                      // Agrega una línea debajo de cada ListTile
+                                      height: 1,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                 ),

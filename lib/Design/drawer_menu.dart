@@ -202,7 +202,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                         title: Container(
                           margin: EdgeInsets.symmetric(horizontal: 20),
                           child: Text(
-                            "Nutricion",
+                            "Hábitos",
                             style: TextStyle(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.bold,
