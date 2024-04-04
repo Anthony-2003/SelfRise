@@ -92,6 +92,9 @@ class _PantallaSeguimientoHabitosState
                   Tab(text: 'HOY'),
                   Tab(text: 'HÁBITOS'),
                 ],
+                indicatorColor: Color(0xFF2773B9),
+                labelColor: Color(0xFF2773B9),
+                 
                 onTap: (index) {
                   setState(() {
                     _currentTabIndex = index;
@@ -111,7 +114,6 @@ class _PantallaSeguimientoHabitosState
           ],
         ),
         floatingActionButton: Container(
-        
           margin: EdgeInsets.only(bottom: 70.0),
           child: FloatingActionButton(
             backgroundColor: Color(0xFF2773B9),

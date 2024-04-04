@@ -164,7 +164,7 @@ class _PantallaChatState extends State<PantallaChat> {
                   ),
                   padding: EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
-                    color: isMe ? Colors.blue : Colors.grey[300],
+                    color: isMe ? Color(0xFF2773B9) : Colors.grey[300],
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                   child: Text(
@@ -195,32 +195,34 @@ class _PantallaChatState extends State<PantallaChat> {
     TextEditingController messageController = TextEditingController();
 
     return Container(
-      padding: EdgeInsets.all(16.0),
-      margin: EdgeInsets.only(bottom: 35.0),
+      margin: EdgeInsets.only(bottom: 70, left: 10, right: 10, top: 10),
+      padding: EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+            50), // Ajusta el radio para hacerlo más redondeado
+        color:
+            Colors.grey[200], // Cambia el color de fondo del campo de entrada
+      ),
       child: Row(
         children: [
           Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              margin: EdgeInsets.only(bottom: 20.0),
-              child: TextField(
-                controller: messageController,
-                decoration: InputDecoration(
-                  hintText: 'Escribe tu mensaje...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
+            child: TextField(
+              controller: messageController,
+              decoration: InputDecoration(
+                hintText: 'Escribe tu mensaje...',
+                border: InputBorder.none, // Quita el borde del TextField
+                contentPadding: EdgeInsets.symmetric(horizontal: 20),
               ),
             ),
           ),
-          SizedBox(width: 8.0),
           Container(
-            margin: EdgeInsets.only(bottom: 20.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(
+                  50), // Ajusta el radio para hacerlo más redondeado
+              color: Color(0xFF2773B9), // Cambia el color de fondo del botón
+            ),
             child: IconButton(
               icon: Icon(Icons.send),
-              iconSize: 30,
-              color: Colors.blue,
               onPressed: () {
                 String message = messageController.text;
                 if (message.isNotEmpty) {
@@ -228,6 +230,7 @@ class _PantallaChatState extends State<PantallaChat> {
                   messageController.clear();
                 }
               },
+              color: Colors.white, // Cambia el color del icono del botón
             ),
           ),
         ],
@@ -236,20 +239,43 @@ class _PantallaChatState extends State<PantallaChat> {
   }
 }
 
+/// This Dart class named CustomAppBar extends StatelessWidget.
 class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 58.0),
-      alignment: Alignment.center,
-      child: Text(
-        'Chat',
-        style: TextStyle(
-          fontSize: 20.0,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
+    return AppBar(
+      elevation: 0, // Establece la elevación del AppBar en 0 para que no tenga una sombra predeterminada
+      backgroundColor: Color(0xFF2773B9),
+      automaticallyImplyLeading: false, // Para evitar que se muestre el botón de regreso
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(25),
+          bottomRight: Radius.circular(25),
+        ),
+      ),
+      shadowColor: Color(0xFF000000).withOpacity(1), // Color y opacidad de la sombra
+      title: Container(
+        padding: EdgeInsets.only(top: 35),
+        alignment: Alignment.center,
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Text(
+              'Chat',
+              style: TextStyle(
+                fontSize: 30.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white, // Color del texto
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
+
