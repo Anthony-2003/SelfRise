@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/entity/categoria.dart';
@@ -253,11 +252,37 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                   padding: EdgeInsets.all(
                       10.0), // Ajusta el relleno según sea necesario
                   child: widget.showDeleteButton
-                      ? Text(
-                          'Modificar categoría',
-                          style: TextStyle(
+                      ? GestureDetector(
+                          onTap: () async {
+                            Categoria categoriaActualizada = Categoria(
+                                id: widget.categoria!.id,
+                                nombre: nuevaCategoriaText,
+                                color: nuevoColor,
+                                icono:
+                                    nuevoIcono // Supongamos que el nuevo color es azul
+                                );
+                            try {
+                              await CategoriesService.updateCategory(
+                                  categoriaActualizada);
+                              Fluttertoast.showToast(
+                                msg: "Categoría actualizada correctamente",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                backgroundColor: Colors.black,
+                                textColor: Colors.white,
+                              );
+                              Navigator.pop(context);
+                            } catch (error) {
+                              print('Error al actualizar la categoría: $error');
+                            }
+                          },
+                          child: Text(
+                            'Modificar categoría',
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18), // Color del texto
+                              fontSize: 18,
+                            ),
+                          ),
                         )
                       : Text(
                           'Crear categoría',
@@ -424,9 +449,6 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
               ),
               onPressed: () {
                 if (widget.categoria != null) {
-                  print(" mondongo");
-                  print(widget.categoria?.id);
-
                   CategoriesService.deleteCategoryById(widget.categoria!.id);
 
                   Fluttertoast.showToast(

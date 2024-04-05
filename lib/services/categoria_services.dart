@@ -20,6 +20,20 @@ class CategoriesService {
     return null;
   }
 
+    static Future<void> updateCategory(Categoria categoria) async {
+    try {
+      await _firestore.collection('categorias').doc(categoria.id).update({
+        'nombre': categoria.nombre,
+        'icono': categoria.icono.codePoint,
+        'color': categoria.color.value,
+      });
+      print('Categoría actualizada con éxito');
+    } catch (error) {
+      print('Error al actualizar la categoría: $error');
+      throw error;
+    }
+  }
+
   static Future<List<Categoria>> getCategoriesByUserId(
       String currentUserId) async {
     try {
