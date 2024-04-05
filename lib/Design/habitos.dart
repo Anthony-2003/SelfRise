@@ -23,6 +23,7 @@ class _PantallaSeguimientoHabitosState
   late StreamController<List<Map<String, dynamic>>> _hoyTabStreamController;
   late List<Map<String, dynamic>> _hoyHabitData = [];
   late List<Map<String, dynamic>> _habitosHabitData = [];
+  late DateTime _selectedDate = DateTime.now();
   // ignore: unused_field
 
   @override
@@ -106,9 +107,8 @@ class _PantallaSeguimientoHabitosState
                   locale: 'es',
                   height: 10,
                   onDateChange: (date) {
-                    // New date selected
                     setState(() {
-                      // Handle selected date
+                      _selectedDate = date; // Actualiza la fecha seleccionada
                     });
                   },
                 ),
@@ -267,10 +267,7 @@ class _PantallaSeguimientoHabitosState
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
-                                                  if (habit['descripcionHabito'] !=
-                                                          null &&
-                                                      habit['descripcionHabito']
-                                                          .isNotEmpty)
+                                                  
                                                     Column(
                                                       children: [
                                                         // Espacio entre el título y la descripción
@@ -288,7 +285,7 @@ class _PantallaSeguimientoHabitosState
                                                               5.0), // Espaciado interno del contenedor
                                                           child: Text(
                                                             habit[
-                                                                'descripcionHabito'],
+                                                                'categoria'],
                                                             textAlign: TextAlign
                                                                 .center,
                                                             style: TextStyle(
