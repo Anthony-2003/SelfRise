@@ -1,22 +1,26 @@
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/entity/categoria.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/services/categoria_services.dart';
 import 'package:flutter_proyecto_final/utils/iconos_disponibles.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class CrearCategoriaDialog extends StatefulWidget {
   final Map<String, Color> categoriaColores;
   final Function(String, IconData, Color) onCategoriaAdded;
   final bool showDeleteButton;
   final Categoria? categoria;
+  final void Function()? onCategoriaDeleted; // Nuevo parámetro
 
-  CrearCategoriaDialog(
-      {required this.categoriaColores,
-      required this.onCategoriaAdded,
-      this.showDeleteButton = false,
-      this.categoria});
+  CrearCategoriaDialog({
+    required this.categoriaColores,
+    required this.onCategoriaAdded,
+    this.showDeleteButton = false,
+    this.categoria,
+    this.onCategoriaDeleted, // Agregado al constructor
+  });
 
   @override
   _CrearCategoriaDialogState createState() => _CrearCategoriaDialogState();
@@ -27,8 +31,14 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
   late IconData nuevoIcono;
   late Color nuevoColor;
 
+  void closeDialog() {
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(widget.categoria?.id);
+
     nuevaCategoriaText =
         widget.showDeleteButton ? widget.categoria!.nombre : 'Nueva categoría';
     nuevoIcono =
@@ -109,7 +119,10 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                       builder: (context) {
                         return AlertDialog(
                           backgroundColor: AppColors.drawer,
-                          title: Text('Selecciona un icono', style: TextStyle(color: Colors.white),),
+                          title: Text(
+                            'Selecciona un icono',
+                            style: TextStyle(color: Colors.white),
+                          ),
                           content: Container(
                             width: MediaQuery.of(context).size.width * 0.8,
                             height: MediaQuery.of(context).size.height * 0.5,
@@ -131,7 +144,11 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                                           : null,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(icono, size: 40, color: Colors.white,),
+                                    child: Icon(
+                                      icono,
+                                      size: 40,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 );
                               }).toList(),
@@ -156,7 +173,10 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                       builder: (context) {
                         return AlertDialog(
                           backgroundColor: AppColors.drawer,
-                          title: Text('Selecciona un color', style: TextStyle(color: Colors.white),),
+                          title: Text(
+                            'Selecciona un color',
+                            style: TextStyle(color: Colors.white),
+                          ),
                           content: Container(
                             width: MediaQuery.of(context).size.width * 0.8,
                             child: Wrap(
@@ -199,7 +219,7 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                     leading: Icon(Icons.delete, color: Colors.white),
                     title: Text('Eliminar categoría'),
                     onTap: () {
-                      _mostrarDialogoEliminarCategoria(context);
+                      _mostrarDialogoEliminarCategoria(context, closeDialog);
                     },
                   ),
                 if (widget.showDeleteButton) Divider(),
@@ -219,8 +239,6 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
 
                   final String? currentUserId = AuthService.getUserId();
                   CategoriesService.addCategory(currentUserId!, nuevaCategoria);
-                  widget.onCategoriaAdded(nuevaCategoriaText, nuevoIcono,
-                      nuevoColor); // Llamar a la función
 
                   Navigator.pop(context);
                 }
@@ -243,8 +261,9 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                         )
                       : Text(
                           'Crear categoría',
-                          style:
-                              TextStyle(color: Colors.white, fontSize: 18), // Color del texto
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18), // Color del texto
                         ),
                 ),
               ),
@@ -288,7 +307,7 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
                   color: Colors.white.withOpacity(0.5),
                   width: 1.0,
                 ),
-                borderRadius: BorderRadius.circular(20.0), // Borde redondeado
+                borderRadius: BorderRadius.circular(50.0), // Borde redondeado
               ),
               hintText: 'Ingresa el nombre',
               hintStyle: TextStyle(
@@ -359,24 +378,70 @@ class _CrearCategoriaDialogState extends State<CrearCategoriaDialog> {
     );
   }
 
-  void _mostrarDialogoEliminarCategoria(BuildContext context) {
-    showCupertinoDialog(
+  void _mostrarDialogoEliminarCategoria(
+      BuildContext context, Function? onCategoriaDeleted) {
+    showDialog(
       context: context,
       builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text('Eliminar categoría'),
-          content: Text('¿Estás seguro de que deseas eliminar esta categoría?'),
+        return AlertDialog(
+          backgroundColor: AppColors.drawer, // Color de fondo azul
+          title: Text(
+            'Eliminar categoría',
+            style: TextStyle(color: Colors.white), // Texto blanco
+          ),
+          content: Text(
+            '¿Estás seguro de que deseas eliminar esta categoría?',
+            style: TextStyle(color: Colors.white), // Texto blanco
+          ),
           actions: <Widget>[
-            CupertinoDialogAction(
-              child: Text('Cancelar'),
+            // Botón Cancelar
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.blue, // Color de fondo azul
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0), // Bordes redondos
+                ),
+              ),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.white), // Texto blanco
+              ),
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra el diálogo
               },
             ),
-            CupertinoDialogAction(
-              child: Text('Eliminar'),
+            // Botón Eliminar
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.blue, // Color de fondo azul
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0), // Bordes redondos
+                ),
+              ),
+              child: Text(
+                'Eliminar',
+                style: TextStyle(color: Colors.white), // Texto blanco
+              ),
               onPressed: () {
-                // Aquí puedes agregar la lógica para eliminar la categoría
+                if (widget.categoria != null) {
+                  print(" mondongo");
+                  print(widget.categoria?.id);
+
+                  CategoriesService.deleteCategoryById(widget.categoria!.id);
+
+                  Fluttertoast.showToast(
+                    msg: "Categoría borrada correctamente",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.black,
+                    textColor: Colors.white,
+                  );
+
+                  if (onCategoriaDeleted != null) {
+                    onCategoriaDeleted();
+                  }
+                }
+
                 Navigator.of(context).pop(); // Cierra el diálogo
               },
             ),

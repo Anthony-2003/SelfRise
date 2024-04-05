@@ -5,7 +5,7 @@ import 'package:flutter_proyecto_final/entity/categoria.dart';
 class CategoriesService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  static Future<void> addCategory(String userId, Categoria categoria) async {
+  static Future<String?> addCategory(String userId, Categoria categoria) async {
     try {
       await _firestore.collection('categorias').add({
         'userId': userId,
@@ -17,9 +17,11 @@ class CategoriesService {
       print('Error al guardar la categoría: $error');
       throw error;
     }
+    return null;
   }
 
-  static Future<List<Categoria>> getCategoriesByUserId(String currentUserId) async {
+  static Future<List<Categoria>> getCategoriesByUserId(
+      String currentUserId) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('categorias')
@@ -29,6 +31,7 @@ class CategoriesService {
       List<Categoria> userCategories = querySnapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         return Categoria(
+          id: doc.id,
           nombre: data['nombre'],
           icono: IconData(data['icono'], fontFamily: 'MaterialIcons'),
           color: Color(data['color']),
@@ -38,6 +41,40 @@ class CategoriesService {
       return userCategories;
     } catch (error) {
       print('Error al obtener las categorías del usuario: $error');
+      throw error;
+    }
+  }
+
+  static Future<String?> getCategoryIdByName(
+      String currentUserId, String categoryName) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('categorias')
+          .where('userId', isEqualTo: currentUserId)
+          .where('nombre', isEqualTo: categoryName)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Si se encontró al menos un documento con el nombre de la categoría
+        // Devolvemos el ID del primer documento encontrado
+        return querySnapshot.docs.first.id;
+      } else {
+        // Si no se encontraron documentos con el nombre de la categoría
+        // Devolvemos null o manejas el caso según tus necesidades
+        return null;
+      }
+    } catch (error) {
+      print('Error al obtener el ID de la categoría por nombre: $error');
+      throw error;
+    }
+  }
+
+  static Future<void> deleteCategoryById(String? categoryId) async {
+    try {
+      await _firestore.collection('categorias').doc(categoryId).delete();
+      print('Categoría eliminada con éxito');
+    } catch (error) {
+      print('Error al eliminar la categoría: $error');
       throw error;
     }
   }

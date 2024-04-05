@@ -195,9 +195,9 @@ class _DrawerMenuState extends State<DrawerMenu> {
                           //FUNCIONES AQUIIIIIIIIII
                         },
                         leading: SizedBox(
-                          height: 34,
-                          width: 34,
-                          child: Image.asset("assets/icon-menu/nutricion.png"),
+                          height: 42,
+                          width: 42,
+                          child: Image.asset("assets/icon-menu/habits.png"),
                         ),
                         title: Container(
                           margin: EdgeInsets.symmetric(horizontal: 20),

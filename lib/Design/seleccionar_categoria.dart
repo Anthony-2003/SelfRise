@@ -1,11 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/const/colores_categorias.dart';
+import 'package:flutter_proyecto_final/dialogs/crear_categoria_dialog.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
-import 'package:flutter_proyecto_final/dialogs/crear_categoria_dialog.dart';
 import 'package:flutter_proyecto_final/entity/categoria.dart';
 import 'package:flutter_proyecto_final/services/categoria_services.dart';
-import 'package:flutter_proyecto_final/const/colores_categorias.dart';
-import 'package:flutter_proyecto_final/const/iconos_por_defecto.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class SeleccionarCategoriaPantalla extends StatefulWidget {
@@ -20,66 +20,49 @@ class SeleccionarCategoriaPantalla extends StatefulWidget {
 
 class _SeleccionarCategoriaPantallaState
     extends State<SeleccionarCategoriaPantalla> {
-  List<Widget> categoriaChips = [];
-  List<String> categoriasUsuario = [];
-  List<String> categorias = ['Meditación', 'Finanzas', 'Artes', 'Deportes'];
-  List<String> categoriasNoPermitidas = [
-    'Meditación',
-    'Finanzas',
-    'Artes',
-    'Deportes',
-    'Crear nueva categoría'
-  ];
+  late Stream<List<Categoria>> _categoriasStream;
+  late StreamSubscription _categoriasSubscription;
+  List<Categoria> categorias = [];
+  final String? currentUserId = AuthService.getUserId();
 
+  @override
   @override
   void initState() {
     super.initState();
-    _initializeCategoriaChips();
-    _subscribeToCategoryChanges();
-  }
-
-  void _updateCategoriaChipsList() {
-    setState(() {
-      for (String categoria in categoriasUsuario) {
-        if (!categoriaChips.any((chip) => chip.key.toString() == categoria)) {
-          categoriaChips.add(_buildChip(
-            categoria,
-            categoriaIconos[categoria],
-            categoriaColores[categoria]!,
-          ));
-        }
-      }
+    _categoriasStream = _getCategoriasStream();
+    _categoriasSubscription = _categoriasStream.listen((List<Categoria> data) {
+      setState(() {
+        categorias = _ordenarCategoriasPorId(data);
+      });
     });
+    // Mover la llamada aquí
   }
 
-  void _subscribeToCategoryChanges() async {
-    final String? currentUserId = AuthService.getUserId();
+  List<Categoria> _ordenarCategoriasPorId(List<Categoria> categorias) {
+    categorias.sort((a, b) => b.id!.compareTo(a.id!));
+    return categorias;
+  }
+
+  Stream<List<Categoria>> _getCategoriasStream() async* {
     if (currentUserId != null) {
       try {
-        List<Categoria> userCategories =
-            await CategoriesService.getCategoriesByUserId(currentUserId);
-        setState(() {
-          for (Categoria categoria in userCategories) {
-            categoriaChips.add(_buildChip(
-              categoria.nombre,
-              categoria.icono,
-              categoria.color,
-            ));
-          }
-        });
-        _updateCategoriaChipsList();
+        while (true) {
+          // Espera 1 segundo
+          List<Categoria> userCategories =
+              await CategoriesService.getCategoriesByUserId(currentUserId!);
+          yield userCategories;
+        }
       } catch (error) {
         print('Error al obtener las categorías del usuario: $error');
       }
     }
+    yield [];
   }
 
-  void _initializeCategoriaChips() {
-    for (String categoria in categorias) {
-      categoriaChips.add(_buildChip(
-          categoria, categoriaIconos[categoria], categoriaColores[categoria]!));
-    }
-    print(categoriaChips);
+  @override
+  void dispose() {
+    _categoriasSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -108,17 +91,20 @@ class _SeleccionarCategoriaPantallaState
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         children: [
-                          for (int i = 0; i < categoriaChips.length; i += 2)
+                          for (int i = 0; i < categorias.length; i += 2)
                             _buildChipRow(
-                                categoriaChips[i],
-                                i + 1 < categoriaChips.length
-                                    ? categoriaChips[i + 1]
-                                    : null),
+                              _buildChip(categorias[i]),
+                              i + 1 < categorias.length
+                                  ? _buildChip(categorias[i + 1])
+                                  : null,
+                            ),
                           _buildChip(
-                              'Crear nueva categoría',
-                              Icons.add,
-                              Colors.transparent,
-                              () => _showCrearCategoriaDialog(context)),
+                            Categoria(
+                              nombre: 'Crear nueva categoría',
+                              icono: Icons.add,
+                              color: Colors.transparent,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -132,7 +118,7 @@ class _SeleccionarCategoriaPantallaState
     );
   }
 
-  Widget _buildChipRow(Widget chip1, [Widget? chip2]) {
+  Widget _buildChipRow(Widget chip1, Widget? chip2) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -147,14 +133,13 @@ class _SeleccionarCategoriaPantallaState
     );
   }
 
-  Widget _buildChip(String label, IconData? icon, Color color,
-      [Function? onTap]) {
+  Widget _buildChip(Categoria categoria) {
     return GestureDetector(
       onTap: () {
-        if (label != 'Crear nueva categoría') {
+        if (categoria.nombre != 'Crear nueva categoría') {
           setState(() {
-            Habito.category = label;
-            Habito.categoryIcon = (icon ?? categoriaIconos[label])!;
+            Habito.category = categoria.nombre;
+            Habito.categoryIcon = (categoria.icono);
             widget.pageController.animateToPage(1,
                 duration: Duration(milliseconds: 300), curve: Curves.ease);
           });
@@ -163,8 +148,10 @@ class _SeleccionarCategoriaPantallaState
         }
       },
       onLongPress: () {
-        if (categoriasNoPermitidas.contains(label)) {
-          // Muestra el toast indicando que la categoría por defecto no puede modificarse
+        if (categoria.nombre != 'Crear nueva categoría') {
+          _showCrearCategoriaDialog(context,
+              showDeleteButton: true, categoria: categoria);
+        } else {
           Fluttertoast.showToast(
             msg: "Las categorías por defecto no pueden modificarse",
             toastLength: Toast.LENGTH_SHORT,
@@ -172,18 +159,6 @@ class _SeleccionarCategoriaPantallaState
             backgroundColor: Colors.black,
             textColor: Colors.white,
           );
-        } else {
-          // Si no está en la lista de categorías no permitidas, puedes ejecutar la función para editar la categoría
-          IconData iconoAUsar = icon ?? Icons.category;
-
-          Categoria categoriaAEditar = Categoria(
-            nombre: label,
-            icono: iconoAUsar,
-            color: color,
-          );
-
-          _showCrearCategoriaDialog(context,
-              showDeleteButton: true, categoria: categoriaAEditar);
         }
       },
       child: Container(
@@ -199,12 +174,11 @@ class _SeleccionarCategoriaPantallaState
             Container(
               padding: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
-                color: color, // Utiliza el color de fondo del icono
+                color: categoria.color,
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                icon ??
-                    Icons.category, // Usa el icono predeterminado si es nulo
+                categoria.icono,
                 color: Colors.black,
               ),
             ),
@@ -213,7 +187,7 @@ class _SeleccionarCategoriaPantallaState
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  label,
+                  categoria.nombre,
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     color: Colors.black,
@@ -241,17 +215,27 @@ class _SeleccionarCategoriaPantallaState
   }
 
   void _agregarCategoria(
-      String nuevaCategoriaText, IconData nuevoIcono, Color nuevoColor) {
-    setState(() {
-      categorias.add(nuevaCategoriaText);
-      categoriaIconos[nuevaCategoriaText] = nuevoIcono;
-      categoriaColores[nuevaCategoriaText] = nuevoColor;
-      _updateCategoriaChipsList();
-      categoriaChips.add(_buildChip(
-        nuevaCategoriaText,
-        nuevoIcono,
-        nuevoColor,
-      ));
-    });
+      String nuevaCategoriaText, IconData nuevoIcono, Color nuevoColor) async {
+    final String? currentUserId = AuthService.getUserId();
+    if (currentUserId != null) {
+      try {
+        // Añadir la categoría a la base de datos
+        Categoria nuevaCategoria = Categoria(
+          nombre: nuevaCategoriaText,
+          icono: nuevoIcono,
+          color: nuevoColor,
+        );
+        String? idCategoria =
+            await CategoriesService.addCategory(currentUserId, nuevaCategoria);
+        nuevaCategoria.id = idCategoria;
+        setState(() {
+          categorias.add(nuevaCategoria);
+          categorias = _ordenarCategoriasPorId(
+              categorias); // Ordenar nuevamente después de agregar
+        });
+      } catch (error) {
+        print('Error al agregar la nueva categoría: $error');
+      }
+    }
   }
 }
