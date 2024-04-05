@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -15,11 +16,14 @@ class DefineHabitoScreen extends StatefulWidget {
 class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   String _habito = '';
   String _descripcion = '';
+  int meta = 0;
   bool _seleccionarDiasSemana = false;
   bool _seleccionarDiasMes = false;
   bool _repetir = false;
   FocusNode _focusNode = FocusNode();
   FocusNode _descripcionFocusNode = FocusNode();
+  FocusNode _metaFocusNode = FocusNode();
+  String ejemplo = '';
 
   @override
   void initState() {
@@ -31,18 +35,25 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
     _descripcionFocusNode.addListener(() {
       setState(() {});
     });
+
+    _metaFocusNode.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _focusNode.dispose();
     _descripcionFocusNode.dispose();
+    _metaFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    print(Habito.evaluateProgress);
+    ejemplo = Habito.evaluateProgress == 'valor numerico'
+        ? 'e.j., leer 20 páginas al día'
+        : 'e.j., leer';
     return Scaffold(
       body: Center(
         child: Padding(
@@ -89,8 +100,37 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                 },
               ),
               SizedBox(height: 20.0),
+              if (Habito.evaluateProgress == 'valor numerico')
+                TextFormField(
+                  focusNode: _metaFocusNode,
+                  decoration: InputDecoration(
+                    labelText: 'Meta',
+                    labelStyle: TextStyle(
+                      color: _metaFocusNode.hasFocus
+                          ? Color.fromARGB(255, 24, 85, 142)
+                          : Colors.black,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 24, 85, 142)),
+                    ),
+                  ),
+                  keyboardType: TextInputType
+                      .number, // Esto indica que se debe mostrar el teclado numérico
+
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      meta = int.tryParse(value)!;
+                      Habito.meta = meta;
+                    });
+                  },
+                ),
+              SizedBox(height: 20.0),
               Text(
-                'e.j., leer',
+                ejemplo,
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 20.0),

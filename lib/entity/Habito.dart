@@ -13,6 +13,8 @@ class Habito {
   static late String category;
   static late IconData categoryIcon;
   static late bool isTracked;
+  static late int? meta = 0;
+  static late int? metaUsuario = 0;
 
   static void init({
     required String name,
@@ -25,6 +27,8 @@ class Habito {
     required DateTime endDate,
     required Color color,
     String? recordatorio,
+    int? meta,
+    int? metaUsuario
   }) {
     Habito.habitName = name;
     Habito.evaluateProgress = evaluateProgress;
@@ -37,6 +41,8 @@ class Habito {
     Habito.recordatorio = recordatorio;
     Habito.category;
     Habito.categoryIcon;
+    Habito.meta = meta;
+    Habito.metaUsuario = metaUsuario;
   }
 
 }

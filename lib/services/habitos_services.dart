@@ -17,6 +17,7 @@ class HabitosService {
       DateTime? fechaFinal,
       bool estaCompletado,
       Color color,
+      int meta,
       [String? descripcionHabito = '']) async {
     try {
       await FirebaseFirestore.instance.collection('habitos').add({
@@ -31,12 +32,31 @@ class HabitosService {
         'valorFrecuencia': frecuenciaValor,
         'fechaInicio': fechaInicio,
         'fechaFinal': fechaFinal,
+        'meta': meta,
+        'metaUsuario': 0,
         'completado': estaCompletado
       });
       print('Hábito guardado en Firestore correctamente.');
     } catch (e) {
       print('Error al guardar el hábito en Firestore: $e');
       throw e;
+    }
+  }
+
+  Future<void> actualizarMetaUsuario(
+      String habitId, int nuevaMetaUsuario) async {
+    try {
+      // Obtener la referencia al documento del hábito
+      DocumentReference habitRef =
+          _firestore.collection('habitos').doc(habitId);
+
+      // Actualizar el campo 'metaUsuario' del documento
+      await habitRef.update({
+        'metaUsuario': nuevaMetaUsuario,
+      });
+    } catch (e) {
+      // Manejar cualquier error que ocurra durante la actualización
+      throw Exception('Error al actualizar la metaUsuario del hábito: $e');
     }
   }
 
