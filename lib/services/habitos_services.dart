@@ -16,6 +16,7 @@ class HabitosService {
       DateTime fechaInicio,
       DateTime? fechaFinal,
       bool estaCompletado,
+      Color color,
       [String? descripcionHabito = '']) async {
     try {
       await FirebaseFirestore.instance.collection('habitos').add({
@@ -26,6 +27,7 @@ class HabitosService {
         'evaluarProgreso': evaluarProgreso,
         'descripcionHabito': descripcionHabito,
         'frecuenciaHabito': frecuenciaHabito.nombre,
+        'color': color.value,
         'valorFrecuencia': frecuenciaValor,
         'fechaInicio': fechaInicio,
         'fechaFinal': fechaFinal,

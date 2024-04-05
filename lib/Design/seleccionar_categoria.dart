@@ -139,7 +139,8 @@ class _SeleccionarCategoriaPantallaState
         if (categoria.nombre != 'Crear nueva categoría') {
           setState(() {
             Habito.category = categoria.nombre;
-            Habito.categoryIcon = (categoria.icono);
+            Habito.categoryIcon = categoria.icono;
+            Habito.color = categoria.color;
             widget.pageController.animateToPage(1,
                 duration: Duration(milliseconds: 300), curve: Curves.ease);
           });

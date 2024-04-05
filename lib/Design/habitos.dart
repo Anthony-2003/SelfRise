@@ -210,6 +210,20 @@ class _PantallaSeguimientoHabitosState
                               itemCount: filteredHabits.length,
                               itemBuilder: (context, index) {
                                 final habit = filteredHabits[index];
+                                Color originalColor = Color(habit['color']);
+
+// Reducir los componentes RGB del color original
+                                int red = (originalColor.red * 0.8)
+                                    .round(); // Reducir el componente rojo en un 20%
+                                int green = (originalColor.green * 0.8)
+                                    .round(); // Reducir el componente verde en un 20%
+                                int blue = (originalColor.blue * 0.8)
+                                    .round(); // Reducir el componente azul en un 20%
+
+// Crear un nuevo color con los componentes RGB reducidos
+                                Color darkerColor =
+                                    Color.fromRGBO(red, green, blue, 1.0);
+
                                 return Column(
                                   children: [
                                     SizedBox(width: 18),
@@ -220,12 +234,26 @@ class _PantallaSeguimientoHabitosState
                                         children: [
                                           Row(
                                             children: [
-                                              Icon(
-                                                IconData(
+                                              Container(
+                                                margin: EdgeInsets.all(
+                                                    8.0), // Ajusta el valor según sea necesario
+                                                padding: EdgeInsets.all(
+                                                    8.0), // Ajusta el valor según sea necesario
+                                                decoration: BoxDecoration(
+                                                  color: Color(habit[
+                                                      'color']), // Color de fondo del círculo
+                                                  shape: BoxShape
+                                                      .circle, // Forma del borde (círculo)
+                                                ),
+                                                child: Icon(
+                                                  IconData(
                                                     habit['iconoCategoria'],
-                                                    fontFamily:
-                                                        'MaterialIcons'),
-                                                size: 24,
+                                                    fontFamily: 'MaterialIcons',
+                                                  ),
+                                                  size: 24,
+                                                  color: Colors
+                                                      .black, // Color del icono dentro del círculo
+                                                ),
                                               ),
                                               SizedBox(width: 8),
                                               Column(
@@ -245,14 +273,29 @@ class _PantallaSeguimientoHabitosState
                                                           .isNotEmpty)
                                                     Column(
                                                       children: [
-                                                        SizedBox(
-                                                            height:
-                                                                8), // Espacio entre el título y la descripción
-                                                        Text(
-                                                          habit[
-                                                              'descripcionHabito'],
-                                                          textAlign:
-                                                              TextAlign.center,
+                                                        // Espacio entre el título y la descripción
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color:
+                                                                darkerColor, // Color de fondo del contenedor
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10.0), // Radio de borde del contenedor
+                                                          ),
+                                                          padding: EdgeInsets.all(
+                                                              5.0), // Espaciado interno del contenedor
+                                                          child: Text(
+                                                            habit[
+                                                                'descripcionHabito'],
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .white, // Color del texto dentro del contenedor
+                                                            ),
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
@@ -262,29 +305,49 @@ class _PantallaSeguimientoHabitosState
                                           ),
                                         ],
                                       ),
-                                      trailing: Checkbox(
-                                        value: habit['completado'],
-                                        onChanged: (value) async {
-                                          // Actualizar el estado del hábito localmente
-                                          setState(() {
-                                            habit['completado'] = value;
-                                          });
-
-                                          // Llamar al método para actualizar el estado del hábito en la base de datos
-                                          try {
-                                            await HabitosService()
-                                                .actualizarEstadoHabito(
-                                                    habit['id'], value!);
-                                            // Mostrar un mensaje o realizar alguna acción adicional si es necesario
-                                          } catch (e) {
-                                            print(
-                                                'Error al actualizar el estado del hábito: $e');
-                                            // Si ocurre un error, puedes revertir el cambio del estado local si es necesario
+                                      trailing: Transform.scale(
+                                        scale:
+                                            1.5, // Factor de escala para aumentar el tamaño del checkbox
+                                        child: Checkbox(
+                                          visualDensity: VisualDensity
+                                              .adaptivePlatformDensity,
+                                          shape: CircleBorder(),
+                                          fillColor: MaterialStateProperty
+                                              .resolveWith<Color>(
+                                            (Set<MaterialState> states) {
+                                              // Cambia el color de fondo del checkbox cuando está seleccionado
+                                              if (states.contains(
+                                                  MaterialState.selected)) {
+                                                return Color(
+                                                    0xFF2773B9); // Color cuando está seleccionado
+                                              }
+                                              return Colors
+                                                  .transparent; // Color por defecto
+                                            },
+                                          ),
+                                          value: habit['completado'],
+                                          onChanged: (value) async {
+                                            // Actualizar el estado del hábito localmente
                                             setState(() {
-                                              habit['completado'] = !value!;
+                                              habit['completado'] = value;
                                             });
-                                          }
-                                        },
+
+                                            // Llamar al método para actualizar el estado del hábito en la base de datos
+                                            try {
+                                              await HabitosService()
+                                                  .actualizarEstadoHabito(
+                                                      habit['id'], value!);
+                                              // Mostrar un mensaje o realizar alguna acción adicional si es necesario
+                                            } catch (e) {
+                                              print(
+                                                  'Error al actualizar el estado del hábito: $e');
+                                              // Si ocurre un error, puedes revertir el cambio del estado local si es necesario
+                                              setState(() {
+                                                habit['completado'] = !value!;
+                                              });
+                                            }
+                                          },
+                                        ),
                                       ),
                                     ),
                                     Divider(

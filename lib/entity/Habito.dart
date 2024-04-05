@@ -8,7 +8,7 @@ class Habito {
   static late Frecuencia frequency = Frecuencia.CADA_DIA;
   static late DateTime startDate;
   static late DateTime? endDate = null;
-
+  static late Color color;
   static late String? recordatorio;
   static late String category;
   static late IconData categoryIcon;
@@ -23,6 +23,7 @@ class Habito {
     Frecuencia? frequency,
     required DateTime startDate,
     required DateTime endDate,
+    required Color color,
     String? recordatorio,
   }) {
     Habito.habitName = name;
@@ -32,10 +33,10 @@ class Habito {
     Habito.frequency = frequency!;
     Habito.startDate = startDate;
     Habito.endDate = endDate;
+    Habito.color;
     Habito.recordatorio = recordatorio;
     Habito.category;
     Habito.categoryIcon;
   }
 
-  static fromMap(Map<String, dynamic> data) {}
 }
