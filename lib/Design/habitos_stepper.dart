@@ -3,8 +3,12 @@ import 'package:flutter_proyecto_final/Design/defineHabito.dart';
 import 'package:flutter_proyecto_final/Design/evaluar_progreso.dart';
 import 'package:flutter_proyecto_final/Design/fecha_habitos.dart';
 import 'package:flutter_proyecto_final/Design/seleccionar_categoria.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
+import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'frecuenciaHabito.dart';
+import 'package:flutter_proyecto_final/services/habitos_services.dart';
 
 class HabitosPageView extends StatefulWidget {
   final Function() onHabitSaved;
@@ -68,7 +72,7 @@ class _HabitosPageViewState extends State<HabitosPageView> {
 
   Widget _buildBottomNavigationBar() {
     return Container(
-      color: Colors.grey[200],
+      color: Color(0xFF2773B9),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -93,7 +97,10 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                       },
                       child: Text(
                         _currentPageIndex != 0 ? 'Atrás' : 'Cancelar',
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -109,7 +116,7 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                             Icons.circle,
                             size: 16.0,
                             color: i == _currentPageIndex
-                                ? Colors.blue
+                                ? Colors.white
                                 : Colors.grey,
                           ),
                         ),
@@ -168,6 +175,7 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                                   Habito.startDate,
                                   Habito.endDate,
                                   false,
+                                  Habito.color as String?,
                                   Habito.habitDescription,
                                 );
 
@@ -201,7 +209,10 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                           },
                           child: Text(
                             _currentPageIndex == 4 ? 'Finalizar' : 'Siguiente',
-                            style: TextStyle(color: Colors.black),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),

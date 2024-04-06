@@ -47,7 +47,14 @@ class _EvaluarProgresoScreenState extends State<EvaluarProgresoScreen> {
                   Habito.evaluateProgress = "si o no";
                   animateToPage();
                 },
-                child: Text('Con si o no'),
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Color(0xFF2773B9)),
+                ),
+                child: Text(
+                  'Con si o no',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
               ),
               SizedBox(height: 10.0),
               Text(
@@ -60,7 +67,12 @@ class _EvaluarProgresoScreenState extends State<EvaluarProgresoScreen> {
                   Habito.evaluateProgress = "valor numerico";
                   animateToPage();
                 },
-                child: Text('Con valor numérico'),
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Color(0xFF2773B9)),
+                ),
+                child: Text('Con valor numérico',
+                    style: TextStyle(color: Colors.white, fontSize: 18)),
               ),
               SizedBox(height: 10.0),
               Text(

@@ -15,7 +15,7 @@ class HabitosService {
       dynamic frecuenciaValor,
       DateTime fechaInicio,
       DateTime? fechaFinal,
-      bool estaCompletado,
+      bool estaCompletado, String? color,
       [String? descripcionHabito = '']) async {
     try {
       await FirebaseFirestore.instance.collection('habitos').add({

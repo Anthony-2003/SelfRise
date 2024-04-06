@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class DefineHabitoScreen extends StatefulWidget {
@@ -17,6 +18,27 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   bool _seleccionarDiasSemana = false;
   bool _seleccionarDiasMes = false;
   bool _repetir = false;
+  FocusNode _focusNode = FocusNode();
+  FocusNode _descripcionFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      setState(() {});
+    });
+
+    _descripcionFocusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _descripcionFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +62,23 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
               ),
               SizedBox(height: 20.0),
               TextFormField(
+                focusNode: _focusNode,
+                onTap: () {
+                  setState(() {
+                    FocusScope.of(context).requestFocus(_focusNode);
+                  });
+                },
                 decoration: InputDecoration(
                   labelText: 'Hábito',
+                  labelStyle: TextStyle(
+                    color: _focusNode.hasFocus
+                        ? Color.fromARGB(255, 24, 85, 142)
+                        : Colors.black,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Color.fromARGB(255, 24, 85, 142)),
+                  ),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -58,8 +95,18 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
               ),
               SizedBox(height: 20.0),
               TextFormField(
+                focusNode: _descripcionFocusNode,
                 decoration: InputDecoration(
                   labelText: 'Descripción (Opcional)',
+                  labelStyle: TextStyle(
+                    color: _descripcionFocusNode.hasFocus
+                        ? Color.fromARGB(255, 24, 85, 142)
+                        : Colors.black,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Color.fromARGB(255, 24, 85, 142)),
+                  ),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -72,94 +119,6 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class FrecuenciaScreen extends StatefulWidget {
-  final bool seleccionarDiasSemana;
-  final bool seleccionarDiasMes;
-  final bool repetir;
-
-  FrecuenciaScreen({
-    required this.seleccionarDiasSemana,
-    required this.seleccionarDiasMes,
-    required this.repetir,
-  });
-
-  @override
-  _FrecuenciaScreenState createState() => _FrecuenciaScreenState();
-}
-
-class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Frecuencia')),
-      body: Column(
-        children: [
-          CheckboxListTile(
-            title: Text('Cada día'),
-            value: widget.seleccionarDiasSemana,
-            onChanged: (value) {
-              setState(() {
-                // Lógica para manejar el cambio en la selección
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: Text('Días específicos de la semana'),
-            value: widget.seleccionarDiasMes,
-            onChanged: (value) {
-              setState(() {
-                // Lógica para manejar el cambio en la selección
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: Text('Días específicos del mes'),
-            value: widget.repetir,
-            onChanged: (value) {
-              setState(() {
-                // Lógica para manejar el cambio en la selección
-              });
-            },
-          ),
-          if (widget.seleccionarDiasSemana)
-            Column(
-              children: [
-                CheckboxListTile(
-                  title: Text('Lunes'),
-                  value: widget.seleccionarDiasSemana,
-                  onChanged: (value) {
-                    setState(() {
-                      // Lógica para seleccionar/deseleccionar el lunes
-                    });
-                  },
-                ),
-                // Repetir para cada día de la semana
-              ],
-            ),
-          if (widget.seleccionarDiasMes)
-            Column(
-              children: [
-                // Lógica para seleccionar los días del mes
-              ],
-            ),
-          if (widget.repetir)
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Repetir cada (en días)',
-              ),
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                setState(() {
-                  // Lógica para actualizar la repetición
-                });
-              },
-            ),
-        ],
       ),
     );
   }
