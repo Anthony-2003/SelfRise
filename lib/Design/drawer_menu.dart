@@ -4,6 +4,7 @@ import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:flutter_proyecto_final/Design/booksPage.dart';
+import 'package:flutter_proyecto_final/Design/podcastpage.dart';
 
 class DrawerMenu extends StatefulWidget {
   const DrawerMenu({super.key});
@@ -24,13 +25,13 @@ class _DrawerMenuState extends State<DrawerMenu> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 5, vertical: 16),
+              margin: EdgeInsets.only(right: 5, left: 5, top: 15, bottom: 5),
               child: const InfoCard(),
             ),
             Container(
               margin: EdgeInsets.only(left: 10, bottom: 10),
               child: Padding(
-                padding: const EdgeInsets.only(left: 10, top: 18, bottom: 0),
+                padding: const EdgeInsets.only(left: 10, top: 32, bottom: 0),
                 child: Text("Explorar".toUpperCase(),
                     style: Theme.of(context)
                         .textTheme
@@ -63,8 +64,8 @@ class _DrawerMenuState extends State<DrawerMenu> {
                               //FUNCIONES AQUIIIIIIIIII
                             },
                             leading: SizedBox(
-                              height: 34,
-                              width: 34,
+                              height: 32,
+                              width: 32,
                               child:
                                   Image.asset("assets/icon-menu/psicologo.png"),
                             ),
@@ -75,7 +76,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                                 style: TextStyle(
                                     color: AppColors.white,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 20),
+                                    fontSize: 18),
                               ),
                             )),
                       ],
@@ -113,8 +114,8 @@ class _DrawerMenuState extends State<DrawerMenu> {
                           );
                         },
                         leading: SizedBox(
-                          height: 34,
-                          width: 34,
+                          height: 32,
+                          width: 32,
                           child: Image.asset("assets/icon-menu/libros.png"),
                         ),
                         title: Container(
@@ -124,7 +125,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                             style: TextStyle(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 18),
                           ),
                         )),
                   ),
@@ -151,11 +152,17 @@ class _DrawerMenuState extends State<DrawerMenu> {
                     child: ListTile(
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),
                         onTap: () {
-                          //FUNCIONES AQUIIIIIIIIII
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  PodcastPage(), // Aquí se crea la instancia de podcast
+                            ),
+                          );
                         },
                         leading: SizedBox(
-                          height: 34,
-                          width: 34,
+                          height: 32,
+                          width: 32,
                           child: Image.asset("assets/icon-menu/podcast.png"),
                         ),
                         title: Container(
@@ -165,7 +172,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                             style: TextStyle(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 18),
                           ),
                         )),
                   ),
@@ -192,8 +199,8 @@ class _DrawerMenuState extends State<DrawerMenu> {
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),
                         onTap: () {},
                         leading: SizedBox(
-                          height: 34,
-                          width: 34,
+                          height: 32,
+                          width: 32,
                           child: Image.asset("assets/icon-menu/nutricion.png"),
                         ),
                         title: Container(
@@ -203,7 +210,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                             style: TextStyle(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 18),
                           ),
                         )),
                   ),
@@ -213,7 +220,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
             //   ***** FINAL BOTON NUTRICION *****
 
             Container(
-              margin: EdgeInsets.only(left: 10, bottom: 4),
+              margin: EdgeInsets.only(left: 10, bottom: 4, top: 40),
               child: Padding(
                 padding: const EdgeInsets.only(left: 10, top: 32, bottom: 0),
                 child: Text("Mas Opciones".toUpperCase(),
@@ -244,8 +251,8 @@ class _DrawerMenuState extends State<DrawerMenu> {
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),
                         onTap: () {},
                         leading: SizedBox(
-                          height: 34,
-                          width: 34,
+                          height: 32,
+                          width: 32,
                           child:
                               Image.asset("assets/icon-menu/configuracion.png"),
                         ),
@@ -256,7 +263,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                             style: TextStyle(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 18),
                           ),
                         )),
                   ),
@@ -286,8 +293,8 @@ class _DrawerMenuState extends State<DrawerMenu> {
                           Navigator.pushNamed(context, '/login');
                         },
                         leading: SizedBox(
-                          height: 34,
-                          width: 34,
+                          height: 32,
+                          width: 32,
                           child: Image.asset("assets/icon-menu/salir.png"),
                         ),
                         title: Container(
@@ -297,7 +304,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                             style: TextStyle(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 18),
                           ),
                         )),
                   ),
