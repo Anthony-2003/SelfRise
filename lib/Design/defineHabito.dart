@@ -1,7 +1,5 @@
-// ignore: file_names
-// ignore_for_file: unused_field, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class DefineHabitoScreen extends StatefulWidget {
   final Function(String) onHabitoChanged;
@@ -16,12 +14,13 @@ class DefineHabitoScreen extends StatefulWidget {
 class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   String _habito = '';
   String _descripcion = '';
-  final bool _seleccionarDiasSemana = false;
-  final bool _seleccionarDiasMes = false;
-  final bool _repetir = false;
+  bool _seleccionarDiasSemana = false;
+  bool _seleccionarDiasMes = false;
+  bool _repetir = false;
 
   @override
   Widget build(BuildContext context) {
+    print(Habito.evaluateProgress);
     return Scaffold(
       body: Center(
         child: Padding(
@@ -47,6 +46,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                 onChanged: (value) {
                   setState(() {
                     _habito = value;
+                    Habito.habitName = _habito;
                   });
                   widget.onHabitoChanged(value);
                 },
@@ -64,6 +64,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                 onChanged: (value) {
                   setState(() {
                     _descripcion = value;
+                    Habito.habitDescription = _descripcion;
                   });
                 },
               ),
@@ -76,90 +77,90 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   }
 }
 
-// class FrecuenciaScreen extends StatefulWidget {
-//   final bool seleccionarDiasSemana;
-//   final bool seleccionarDiasMes;
-//   final bool repetir;
+class FrecuenciaScreen extends StatefulWidget {
+  final bool seleccionarDiasSemana;
+  final bool seleccionarDiasMes;
+  final bool repetir;
 
-//   FrecuenciaScreen({
-//     required this.seleccionarDiasSemana,
-//     required this.seleccionarDiasMes,
-//     required this.repetir,
-//   });
+  FrecuenciaScreen({
+    required this.seleccionarDiasSemana,
+    required this.seleccionarDiasMes,
+    required this.repetir,
+  });
 
-//   @override
-//   _FrecuenciaScreenState createState() => _FrecuenciaScreenState();
-// }
+  @override
+  _FrecuenciaScreenState createState() => _FrecuenciaScreenState();
+}
 
-// class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Frecuencia')),
-//       body: Column(
-//         children: [
-//           CheckboxListTile(
-//             title: Text('Cada día'),
-//             value: widget.seleccionarDiasSemana,
-//             onChanged: (value) {
-//               setState(() {
-//                 // Lógica para manejar el cambio en la selección
-//               });
-//             },
-//           ),
-//           CheckboxListTile(
-//             title: Text('Días específicos de la semana'),
-//             value: widget.seleccionarDiasMes,
-//             onChanged: (value) {
-//               setState(() {
-//                 // Lógica para manejar el cambio en la selección
-//               });
-//             },
-//           ),
-//           CheckboxListTile(
-//             title: Text('Días específicos del mes'),
-//             value: widget.repetir,
-//             onChanged: (value) {
-//               setState(() {
-//                 // Lógica para manejar el cambio en la selección
-//               });
-//             },
-//           ),
-//           if (widget.seleccionarDiasSemana)
-//             Column(
-//               children: [
-//                 CheckboxListTile(
-//                   title: Text('Lunes'),
-//                   value: widget.seleccionarDiasSemana,
-//                   onChanged: (value) {
-//                     setState(() {
-//                       // Lógica para seleccionar/deseleccionar el lunes
-//                     });
-//                   },
-//                 ),
-//                 // Repetir para cada día de la semana
-//               ],
-//             ),
-//           if (widget.seleccionarDiasMes)
-//             Column(
-//               children: [
-//                 // Lógica para seleccionar los días del mes
-//               ],
-//             ),
-//           if (widget.repetir)
-//             TextFormField(
-//               decoration: InputDecoration(
-//                 labelText: 'Repetir cada (en días)',
-//               ),
-//               keyboardType: TextInputType.number,
-//               onChanged: (value) {
-//                 setState(() {
-//                   // Lógica para actualizar la repetición
-//                 });
-//               },
-//             ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Frecuencia')),
+      body: Column(
+        children: [
+          CheckboxListTile(
+            title: Text('Cada día'),
+            value: widget.seleccionarDiasSemana,
+            onChanged: (value) {
+              setState(() {
+                // Lógica para manejar el cambio en la selección
+              });
+            },
+          ),
+          CheckboxListTile(
+            title: Text('Días específicos de la semana'),
+            value: widget.seleccionarDiasMes,
+            onChanged: (value) {
+              setState(() {
+                // Lógica para manejar el cambio en la selección
+              });
+            },
+          ),
+          CheckboxListTile(
+            title: Text('Días específicos del mes'),
+            value: widget.repetir,
+            onChanged: (value) {
+              setState(() {
+                // Lógica para manejar el cambio en la selección
+              });
+            },
+          ),
+          if (widget.seleccionarDiasSemana)
+            Column(
+              children: [
+                CheckboxListTile(
+                  title: Text('Lunes'),
+                  value: widget.seleccionarDiasSemana,
+                  onChanged: (value) {
+                    setState(() {
+                      // Lógica para seleccionar/deseleccionar el lunes
+                    });
+                  },
+                ),
+                // Repetir para cada día de la semana
+              ],
+            ),
+          if (widget.seleccionarDiasMes)
+            Column(
+              children: [
+                // Lógica para seleccionar los días del mes
+              ],
+            ),
+          if (widget.repetir)
+            TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Repetir cada (en días)',
+              ),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                setState(() {
+                  // Lógica para actualizar la repetición
+                });
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}

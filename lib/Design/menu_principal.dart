@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
-  const PantallaMenuPrincipal({super.key});
+  const PantallaMenuPrincipal({Key? key}) : super(key: key);
 
   @override
   _PantallaMenuPrincipalState createState() => _PantallaMenuPrincipalState();
@@ -34,14 +34,13 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
   late Animation<double> scalAnimation;
 
   int _selectedTab = 0;
-  // ignore: unused_field
   late String _nombreUsuario = '';
 
   @override
   void initState() {
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200),
+      duration: Duration(milliseconds: 200),
     )..addListener(() {
         setState(() {});
       });
@@ -61,66 +60,66 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
     super.dispose();
   }
 
-  Future<void> obtenerNombreUsuario() async {
-    final nombre = await AuthService.getUserName();
-    setState(() {
-      _nombreUsuario = nombre ?? 'Usuario';
-    });
-  }
+    Future<void> obtenerNombreUsuario() async {
+      final nombre = await AuthService.getUserName();
+      setState(() {
+        _nombreUsuario = nombre ?? 'Usuario';
+      });
+    }
 
-  final List<Widget> _pages = [
-    PantallaPrincipal(),
-    PantallaChat(),
-    PantallaAsignaciones(),
-    PantallaSeguimientoHabitos(),
-    PantallaPerfil(),
-  ];
+    final List<Widget> _pages = [
+      PantallaPrincipal(),
+      PantallaChat(),
+      PantallaAsignaciones(),
+      PantallaSeguimientoHabitos(),
+      PantallaPerfil(),
+    ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.drawer,
-      body: Stack(
-        children: [
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.fastOutSlowIn,
-            width: 288,
-            left: isSideMenuClose ? -288 : 0,
-            height: MediaQuery.of(context).size.height,
-            child: const DrawerMenu(),
-          ),
-          Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateY(animation.value - 30 * animation.value * pi / 180),
-            child: Transform.translate(
-                offset: Offset(animation.value * 265, 0),
-                child: Transform.scale(
-                    scale: scalAnimation.value,
-                    child: ClipRRect(
-                        borderRadius: const BorderRadius.all(Radius.circular(24)),
-                        child: _pages[_selectedTab]))),
-          ),
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        backgroundColor: AppColors.drawer,
+        body: Stack(
+          children: [
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 200),
+              curve: Curves.fastOutSlowIn,
+              width: 288,
+              left: isSideMenuClose ? -288 : 0,
+              height: MediaQuery.of(context).size.height,
+              child: DrawerMenu(),
+            ),
+            Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(animation.value - 30 * animation.value * pi / 180),
+              child: Transform.translate(
+                  offset: Offset(animation.value * 265, 0),
+                  child: Transform.scale(
+                      scale: scalAnimation.value,
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(24)),
+                          child: _pages[_selectedTab]))),
+            ),
 
-          // Button animado
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 200),
-            left: isSideMenuClose ? 0 : 220,
-            top: 16,
-            child: menubtn(
-              riveOnInit: (artboard) {
-                StateMachineController controller = RiveUtils.getRiveController(
-                    artboard,
-                    stateMachineName: "Morph");
-                isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
-                isSideBarClosed.value = true;
-              },
-              press: () {
-                isSideBarClosed.value = !isSideBarClosed.value;
-                if (isSideMenuClose) {
-                  _animationController.forward();
+            // Button animado
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 200),
+              left: isSideMenuClose ? 0 : 220,
+              top: 16,
+              child: menubtn(
+                riveOnInit: (artboard) {
+                  StateMachineController controller = RiveUtils.getRiveController(
+                      artboard,
+                      stateMachineName: "Morph");
+                  isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
+                  isSideBarClosed.value = true;
+                },
+                press: () {
+                  isSideBarClosed.value = !isSideBarClosed.value;
+                  if (isSideMenuClose) {
+                    _animationController.forward();
 
                   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
                     statusBarColor: AppColors.drawer,
@@ -153,7 +152,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 height: 50,
                 items: _construirNavigationBarItems(),
                 backgroundColor: Colors.transparent,
-                color: Colors.blue,
+                color: Colors.blue, // Cambia esto al color que desees
                 animationDuration: const Duration(milliseconds: 300),
                 onTap: (int index) {
                   setState(() {
@@ -184,19 +183,15 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
 }
 
 class PantallaPrincipal extends StatelessWidget {
-  const PantallaPrincipal({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: PantallaPrincipalContent(),
     );
   }
 }
 
 class PantallaPrincipalContent extends StatefulWidget {
-  const PantallaPrincipalContent({super.key});
-
   @override
   _PantallaPrincipalContentState createState() =>
       _PantallaPrincipalContentState();
@@ -258,7 +253,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
 
   Widget _buildContent() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(15, 80, 15, 15),
+      padding: EdgeInsets.fromLTRB(15, 80, 15, 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -301,7 +296,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
       padding: const EdgeInsets.only(bottom: 15.0),
       child: Text(
         '¡Hola, $userName!',
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 25,
           color: AppColors.textColor,
         ),
@@ -429,8 +424,6 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
 }
 
 class PantallaAsignaciones extends StatelessWidget {
-  const PantallaAsignaciones({super.key});
-
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -440,8 +433,6 @@ class PantallaAsignaciones extends StatelessWidget {
 }
 
 class PantallaPerfil extends StatelessWidget {
-  const PantallaPerfil({super.key});
-
   @override
   Widget build(BuildContext context) {
     return const Center(

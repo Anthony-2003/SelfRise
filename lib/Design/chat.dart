@@ -196,13 +196,13 @@ class _PantallaChatState extends State<PantallaChat> {
 
     return Container(
       padding: EdgeInsets.all(16.0),
-      margin: EdgeInsets.only(bottom: 65.0),
+      margin: EdgeInsets.only(bottom: 35.0),
       child: Row(
         children: [
           Expanded(
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 8.0),
-              margin: EdgeInsets.only(bottom: 50.0),
+              margin: EdgeInsets.only(bottom: 20.0),
               child: TextField(
                 controller: messageController,
                 decoration: InputDecoration(
@@ -216,7 +216,7 @@ class _PantallaChatState extends State<PantallaChat> {
           ),
           SizedBox(width: 8.0),
           Container(
-            margin: EdgeInsets.only(bottom: 50.0),
+            margin: EdgeInsets.only(bottom: 20.0),
             child: IconButton(
               icon: Icon(Icons.send),
               iconSize: 30,
