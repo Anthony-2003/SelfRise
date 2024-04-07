@@ -7,6 +7,7 @@ import '../Colors/colors.dart';
 import '../components/buttons.dart';
 import '../components/loginwith.dart';
 import 'register.dart';
+import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -158,7 +159,13 @@ class _LoginPageState extends State<LoginPage> {
                           text: "Logueate con google",
                           route: 'assets/iconos/google.png',
                           onTap: () {
-                            _auth.signInGoogle(context);
+                            //_auth.signInGoogle(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      PantallaMenuPrincipal()),
+                            );
                           },
                         ),
                       ],

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:math';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import './habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
+import 'package:flutter_proyecto_final/Design/modal_emociones.dart';
 
 
 class PantallaMenuPrincipal extends StatefulWidget {
@@ -318,7 +320,12 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
   }
 
   Widget _construirIconoConTexto(String nombreAsset, String texto) {
-    return Padding(
+    return GestureDetector(
+      onTap: () {
+        print("object gg");
+        _mostrarModalEmociones(context, texto); // Llama a la funcion para mostrar el modal de emociones
+      },
+     child: Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -328,6 +335,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
             width: 50,
             height: 50,
           ),
+          
           const SizedBox(height: 5), 
           Text(
             texto,
@@ -335,8 +343,18 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
           ),
         ],
       ),
+     ),
     );
   }
+
+  void _mostrarModalEmociones(BuildContext context, String emocion) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return ModalEmociones(emocion: emocion);
+    },
+  );
+}
 
   Widget _construirFilaIconosSentimientos() {
     return Padding(
