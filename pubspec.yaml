@@ -1,0 +1,69 @@
+name: flutter_proyecto_final
+description: "A new Flutter project."
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.6 <4.0.0"
+
+dependencies:
+  animations: ^2.0.11
+  awesome_dialog: ^3.2.0
+  cached_network_image: ^3.3.1
+  carousel_slider: ^4.0.0
+  cloud_firestore: ^4.15.4
+  cupertino_icons: ^1.0.2
+  curved_navigation_bar: ^1.0.3
+  datetime_picker_formfield: ^2.0.1
+  firebase_auth: ^4.17.4
+  firebase_core: ^2.25.4
+  firebase_storage: ^11.6.5
+  flutter:
+    sdk: flutter
+  flutter_facebook_auth: ^6.1.0
+  flutter_image_compress: ^2.1.0
+  flutter_keyboard_visibility: ^6.0.0
+  flutter_local_notifications: ^17.0.0
+  flutter_spinkit: ^5.2.0
+  flutter_timezone: ^1.0.8
+  fluttertoast: ^8.2.4
+  get: ^4.6.6
+  google_fonts: ^6.1.0
+  google_sign_in: ^6.2.1
+  http: ^1.2.1
+  image_picker: ^1.0.7
+  intl: ^0.19.0
+  map_location_picker: ^1.2.8+3 
+  provider: ^6.1.1
+  rive: ^0.12.4
+  share_plus: ^8.0.2 # Updated to latest as per second YAML
+  shared_preferences: ^2.2.2
+  smooth_page_indicator: ^1.1.0
+  url_launcher: ^6.2.5
+  # Merged date_picker_timeline from first YAML and removed date_time_line from second as it seems to be an incorrect or outdated entry
+  date_picker_timeline: ^1.2.6
+  collection: ^1.15.0
+  material_dialogs: ^1.1.4
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.2 # Used the newer version from the second YAML
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/iconos/1024.png"
+  adaptive_icon_background: "#2196F3"
+  adaptive_icon_foreground: "assets/iconos/logo_blanco.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/imagenes/
+    - assets/iconos/
+    - assets/icon-menu/
+    - lib/data/frases_motivacionales.json
