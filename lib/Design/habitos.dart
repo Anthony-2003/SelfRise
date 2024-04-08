@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/habitos_stepper.dart';
@@ -29,13 +30,25 @@ class _PantallaSeguimientoHabitosState
     super.initState();
     _streamControllerHabitos =
         StreamController<List<Map<String, dynamic>>>.broadcast();
-    _inicializarDatos();
+    _cargarHabitos();
   }
 
-  void _inicializarDatos() async {
+  void _cargarHabitos() async {
     try {
+      // Obtener todos los hábitos del usuario
       final habitData = await HabitosService().obtenerHabitos(idUsuarioActual!);
-      _streamControllerHabitos.add(habitData);
+      print(habitData);
+      print(_fechaSeleccionadCalendario);
+
+      // Filtrar los hábitos según la fecha seleccionada
+      final habitosFiltrados =
+          filtrarHabitosPorFecha(habitData, _fechaSeleccionadCalendario);
+
+      print(habitosFiltrados);
+
+      // Añadir los hábitos filtrados al StreamController
+      _streamControllerHabitos.add(habitosFiltrados);
+
       print(habitData);
     } catch (error) {
       print("Error al cargar hábitos: $error");
@@ -46,6 +59,118 @@ class _PantallaSeguimientoHabitosState
   void dispose() {
     _streamControllerHabitos.close();
     super.dispose();
+  }
+
+  bool _debeMostrarseDiario() {
+    return true;
+  }
+
+  bool _debeMostrarseEnDiasEspecificosSemana(
+      List<int> diasSeleccionados, int diaSemanaSeleccionado) {
+    return diasSeleccionados.contains(diaSemanaSeleccionado);
+  }
+
+  bool _debeMostrarseEnDiasEspecificosMes(
+      List<int> diasSeleccionados, int diaMesSeleccionado) {
+    return diasSeleccionados.contains(diaMesSeleccionado);
+  }
+
+  bool _debeMostrarseRepetir(
+      int intervaloRepetir, DateTime fechaInicio, DateTime fechaSeleccionada) {
+    int diferenciaDias = fechaSeleccionada.difference(fechaInicio).inDays;
+    return diferenciaDias % intervaloRepetir == 0;
+  }
+
+  int convertirDiaSemanaStringANumero(String diaSemana) {
+    switch (diaSemana.toLowerCase()) {
+      case 'lunes':
+        return 1;
+      case 'martes':
+        return 2;
+      case 'miércoles':
+        return 3;
+      case 'jueves':
+        return 4;
+      case 'viernes':
+        return 5;
+      case 'sábado':
+        return 6;
+      case 'domingo':
+        return 7;
+      default:
+        return -1; // Valor por defecto si no se reconoce el día de la semana
+    }
+  }
+
+  List<Map<String, dynamic>> filtrarHabitosPorFecha(
+      List<Map<String, dynamic>> habitos, DateTime fechaSeleccionada) {
+    return habitos.where((habito) {
+      DateTime? fechaInicio = habito['fechaInicio'] != null
+          ? (habito['fechaInicio'] as Timestamp).toDate()
+          : null;
+      DateTime? fechaFin = habito['fechaFinal'] != null
+          ? (habito['fechaFinal'] as Timestamp).toDate()
+          : null;
+
+      if (fechaInicio != null && fechaSeleccionada.isBefore(fechaInicio)) {
+        return false;
+      }
+
+      if (fechaFin != null && fechaSeleccionada.isAfter(fechaFin)) {
+        return false;
+      }
+
+      String frecuencia = habito['frecuenciaHabito'];
+
+      if (frecuencia == 'Cada día') {
+        return _debeMostrarseDiario();
+      } else if (frecuencia == 'Días específicos de la semana') {
+        // Obtener la lista de días como List<dynamic>
+        List<dynamic> valorFrecuencia = habito['valorFrecuencia'];
+
+        // Convertir la lista de días a List<String>
+        List<String> diasSeleccionados =
+            valorFrecuencia.map((dia) => dia.toString()).toList();
+
+        // Imprimir para verificar los días seleccionados
+        print('Días seleccionados: $diasSeleccionados');
+
+        // Convertir los nombres de los días a números
+        List<int> diasNumericos = diasSeleccionados
+            .map((dia) => convertirDiaSemanaStringANumero(dia))
+            .toList();
+
+        // Obtener el día de la semana de la fecha seleccionada
+        int diaSemanaSeleccionado = fechaSeleccionada.weekday;
+
+        // Retornar el resultado de la función de filtrado
+        return _debeMostrarseEnDiasEspecificosSemana(
+            diasNumericos, diaSemanaSeleccionado);
+      } else if (frecuencia == 'Días específicos del mes') {
+        // Obtener la lista de días como List<dynamic>
+        List<dynamic> valorFrecuencia = habito['valorFrecuencia'];
+
+        // Convertir los elementos de la lista a enteros
+        List<int> diasSeleccionados =
+            valorFrecuencia.map((dia) => dia as int).toList();
+
+        // Imprimir para verificar los días seleccionados
+        print('Días seleccionados: $diasSeleccionados');
+
+        // Obtener el día del mes de la fecha seleccionada
+        int diaMesSeleccionado = fechaSeleccionada.day;
+
+        // Retornar el resultado de la función de filtrado
+        return _debeMostrarseEnDiasEspecificosMes(
+            diasSeleccionados, diaMesSeleccionado);
+      } else if (frecuencia == 'Repetir') {
+        int intervaloRepetir = int.parse(habito['valorFrecuencia']);
+        return _debeMostrarseRepetir(
+            intervaloRepetir, fechaInicio!, fechaSeleccionada);
+      } else {
+        return false;
+      }
+    }).toList();
   }
 
   Widget construirCalendario(BuildContext context) {
@@ -63,10 +188,11 @@ class _PantallaSeguimientoHabitosState
             height: 100,
             locale: 'es',
             onDateChange: (date) {
-              // New date selected
               setState(() {
                 _fechaSeleccionadCalendario = date;
               });
+
+              _cargarHabitos();
             },
           ),
         ),
@@ -107,7 +233,7 @@ class _PantallaSeguimientoHabitosState
           context,
           MaterialPageRoute(
             builder: (context) => HabitosPageView(
-              manejarHabitoGuardado: _inicializarDatos,
+              manejarHabitoGuardado: _cargarHabitos,
             ), // No se pasa ningún parámetro opcional
           ),
         );
@@ -280,7 +406,7 @@ class _PantallaSeguimientoHabitosState
   Future<Widget> _construirCheckbox(Map<String, dynamic> habito) async {
     int verificarValor = await HabitosService()
         .obtenerHabitoPorDefault(habito['id'], DateTime.now());
-        print(verificarValor);
+    print(verificarValor);
     bool elHabitoEstaCompletado = (verificarValor >
         0); // Aquí establece la lógica para determinar si el hábito está completado o no
 
