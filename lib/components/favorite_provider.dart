@@ -4,61 +4,65 @@ import 'package:flutter_proyecto_final/Design/booksPage.dart';
 
 class FavoriteProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   FavoriteProvider();
+  Set<String> _favoriteBookIds = {};
+
+Future<void> loadFavoriteBookIds(String userId) async {
+    _favoriteBookIds.clear();
+    final snapshot = await _firestore.collection('favorites').doc(userId).collection('books').get();
+    for (var doc in snapshot.docs) {
+      _favoriteBookIds.add(doc.id);
+    }
+    notifyListeners();
+  }
+
 
   void toggleFavorite(Book book, String? userId) async {
-    if (userId == null) {
-      print("Error: userId es null");
-      return;
-    }
+    if (userId == null)return;
     try {
       final documentReference = _firestore
           .collection('favorites')
           .doc(userId)
           .collection('books')
           .doc(book.id);
-
-      final documentSnapshot = await documentReference.get();
-
-      if (documentSnapshot.exists) {
-        await documentReference.delete();
-      } else {
-        await documentReference.set(book.toJson());
-      }
+          if (_favoriteBookIds.contains(book.id)) {
+      await documentReference.delete();
+      _favoriteBookIds.remove(book.id);
+    } else {
+      await documentReference.set(book.toJson());
+      _favoriteBookIds.add(book.id);
+    }
       notifyListeners();
     } catch (error) {
       print('Error toggling favorite: $error');
     }
   }
+    bool isFavorite(String bookId) {
+    return _favoriteBookIds.contains(bookId);
+  }
+    Stream<List<Book>> streamFavorites(String userId) {
+    return _firestore.collection('favorites').doc(userId).collection('books').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) => Book.fromJson(doc.data() as Map<String, dynamic>)).toList();
+    });
+  }
+
 
   Future<List<Book>> getFavorites(String? userId) async {
-  if (userId == null) {
-    print("Error: userId es null");
-    return [];
-  }
-  try {
-    final querySnapshot = await _firestore
+    List<Book> favoriteBooks = [];
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('favorites')
         .doc(userId)
         .collection('books')
         .get();
-
-    final List<Book> favorites = [];
-
-    if (querySnapshot.docs.isNotEmpty) {
-      favorites.addAll(querySnapshot.docs
-          .map((doc) => Book.fromJson(doc.data() as Map<String, dynamic>))
-          .toList());
+    for (var doc in snapshot.docs) {
+      Book book = Book.fromJson(doc.data() as Map<String, dynamic>);
+      print("titulo del libro: ${book.title}");
+      print("URL de la imagen del libro: ${book.thumbnailUrl}");
+      favoriteBooks.add(book);
     }
-    print(favorites.length);
-    return favorites;
-  } catch (error) {
-    print('Error getting favorites: $error');
-    return [];
+    return favoriteBooks;
   }
-}
-
+  
 
   Future<void> clearFavorites(String? userId) async {
     if (userId == null) {
@@ -80,4 +84,23 @@ class FavoriteProvider extends ChangeNotifier {
       print('Error clearing favorites: $error');
     }
   }
+
+  Future<bool> isBookFavorite(String bookId, String? userId) async {
+    if (userId == null) return false;
+
+    try {
+      final documentSnapshot = await _firestore
+          .collection('favorites')
+          .doc(userId)
+          .collection('books')
+          .doc(bookId)
+          .get();
+
+      return documentSnapshot.exists; 
+    } catch (error) {
+      print('Error checking if book is favorite: $error');
+      return false;
+    }
+  }
+
 }

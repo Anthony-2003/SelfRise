@@ -1,29 +1,20 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Design/booksview.dart';
+import 'package:flutter_proyecto_final/components/imageprovider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import '../components/favorite_provider.dart';
 import 'booksController.dart';
 import 'favoriteBooks.dart';
-import '../services/AuthService.dart';
+import '../entity/authservice.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
 
   @override
   State<BookListScreen> createState() => _BookListScreenState();
-}
-
-ImageProvider<Object> _getImageProvider(String? thumbnailUrl) {
-  if (thumbnailUrl != null &&
-      thumbnailUrl.isNotEmpty &&
-      !thumbnailUrl.startsWith('file:///')) {
-    return NetworkImage(thumbnailUrl);
-  } else {
-    return const AssetImage('assets/iconos/image-default.png');
-  }
 }
 
 class Book {
@@ -48,19 +39,25 @@ class Book {
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
-    final volumeInfo = json['volumeInfo'];
-    final title = volumeInfo['title'];
-    final subtitle = volumeInfo['subtitle'] ?? '';
-    final authors = volumeInfo['authors'] != null
-        ? List<String>.from(volumeInfo['authors'])
-        : ['Unknown Author'];
-    final imageLinks = volumeInfo['imageLinks'] ?? {};
-    final thumbnailUrl = imageLinks['smallThumbnail'] ?? '';
-    final publisher = volumeInfo['publisher'] ?? '';
-    final publishedDate = volumeInfo['publishedDate'] ?? '';
-    final description = volumeInfo['description'] ?? '';
+    Map<String, dynamic> volumeInfo =
+        json.containsKey('volumeInfo') ? json['volumeInfo'] : json;
+    final title = volumeInfo['title'] as String? ?? 'Título Desconocido';
+    final subtitle = volumeInfo['subtitle'] as String? ?? '';
+    final authorsList = volumeInfo['authors'] as List<dynamic>? ?? [];
+    final authors = authorsList.map((author) => author.toString()).toList();
+    final imageLinks = volumeInfo.containsKey('imageLinks')
+        ? volumeInfo['imageLinks'] as Map<String, dynamic>
+        : {};
+    final thumbnailUrl = imageLinks.isNotEmpty
+        ? imageLinks['smallThumbnail']
+        : volumeInfo['thumbnailUrl'] as String? ?? '';
 
-    final id = json['id'] ?? '';
+    final publisher =
+        volumeInfo['publisher'] as String? ?? 'Editorial Desconocida';
+    final publishedDate = volumeInfo['publishedDate'] as String? ?? '';
+    final description =
+        volumeInfo['description'] as String? ?? 'Sin descripción';
+    final id = json['id'] as String? ?? '';
 
     return Book(
       id: id,
@@ -73,6 +70,7 @@ class Book {
       description: description,
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -102,14 +100,14 @@ class _BookListScreenState extends State<BookListScreen> {
   final ScrollController _scrollController = ScrollController();
   final bookListController = BookListController.instance;
   TextEditingController searchbookcontroller = TextEditingController();
-
   List<Book> _books = [];
   List<bool> _isFavoriteList = [];
-  List<Book> _favoriteBooks = [];
+  // List<Book> _favoriteBooks = [];
   int _startIndex = 0;
   final int _maxResults = 10;
   bool _loading = false;
   String? userId;
+  late Future<bool> isFavoriteFuture;
 
   @override
   void initState() {
@@ -117,8 +115,8 @@ class _BookListScreenState extends State<BookListScreen> {
     _futureBooks = fetchBooks();
     _scrollController.addListener(_scrollListener);
     userId = AuthService.getUserId();
-    _favoriteBooks = List.from(_favoriteBooks);
-    _updateFavoriteList();
+    Provider.of<FavoriteProvider>(context, listen: false)
+        .loadFavoriteBookIds(userId!);
   }
 
   @override
@@ -196,13 +194,16 @@ class _BookListScreenState extends State<BookListScreen> {
     }
   }
 
-  void _updateFavoriteList() {
-    setState(() {
-      for (final book in _books) {
-        _isFavoriteList[_books.indexOf(book)] = _favoriteBooks.contains(book);
-      }
-    });
-  }
+  // void _updateFavoriteList() async {
+  //   final favoriteProvider =
+  //       Provider.of<FavoriteProvider>(context, listen: false);
+  //   if (userId != null) {
+  //     List<Book> favorites = await favoriteProvider.getFavorites(userId);
+  //     setState(() {
+  //       _favoriteBooks = favorites;
+  //     });
+  //   }
+  // }
 
   PreferredSizeWidget? appBarCustom(String titulo, String? userId) {
     print(userId);
@@ -311,6 +312,7 @@ class _BookListScreenState extends State<BookListScreen> {
                         );
                       } else {
                         final Book book = _books[index];
+                        bool isFavorite = favoriteProvider.isFavorite(book.id);
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -319,8 +321,8 @@ class _BookListScreenState extends State<BookListScreen> {
                                 builder: (context) => BookViewPage(
                                   appBarCustom: appBarCustom(
                                       'Descripción de libros', userId),
-                                  imageProvider:
-                                      _getImageProvider(book.thumbnailUrl),
+                                  imageProvider: ImageUtils.getImageProvider(
+                                      book.thumbnailUrl),
                                   title: book.title,
                                   subtitle: book.subtitle,
                                   authors: book.authors,
@@ -345,10 +347,9 @@ class _BookListScreenState extends State<BookListScreen> {
                                     child: Container(
                                       width: 100.0,
                                       height: 120.0,
-                                      color: Colors
-                                          .grey[300], // Color de fondo temporal
+                                      color: Colors.grey[300],
                                       child: Image(
-                                        image: _getImageProvider(
+                                        image: ImageUtils.getImageProvider(
                                             book.thumbnailUrl),
                                         fit: BoxFit.fill,
                                       ),
@@ -390,13 +391,11 @@ class _BookListScreenState extends State<BookListScreen> {
                                           book, userId);
                                     },
                                     child: Icon(
-                                      _favoriteBooks.contains(book)
+                                      isFavorite
                                           ? Icons.favorite
                                           : Icons.favorite_border,
+                                      color: isFavorite ? Colors.red : null,
                                       size: 32,
-                                      color: _favoriteBooks.contains(book)
-                                          ? Colors.red
-                                          : null,
                                     ),
                                   )
                                 ],

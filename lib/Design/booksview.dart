@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Design/booksPage.dart';
-import 'package:flutter_proyecto_final/services/AuthService.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:provider/provider.dart';
 import '../components/favorite_provider.dart';
 

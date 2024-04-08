@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
+import 'package:intl/intl.dart';
 
 class HabitosService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -90,34 +91,9 @@ class HabitosService {
       });
 
       // Si el hábito se marca como completado, guardar un registro de hábito completado
-      if (completado) {
-        await guardarRegistroHabitoCompletado(habitId);
-      }
     } catch (e) {
       // Manejar cualquier error que ocurra durante la actualización
       throw Exception('Error al actualizar el estado del hábito: $e');
-    }
-  }
-
-  Future<void> guardarRegistroHabitoCompletado(String habitId) async {
-    try {
-      // Obtener información del hábito completado
-      Map<String, dynamic> habito = await obtenerHabitoPorId(habitId);
-
-      // Crear un registro de hábito completado
-      await _firestore.collection('registrosHabitosCompletados').add({
-        'userId': habito['userId'],
-        'habitId': habitId,
-        'fechaCompletado': DateTime.now(),
-        
-        // Otros campos necesarios, como el nombre del hábito, categoría, etc.
-      });
-      print(
-          'Registro de hábito completado guardado en Firestore correctamente.');
-    } catch (e) {
-      print(
-          'Error al guardar el registro de hábito completado en Firestore: $e');
-      throw e;
     }
   }
 
@@ -161,9 +137,120 @@ class HabitosService {
 
       return valorHabito.get('valor') as int;
     } catch (e) {
-      print('Error al obtener los hábitos: $e');
+      print('Error al obtener los hábitos xd: $e');
     }
 
     return valor;
-  } 
+  }
+
+  Future<void> guardarHabitoCompletado(
+      String habitId, DateTime fechaCompletado, int valor) async {
+    try {
+      await _firestore.collection('habito_progreso').add({
+        'fk_idHabito': habitId,
+        'fechaCompletado': fechaCompletado,
+        'valor': valor,
+      });
+    } catch (e) {
+      print('Error al guardar nuevo hábito de progreso: $e');
+      throw e;
+    }
+  }
+
+  Future<void> borrarHabitoCompletado(
+      String habitId, DateTime fechaCompletado) async {
+    try {
+      // Acceder a la instancia de Firestore
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      Timestamp timestamp = Timestamp.fromDate(fechaCompletado);
+
+      print(habitId);
+      print(fechaCompletado);
+
+      // Obtener la referencia del documento del hábito completado
+      QuerySnapshot querySnapshot = await firestore
+          .collection('habito_progreso')
+          .where('fk_idHabito', isEqualTo: habitId)
+          .where('fechaCompletado', isEqualTo: timestamp) // Filtrar por fecha
+          .get();
+
+      // Eliminar el documento encontrado
+      querySnapshot.docs.forEach((doc) async {
+        await doc.reference.delete();
+      });
+    } catch (e) {
+      print('Error al borrar el hábito completado: $e');
+      throw e;
+    }
+  }
+
+  Future<bool> verificarHabitoCompletadoExistente(
+      String habitId, DateTime fechaCompletado) async {
+    try {
+      // Acceder a la instancia de Firestore
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Convertir la fecha a un Timestamp
+
+      // Obtener la referencia del documento del hábito completado
+      QuerySnapshot querySnapshot = await firestore
+          .collection('habito_progreso')
+          .where('fk_idHabito', isEqualTo: habitId)
+          .where('fechaCompletado', isEqualTo: fechaCompletado)
+          .get();
+
+      // Si hay documentos que cumplen con los criterios de consulta, el hábito existe
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error al verificar el hábito completado: $e');
+      throw e;
+    }
+  }
+
+  Future<void> actualizarValorHabito(String habitId, int nuevoValor) async {
+    try {
+      // Acceder a la instancia de Firestore
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Obtener la referencia del documento del hábito
+      DocumentReference habitoRef =
+          firestore.collection('habito_progreso').doc(habitId);
+
+      // Actualizar el campo "valor" del documento
+      await habitoRef.update({'valor': nuevoValor});
+
+      print('Valor del hábito actualizado correctamente');
+    } catch (e) {
+      print('Error al actualizar el valor del hábito: $e');
+      throw e;
+    }
+  }
+
+  Future<String?> obtenerIdDocumentoHabitoCompletado(
+      String habitId, DateTime fechaCompletado) async {
+    try {
+      // Acceder a la instancia de Firestore
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Realizar la consulta a la colección 'habito_progreso'
+      QuerySnapshot querySnapshot = await firestore
+          .collection('habito_progreso')
+          .where('fk_idHabito', isEqualTo: habitId)
+          .where('fechaCompletado', isEqualTo: fechaCompletado)
+          .get();
+
+      // Verificar si se encontraron documentos
+      if (querySnapshot.docs.isNotEmpty) {
+        // Obtener el ID del primer documento encontrado
+        return querySnapshot.docs.first.id;
+      } else {
+        // Si no se encontraron documentos, devolver null
+        return null;
+      }
+    } catch (e) {
+      print('Error al obtener el ID del documento: $e');
+      throw e;
+    }
+  }
 }

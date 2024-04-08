@@ -1,9 +1,10 @@
-
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../Design/menu_principal.dart';
+import 'package:http/http.dart' as http;
 
 class FirebaseAuthServ {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -53,20 +54,22 @@ class FirebaseAuthServ {
 
       User? userDetails = result.user;
 
-      Map<String, dynamic> userInfoMap = {
-        'email': userDetails!.email,
-        'name': userDetails.displayName,
-        'imageLink': userDetails.photoURL,
-        'id': userDetails.uid
-      };
-      
-      await DataBase().addUser(userDetails.uid, userInfoMap).then((value) =>
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => PantallaMenuPrincipal())));
-        } catch (e) {
+      if (result != null) {
+        Map<String, dynamic> userInfoMap = {
+          'email': userDetails!.email,
+          'name': userDetails.displayName,
+          'imageLink': userDetails.photoURL,
+          'id': userDetails.uid
+        };
+        await DataBase().addUser(userDetails.uid, userInfoMap).then((value) =>
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PantallaMenuPrincipal())));
+      }
+    } catch (e) {
       print('Ocurrió un error durante la autenticación con Google: $e');
+      // Puedes mostrar un mensaje de error al usuario o realizar otras acciones según sea necesario
     }
   }
 }

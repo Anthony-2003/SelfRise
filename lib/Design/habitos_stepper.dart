@@ -11,9 +11,9 @@ import 'frecuenciaHabito.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 
 class HabitosPageView extends StatefulWidget {
-  final Function() onHabitSaved;
+  final Function() manejarHabitoGuardado;
 
-  HabitosPageView({required this.onHabitSaved});
+  HabitosPageView({required this.manejarHabitoGuardado});
 
   @override
   _HabitosPageViewState createState() => _HabitosPageViewState();
@@ -180,8 +180,9 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                                   Habito.habitDescription,
                                 );
 
-                                widget.onHabitSaved();
-
+                              
+                                widget.manejarHabitoGuardado();
+                                      
                                 Fluttertoast.showToast(
                                   msg: "Hábito guardado correctamente!",
                                   toastLength: Toast.LENGTH_SHORT,
