@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/Alarma.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 
 class Habito {
@@ -9,27 +10,26 @@ class Habito {
   static late DateTime startDate;
   static late DateTime? endDate = null;
   static late Color color;
-  static late String? recordatorio;
+  static late List<Alarma>? recordatorio;
   static late String category;
   static late IconData categoryIcon;
   static late bool isTracked;
   static late int? meta = 0;
   static late int? metaUsuario = 0;
 
-  static void init({
-    required String name,
-    required String description,
-    required String evaluateProgress,
-    required String habitName,
-    String? habitDescription,
-    Frecuencia? frequency,
-    required DateTime startDate,
-    required DateTime endDate,
-    required Color color,
-    String? recordatorio,
-    int? meta,
-    int? metaUsuario
-  }) {
+  static void init(
+      {required String name,
+      required String description,
+      required String evaluateProgress,
+      required String habitName,
+      String? habitDescription,
+      Frecuencia? frequency,
+      required DateTime startDate,
+      required DateTime endDate,
+      required Color color,
+      List<Alarma>? recordatorio,
+      int? meta,
+      int? metaUsuario}) {
     Habito.habitName = name;
     Habito.evaluateProgress = evaluateProgress;
     Habito.habitName = habitName;
@@ -44,5 +44,4 @@ class Habito {
     Habito.meta = meta;
     Habito.metaUsuario = metaUsuario;
   }
-
 }

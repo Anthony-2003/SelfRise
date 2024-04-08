@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_proyecto_final/Colors/colors.dart';
+import 'package:flutter_proyecto_final/entity/Alarma.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
 
@@ -13,7 +15,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   late DateTime _fechaFinalizacion = DateTime.now();
   bool _fechaFinalizacionToggle = false;
   int _diasFinalizacion = 0;
-  List<String> _recordatorios = [];
+  List<Alarma> _recordatorios = [];
   TimeOfDay? _horaSeleccionada = TimeOfDay(hour: 12, minute: 0);
   late AlertDialog? _currentAlertDialog;
   bool _notificacionSeleccionada = true;
@@ -54,11 +56,12 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    print(Habito.habitName);
-    print(Habito.habitDescription);
-    print(Habito.frequency?.nombre);
+  void dispose() {
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     if (Habito.frequency != null &&
         Habito.frequency!.nombre == 'Días específicos de la semana') {
       print(Frecuencia.diasSemana);
@@ -73,10 +76,9 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
       print(Frecuencia.diasDespues);
     }
 
-    print(Habito.category);
-    print(Habito.categoryIcon);
-
-    Habito.startDate = _fechaInicio;
+    DateTime fechaSinHora =
+        DateTime(_fechaInicio.year, _fechaInicio.month, _fechaInicio.day);
+    Habito.startDate = fechaSinHora;
 
     return Scaffold(
       body: ListView(
@@ -268,7 +270,9 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
               children: [
                 Icon(Icons.alarm),
                 SizedBox(width: 10),
-                Text('Recordatorios',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text('Recordatorios',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               ],
             ),
             Container(
@@ -291,17 +295,45 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
   Future<void> _seleccionarFecha(
       BuildContext context, bool isFechaInicio) async {
     final DateTime? pickedDate = await showDatePicker(
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF2773B9), // header background color
+              onSurface: Colors.white, // body text color
+              background: Colors.red, // body background color
+              surface: AppColors.drawer, // surface color
+            ),
+            dialogBackgroundColor: Color(0xFF2773B9), // dialog background color
+            highlightColor: Colors.white,
+            hintColor: Colors.red, // color del círculo de la fecha actual
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white, // button text color
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
       context: context,
       initialDate: isFechaInicio ? _fechaInicio : _fechaFinalizacion,
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
+      cancelText: 'Cancelar', // Texto del botón de cancelar
+      confirmText: 'Aceptar', // Texto del botón de aceptar
+      helpText: 'Seleccionar Fecha', // Texto que aparece encima del calendario
+      // Establecer el formato en español
     );
+
     if (pickedDate != null) {
+      DateTime fechaSinHora =
+          DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
       setState(() {
         if (isFechaInicio) {
-          _fechaInicio = pickedDate;
+          _fechaInicio = fechaSinHora;
         } else {
-          _fechaFinalizacion = pickedDate;
+          _fechaFinalizacion = fechaSinHora;
         }
       });
     }
@@ -311,7 +343,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  void _eliminarRecordatorio(String recordatorio) {
+  void _eliminarRecordatorio(Alarma recordatorio) {
     setState(() {
       _recordatorios.remove(recordatorio); // Marca el diálogo como cerrado
     });
@@ -324,7 +356,13 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
       context: context,
       builder: (BuildContext scaffoldContext) {
         return AlertDialog(
-          title: Center(child: Text('Recordatorios')),
+          backgroundColor: AppColors.drawer,
+          title: Center(
+            child: Text(
+              'Recordatorios',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
           content: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
@@ -340,19 +378,18 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                 if (_recordatorios.isNotEmpty)
                   Column(
                     children: _recordatorios.map((recordatorio) {
-                      List<String> parts = recordatorio.split('\n');
-                      String tipoRecordatorio = parts[0].split(' - ')[0];
-                      String horaRecordatorio = parts[0].split(' - ')[1];
-                      String diasRecordatorio =
-                          parts.length > 1 ? parts[1] : '';
+                  
+                      String tipoRecordatorio = recordatorio.tipo;
+                      String horaRecordatorio = recordatorio.hora;
+                      String? diasRecordatorio = recordatorio.dias;
 
                       return Container(
                         child: ListTile(
                           contentPadding: EdgeInsets.all(
                               0), // Elimina el padding predeterminado del ListTile
                           leading: tipoRecordatorio == 'Notificación'
-                              ? Icon(Icons.notifications)
-                              : Icon(Icons.alarm),
+                              ? Icon(Icons.notifications, color: Colors.white)
+                              : Icon(Icons.alarm, color: Colors.white),
                           title: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -363,6 +400,9 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                                     Text(
                                       horaRecordatorio,
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white),
                                     )
                                   ],
                                 ),
@@ -375,7 +415,10 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                                 .zero, // Elimina el padding del contenedor
                             child: IconButton(
                               padding: EdgeInsets.all(0),
-                              icon: Icon(Icons.delete),
+                              icon: Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              ),
                               onPressed: () {
                                 setState(() {
                                   Navigator.pop(scaffoldContext);
@@ -385,11 +428,11 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                             ),
                           ),
                           subtitle: Text(
-                            diasRecordatorio,
+                            diasRecordatorio!,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors
-                                  .blue, // Cambia "Colors.blue" al color que desees
+                                  .white, // Cambia "Colors.blue" al color que desees
                             ),
                           ),
                         ),
@@ -408,7 +451,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                       SizedBox(height: 10),
                       Text(
                         'No hay recordatorios en esta actividad',
-                        style: TextStyle(fontSize: 14),
+                        style: TextStyle(fontSize: 14, color: Colors.white),
                       ),
                     ],
                   ),
@@ -421,7 +464,8 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                   child: Text('Nuevo recordatorio'),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue, // Cambia el color del texto
+                    backgroundColor:
+                        Color(0xFF2773B9), // Cambia el color del texto
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -437,7 +481,8 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                   child: Text('Cerrar'),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: Colors.grey, // Cambia el color del texto
+                    backgroundColor:
+                        Color(0xFF2773B9), // Cambia el color del texto
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -454,8 +499,36 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
 
   void _mostrarSelectorHora(BuildContext context, StateSetter setState) async {
     final TimeOfDay? horaSeleccionada = await showTimePicker(
+      cancelText: 'Cancelar',
+      confirmText: 'Aceptar',
+      helpText: 'Seleccionar hora',
       context: context,
       initialTime: _horaSeleccionada ?? TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData(
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor:
+                  AppColors.drawer, // Color de fondo del selector de hora
+              dayPeriodColor: Colors.blue,
+              dayPeriodTextColor: Colors.white, // Color del AM y PM
+            ),
+            colorScheme: ColorScheme.dark(
+              primary: Colors.blue, // Color de fondo del diálogo
+              onPrimary: Colors.white, // Texto blanco
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white, // button text color
+              ),
+            ),
+            buttonTheme: ButtonThemeData(
+              textTheme: ButtonTextTheme.normal, // Estilo del texto del botón
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (horaSeleccionada != null) {
@@ -481,30 +554,44 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
       opcionesSeleccionadas = '$_diasDespuesSeleccionados días después';
     }
 
+    Alarma alarma = Alarma(
+      tipo: tipoRecordatorio,
+      hora: horaRecordatorio,
+      dias: opcionesSeleccionadas,
+    );
+
     String recordatorio =
         '$tipoRecordatorio - $horaRecordatorio\n$opcionesSeleccionadas';
-
-    print("xddd" + opcionesSeleccionadas);
+    
+    
 
     // Actualizar la interfaz de usuario
     setState(() {
-      _recordatorios.add(recordatorio);
+      _recordatorios.add(alarma);
+      Habito.recordatorio = _recordatorios;
     });
   }
 
   void _mostrarDialogoNuevoRecordatorio(BuildContext context) {
     // Crea el diálogo y asigna la referencia a _currentAlertDialog
     _currentAlertDialog = AlertDialog(
+      backgroundColor: AppColors.drawer,
       title: Text(
         'Nuevo recordatorio',
         textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       content: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Divider(),
+              Divider(
+                color: Colors.white,
+              ),
               ListTile(
                 title: Text(
                   _horaSeleccionada != null
@@ -512,24 +599,29 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                       : '12:00 PM',
                   textAlign: TextAlign.center,
                   style: TextStyle(
+                    color: Colors.white,
                     fontSize: 30,
                   ),
                 ),
                 subtitle: Text(
                   'Tiempo del recordatorio',
                   textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white),
                 ),
                 onTap: () {
                   _mostrarSelectorHora(context, setState);
                 },
               ),
-              Divider(),
+              Divider(
+                color: Colors.white,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
                   'Tipo de recordatorio',
                   textAlign: TextAlign.left, // Alineado a la izquierda
                   style: TextStyle(
+                    color: Colors.white,
                     fontSize: 18,
                   ),
                 ),
@@ -545,21 +637,25 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                         _alarmaSeleccionada = false;
                       });
                     },
-                    child: Column(
-                      children: [
-                        Icon(Icons.notifications,
-                            color: _notificacionSeleccionada
-                                ? Colors.blue
-                                : Colors.black),
-                        Text(
-                          'Notificación',
-                          style: TextStyle(
-                            color: _notificacionSeleccionada
-                                ? Colors.blue
-                                : Colors.black,
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _notificacionSeleccionada
+                            ? Colors.blue
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.notifications, color: Colors.white),
+                          Text(
+                            'Notificación',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   GestureDetector(
@@ -569,21 +665,23 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                         _alarmaSeleccionada = true;
                       });
                     },
-                    child: Column(
-                      children: [
-                        Icon(Icons.alarm,
-                            color: _alarmaSeleccionada
-                                ? Colors.blue
-                                : Colors.black),
-                        Text(
-                          'Alarma',
-                          style: TextStyle(
-                            color: _alarmaSeleccionada
-                                ? Colors.blue
-                                : Colors.black,
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _alarmaSeleccionada
+                            ? Colors.blue
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.alarm, color: Colors.white),
+                          Text(
+                            'Alarma',
+                            style: TextStyle(color: Colors.white),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -592,18 +690,19 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
               Text(
                 'Calendario de recordatorio',
                 textAlign: TextAlign.left, // Alineado a la izquierda
-                style: TextStyle(
-                  fontSize: 18,
-                ),
+                style: TextStyle(fontSize: 18, color: Colors.white),
               ),
-              Container(
-                // Color de fondo deseado
+              Theme(
+                data: ThemeData(
+                  unselectedWidgetColor:
+                      Colors.white, // Color de los elementos no seleccionados
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     RadioListTile(
                       title: Text('Siempre disponible',
-                          style: TextStyle(fontSize: 14)),
+                          style: TextStyle(fontSize: 14, color: Colors.white)),
                       contentPadding: EdgeInsets.zero,
                       value: 1,
                       groupValue: _calendarioSeleccionado,
@@ -615,10 +714,11 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                           } // Limpia la selección de días de la semana
                         });
                       },
+                      activeColor: Color(0xFF2773B9),
                     ),
                     RadioListTile(
                       title: Text('Días específicos de la semana',
-                          style: TextStyle(fontSize: 14)),
+                          style: TextStyle(fontSize: 14, color: Colors.white)),
                       contentPadding: EdgeInsets.zero,
                       dense: true,
                       value: 2,
@@ -628,6 +728,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                           _calendarioSeleccionado = value;
                         });
                       },
+                      activeColor: Color(0xFF2773B9),
                     ),
                     if (_calendarioSeleccionado == 2) ...[
                       // Muestra los días de la semana si se selecciona "Días específicos de la semana"
@@ -658,7 +759,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                                 padding: EdgeInsets.all(7),
                                 decoration: BoxDecoration(
                                   color: _diasSemanaSeleccionados.contains(day)
-                                      ? Colors.blue.withOpacity(0.5)
+                                      ? Colors.blue
                                       : null,
                                   borderRadius: BorderRadius.circular(5),
                                 ),
@@ -668,7 +769,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                                     color:
                                         _diasSemanaSeleccionados.contains(day)
                                             ? Colors.white
-                                            : null,
+                                            : Colors.white,
                                   ),
                                 ),
                               ),
@@ -677,8 +778,8 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                       ),
                     ],
                     RadioListTile(
-                      title:
-                          Text('Días después', style: TextStyle(fontSize: 14)),
+                      title: Text('Días después',
+                          style: TextStyle(fontSize: 14, color: Colors.white)),
                       contentPadding: EdgeInsets.zero,
                       dense: true,
                       value: 3,
@@ -690,6 +791,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                               .clear(); // Limpia la selección de días de la semana
                         });
                       },
+                      activeColor: Color(0xFF2773B9),
                     ),
                     if (_calendarioSeleccionado == 3) ...[
                       // Muestra un campo de entrada para ingresar los días después si se selecciona "Días después"
@@ -703,6 +805,9 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                               initialValue: '1', // Valor predeterminado
                               keyboardType: TextInputType.number,
                               textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors
+                                      .white), // Color del texto ingresado por el usuario
                               onChanged: (value) {
                                 setState(() {
                                   // Actualiza el valor de _diasDespuesSeleccionados cuando el campo de entrada cambie
@@ -710,14 +815,19 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
                                       int.tryParse(value);
                                 });
                               },
+                              decoration: InputDecoration(
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors
+                                          .white), // Color de la línea del input
+                                ),
+                              ),
                             ),
                           ),
                           SizedBox(width: 5),
                           Text(
                             'días después',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ],
                       ),

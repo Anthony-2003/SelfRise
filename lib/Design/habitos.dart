@@ -5,6 +5,7 @@ import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/habitos_stepper.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/dialogs/ingresar_meta_dialog.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
@@ -28,6 +29,7 @@ class _PantallaSeguimientoHabitosState
   @override
   void initState() {
     super.initState();
+    print(_fechaSeleccionadCalendario);
     _streamControllerHabitos =
         StreamController<List<Map<String, dynamic>>>.broadcast();
     _cargarHabitos();
@@ -37,19 +39,13 @@ class _PantallaSeguimientoHabitosState
     try {
       // Obtener todos los hábitos del usuario
       final habitData = await HabitosService().obtenerHabitos(idUsuarioActual!);
-      print(habitData);
-      print(_fechaSeleccionadCalendario);
 
       // Filtrar los hábitos según la fecha seleccionada
       final habitosFiltrados =
           filtrarHabitosPorFecha(habitData, _fechaSeleccionadCalendario);
 
-      print(habitosFiltrados);
-
       // Añadir los hábitos filtrados al StreamController
       _streamControllerHabitos.add(habitosFiltrados);
-
-      print(habitData);
     } catch (error) {
       print("Error al cargar hábitos: $error");
     }
@@ -154,9 +150,6 @@ class _PantallaSeguimientoHabitosState
         List<int> diasSeleccionados =
             valorFrecuencia.map((dia) => dia as int).toList();
 
-        // Imprimir para verificar los días seleccionados
-        print('Días seleccionados: $diasSeleccionados');
-
         // Obtener el día del mes de la fecha seleccionada
         int diaMesSeleccionado = fechaSeleccionada.day;
 
@@ -244,24 +237,28 @@ class _PantallaSeguimientoHabitosState
 
   Widget _construirHabitoStream() {
     return Expanded(
-      child: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: _streamControllerHabitos?.stream,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return _construirListaHabitos(snapshot.data!);
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        },
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 120.0), // Margen inferior
+        child: StreamBuilder<List<Map<String, dynamic>>>(
+          stream: _streamControllerHabitos?.stream,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return _construirListaHabitos(snapshot.data!);
+            } else {
+              return Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
       ),
     );
   }
 
   Widget _construirListaHabitos(List<Map<String, dynamic>> habitData) {
+    final GlobalKey<AnimatedListState> _listKey = GlobalKey();
     if (habitData.isEmpty) {
       return Center(
         child: Padding(
-          padding: EdgeInsets.only(bottom: 180),
+          padding: EdgeInsets.only(bottom: 120),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -285,20 +282,20 @@ class _PantallaSeguimientoHabitosState
         ),
       );
     } else {
-      return Padding(
-        padding:
-            EdgeInsets.only(bottom: 120), // Agregar margen en la parte inferior
-        child: ListView.builder(
-          itemCount: habitData.length,
-          itemBuilder: (BuildContext context, int index) {
-            final habit = habitData[index];
-            return Padding(
+      return AnimatedList(
+        key: _listKey,
+        initialItemCount: habitData.length,
+        itemBuilder: (context, index, animation) {
+          final habit = habitData[index];
+          return FadeTransition(
+            opacity: animation,
+            child: Padding(
               padding: EdgeInsets.symmetric(
                   vertical: 8), // Ajustar el espacio vertical entre elementos
               child: _construirHabito(habit),
-            );
-          },
-        ),
+            ),
+          );
+        },
       );
     }
   }
@@ -332,18 +329,7 @@ class _PantallaSeguimientoHabitosState
               ),
             ),
             SizedBox(width: 8),
-            FutureBuilder<Widget>(
-              future: _construirCheckbox(habito),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator(); // Puedes mostrar un indicador de carga mientras esperas
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return snapshot.data!;
-                }
-              },
-            ),
+            _construirCheckbox(habito),
           ],
         ),
       ),
@@ -403,40 +389,90 @@ class _PantallaSeguimientoHabitosState
     );
   }
 
-  Future<Widget> _construirCheckbox(Map<String, dynamic> habito) async {
-    int verificarValor = await HabitosService()
-        .obtenerHabitoPorDefault(habito['id'], DateTime.now());
-    print(verificarValor);
-    bool elHabitoEstaCompletado = (verificarValor >
-        0); // Aquí establece la lógica para determinar si el hábito está completado o no
-
-    return Transform.scale(
-      scale: 1.5,
-      child: Checkbox(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        shape: CircleBorder(),
-        fillColor: MaterialStateProperty.resolveWith<Color>(
-          (Set<MaterialState> estados) {
-            if (estados.contains(MaterialState.selected)) {
-              return Color(0xFF2773B9);
-            }
-            return Colors.transparent;
-          },
-        ),
-        value: elHabitoEstaCompletado,
-        onChanged: (bool? value) {
-          // Aquí puedes agregar la lógica para manejar el cambio de estado del checkbox si es necesario
-        },
-      ),
+  Widget _construirCheckbox(Map<String, dynamic> habito) {
+    return FutureBuilder<bool>(
+      future: _verificarHabitoCompletado(habito),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final bool elHabitoEstaCompletado = snapshot.data!;
+          print("el habito esta completado");
+          print(elHabitoEstaCompletado);
+          return Transform.scale(
+            scale: 1.5,
+            child: Checkbox(
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+              shape: CircleBorder(),
+              fillColor: MaterialStateProperty.resolveWith<Color>(
+                (Set<MaterialState> estados) {
+                  if (estados.contains(MaterialState.selected)) {
+                    return Color(0xFF2773B9);
+                  }
+                  return Colors.transparent;
+                },
+              ),
+              value: elHabitoEstaCompletado,
+              onChanged: (bool? value) {
+                // Aquí puedes agregar la lógica para manejar el cambio de estado del checkbox si es necesario
+              },
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return SizedBox(); // O cualquier otro widget que desees mostrar mientras esperas los datos
+        }
+      },
     );
   }
 
-  void _manejarClicEnHabito(Map<String, dynamic> habito) {
-    print('Hábito seleccionado: ${habito['nombreHabito']}');
+  void actualizarHabitos() {
+    _cargarHabitos();
+  }
 
+  Future<bool> _verificarHabitoCompletado(Map<String, dynamic> habito) async {
+    int verificarValor = 0;
+
+    DateTime fechaSinHora = DateTime(_fechaSeleccionadCalendario.year,
+        _fechaSeleccionadCalendario.month, _fechaSeleccionadCalendario.day);
+
+    print(habito['id']);
+    verificarValor = await HabitosService()
+        .obtenerValorHabitoCompletado(habito['id'], fechaSinHora);
+    print(verificarValor);
+    print("bicho velde");
+
+    return verificarValor > 0;
+  }
+
+  Future<void> _manejarClicEnHabito(Map<String, dynamic> habito) async {
     if (habito['evaluarProgreso'] == 'valor numerico') {
       _mostrarDialogo(context, habito);
+    } else {
+      DateTime fechaSinHora = DateTime(_fechaSeleccionadCalendario.year,
+          _fechaSeleccionadCalendario.month, _fechaSeleccionadCalendario.day);
+
+      Future<bool> elHabitoCompletadoExiste =
+          verificarHabitoCompletadoExiste(habito, fechaSinHora);
+
+      if (await elHabitoCompletadoExiste) {
+        String? idDocumentoHabitoCompletado = await HabitosService()
+            .obtenerIdDocumentoHabitoCompletado(habito['id'], fechaSinHora);
+        await HabitosService()
+            .borrarHabitoCompletado(habito['id'], fechaSinHora);
+      } else {
+        await HabitosService()
+            .guardarHabitoCompletado(habito['id'], fechaSinHora, 1);
+      }
+
+      setState(() {});
     }
+  }
+
+  Future<bool> verificarHabitoCompletadoExiste(
+      habito, DateTime fechaCompletado) async {
+    bool elHabitoCompletadoExiste = await HabitosService()
+        .verificarHabitoCompletadoExistente(habito['id'], fechaCompletado);
+    return elHabitoCompletadoExiste;
   }
 
   void _mostrarDialogo(BuildContext context, Map<String, dynamic> habito) {
@@ -444,7 +480,8 @@ class _PantallaSeguimientoHabitosState
       context: context,
       builder: (context) {
         // Crear una instancia de IngresarMetaDialog y pasarle el mapa habito
-        return IngresarMetaDialog(habit: habito);
+        return IngresarMetaDialog(
+            habit: habito, actualizarHabitos: actualizarHabitos);
       },
     );
   }

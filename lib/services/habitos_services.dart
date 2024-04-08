@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/Alarma.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 import 'package:intl/intl.dart';
 
@@ -19,8 +20,16 @@ class HabitosService {
       bool estaCompletado,
       Color color,
       int meta,
+      List<Alarma>? recordatorios,
       [String? descripcionHabito = '']) async {
     try {
+      List<Map<String, dynamic>> alarmasMaps = [];
+      if (recordatorios != null) {
+        // Convertir cada alarma en un mapa y agregarlo a la lista
+        for (var alarma in recordatorios) {
+          alarmasMaps.add(alarma.toMap());
+        }
+      }
       await FirebaseFirestore.instance.collection('habitos').add({
         'userId': userId,
         'categoria': categoria,
@@ -35,6 +44,7 @@ class HabitosService {
         'fechaFinal': fechaFinal,
         'meta': meta,
         'metaUsuario': 0,
+        'horaRecordatorio': alarmasMaps,
         'completado': estaCompletado
       });
       print('Hábito guardado en Firestore correctamente.');
@@ -129,18 +139,26 @@ class HabitosService {
     }
   }
 
-  Future<int> obtenerHabitoPorDefault(String habitId, DateTime currentDate,
-      [int valor = 0]) async {
+  Future<int> obtenerValorHabitoCompletado(
+      String habitId, DateTime fechaSeleccionada) async {
     try {
-      final DocumentSnapshot valorHabito =
-          await _firestore.collection('habito_progreso').doc(habitId).get();
+      final QuerySnapshot habitosProgreso = await _firestore
+          .collection('habito_progreso')
+          .where('fk_idHabito', isEqualTo: habitId)
+          .where('fechaCompletado', isEqualTo: fechaSeleccionada)
+          .get();
 
-      return valorHabito.get('valor') as int;
+      if (habitosProgreso.docs.isNotEmpty) {
+        print(habitosProgreso.docs[0]);
+        return habitosProgreso.docs[0].get('valor') as int;
+      } else {
+        return 0;
+      }
     } catch (e) {
-      print('Error al obtener los hábitos xd: $e');
+      print('Error al obtener los hábitos: $e');
+      // Si ocurre una excepción, se retorna 0 o cualquier otro valor predeterminado
+      return 0;
     }
-
-    return valor;
   }
 
   Future<void> guardarHabitoCompletado(

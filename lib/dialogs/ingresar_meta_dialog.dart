@@ -5,8 +5,11 @@ import 'package:intl/intl.dart';
 
 class IngresarMetaDialog extends StatefulWidget {
   final Map<String, dynamic> habit;
+  final Function()?
+      actualizarHabitos; // Nueva función para actualizar los hábitos
 
-  IngresarMetaDialog({required this.habit});
+  IngresarMetaDialog({required this.habit, this.actualizarHabitos});
+
   @override
   _IngresarMetaDialogState createState() => _IngresarMetaDialogState();
 }
@@ -257,16 +260,16 @@ class _IngresarMetaDialogState extends State<IngresarMetaDialog> {
 
           habit['metaUsuario'] = count;
           if (habit['metaUsuario'] >= habit['meta']) {
-
             bool elHabitoCompletadoExiste = await HabitosService()
                 .verificarHabitoCompletadoExistente(habit['id'], fechaSinHora);
 
-
             if (elHabitoCompletadoExiste) {
-              String? idDocumentoHabitoCompletado = await HabitosService().obtenerIdDocumentoHabitoCompletado(habit['id'], fechaSinHora);
+              String? idDocumentoHabitoCompletado = await HabitosService()
+                  .obtenerIdDocumentoHabitoCompletado(
+                      habit['id'], fechaSinHora);
 
-              await HabitosService()
-                  .actualizarValorHabito(idDocumentoHabitoCompletado!, habit['metaUsuario']);
+              await HabitosService().actualizarValorHabito(
+                  idDocumentoHabitoCompletado!, habit['metaUsuario']);
             } else {
               await HabitosService().guardarHabitoCompletado(
                   habit['id'], fechaSinHora, habit['metaUsuario']);
@@ -275,6 +278,7 @@ class _IngresarMetaDialogState extends State<IngresarMetaDialog> {
             await HabitosService()
                 .borrarHabitoCompletado(habit['id'], fechaSinHora);
           }
+          widget.actualizarHabitos!();
           Navigator.pop(context);
         },
         child: Container(

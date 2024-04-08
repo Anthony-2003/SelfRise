@@ -177,6 +177,7 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                                   false,
                                   Habito.color,
                                   Habito.meta!,
+                                  Habito.recordatorio,
                                   Habito.habitDescription,
                                 );
 

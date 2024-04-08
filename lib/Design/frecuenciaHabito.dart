@@ -220,6 +220,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
 
   Widget _buildDiasMesCheckboxes() {
     final DateTime now = DateTime.now();
+    final int currentDay = now.day;
     final int daysInMonth = DateTime(now.year, now.month + 1, 0).day;
 
     return Padding(
@@ -239,36 +240,48 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             itemCount: daysInMonth,
             itemBuilder: (context, index) {
               final int day = index + 1;
+              final bool isPastDay =
+                  day < currentDay; // Verificar si el día ya pasó
 
               _isSelected.putIfAbsent(day, () => false);
 
               return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isSelected.update(day, (isSelected) => !isSelected);
-                    Habito.frequency = Frecuencia.DIAS_MES;
-                    Frecuencia.actualizarDiasMes(_isSelected.keys
-                        .toList()
-                        .where((day) => _isSelected[day]!)
-                        .toList()
-                        .cast<int>()
-                        .toSet());
-                    print(Frecuencia.diasMes);
-                  });
-                },
+                onTap: isPastDay
+                    ? null // Deshabilitar interactividad para los días pasados
+                    : () {
+                        setState(() {
+                          _isSelected.update(day, (isSelected) => !isSelected);
+                          Habito.frequency = Frecuencia.DIAS_MES;
+                          Frecuencia.actualizarDiasMes(_isSelected.keys
+                              .toList()
+                              .where((day) => _isSelected[day]!)
+                              .toList()
+                              .cast<int>()
+                              .toSet());
+                          print(Frecuencia.diasMes);
+                        });
+                      },
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _isSelected[day]!
                         ? Color(0xFF2773B9)
-                        : Colors.transparent,
+                        : (isPastDay
+                            ? Colors.grey
+                            : Colors
+                                .transparent), // Cambiar el color si el día ya pasó
                   ),
                   child: Center(
                     child: Text(
                       '$day',
                       style: TextStyle(
                         fontSize: 15,
-                        color: _isSelected[day]! ? Colors.white : Colors.black,
+                        color: _isSelected[day]!
+                            ? Colors.white
+                            : (isPastDay
+                                ? Colors.black54
+                                : Colors
+                                    .black), // Cambiar el color del texto si el día ya pasó
                       ),
                     ),
                   ),
