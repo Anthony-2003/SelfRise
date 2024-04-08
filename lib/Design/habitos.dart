@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Colors/colors.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_proyecto_final/Design/habitos_stepper.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/dialogs/ingresar_meta_dialog.dart';
-import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:intl/intl.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class PantallaSeguimientoHabitos extends StatefulWidget {
   @override
@@ -44,7 +44,7 @@ class _PantallaSeguimientoHabitosState
       final habitosFiltrados =
           filtrarHabitosPorFecha(habitData, _fechaSeleccionadCalendario);
 
-      // Añadir los hábitos filtrados al StreamController
+      cargarHabitoYProgramarNotificaciones(habitData);
       _streamControllerHabitos.add(habitosFiltrados);
     } catch (error) {
       print("Error al cargar hábitos: $error");
@@ -491,5 +491,143 @@ class _PantallaSeguimientoHabitosState
     int verde = (color.green * 0.8).round();
     int azul = (color.blue * 0.8).round();
     return Color.fromRGBO(rojo, verde, azul, 1);
+  }
+
+  void programarNotificacion(Map<String, dynamic> habito) {
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+
+    print("Estoy en programarNotificacion");
+
+    List<dynamic> recordatorios = habito['horaRecordatorio'];
+
+    if (recordatorios.isNotEmpty) {
+      Map<String, dynamic> primerRecordatorio = recordatorios[0];
+      String horaRecordatorio = primerRecordatorio['hora'];
+
+      print("Hora del recordatorio: $horaRecordatorio");
+
+      // Analizar la cadena de hora en formato AM/PM
+      final DateFormat format = DateFormat('h:mm a');
+      final DateTime parsedTime = format.parse(horaRecordatorio);
+
+      // Crear la hora de notificación
+      TimeOfDay horaNotificacion = TimeOfDay(
+        hour: parsedTime.hour,
+        minute: parsedTime.minute,
+      );
+
+      // Calcular el tiempo de la próxima notificación
+      tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+      tz.TZDateTime scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        horaNotificacion.hour,
+        horaNotificacion.minute,
+      );
+
+      // Asegurarse de que la notificación se programe para el día siguiente si la hora ya pasó hoy
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(Duration(days: 1));
+      }
+
+      // Mostrar la notificación
+      flutterLocalNotificationsPlugin.zonedSchedule(
+        habito.hashCode, // ID único para la notificación
+        'Recordatorio', // Título de la notificación
+        'Es hora de completar el hábito: ${habito['nombreHabito']}', // Cuerpo de la notificación
+        scheduledDate, // Hora aproximada de la notificación
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            'channel_id',
+            'channel_name',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+        ),
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    }
+  }
+
+  Future<void> programarAlarma(Map<String, dynamic> habito) async {
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+
+    String horaAlarma = habito['horaRecordatorio'][0]['hora'];
+    print("Hora de la alarma: $horaAlarma");
+
+    // Analizar la cadena de hora en formato AM/PM
+    final DateFormat format = DateFormat('h:mm a');
+    final DateTime parsedTime = format.parse(horaAlarma);
+
+    // Crear la hora de alarma
+    TimeOfDay horaNotificacion = TimeOfDay(
+      hour: parsedTime.hour,
+      minute: parsedTime.minute,
+    );
+
+    // Crear una descripción para la alarma
+    String cuerpoAlarma =
+        'Es hora de completar el hábito: ${habito['nombreHabito']}';
+
+    // Configurar los detalles de la alarma
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'channel_id',
+      'channel_name',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    var platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    // Mostrar la alarma
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      0, // ID único para la notificación
+      'Recordatorio', // Título de la notificación
+      'Es hora de completar el hábito', // Cuerpo de la notificación
+      _nextInstanceOfTime(horaNotificacion), // Hora de la notificación
+      platformChannelSpecifics,
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
+  tz.TZDateTime _nextInstanceOfTime(TimeOfDay time) {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
+
+    if (scheduledDate.isBefore(now) || scheduledDate.isAtSameMomentAs(now)) {
+      scheduledDate = scheduledDate.add(Duration(days: 1));
+    }
+
+    return scheduledDate;
+  }
+
+  void cargarHabitoYProgramarNotificaciones(
+      List<Map<String, dynamic>> habitos) {
+    habitos.forEach((habito) {
+      print("toy en cagai habito y programar notifacion");
+      if (habito['horaRecordatorio'] != null) {
+        if (habito['horaRecordatorio'][0]['tipo'] == 'Notificación') {
+          programarNotificacion(habito);
+        } else if (habito['horaRecordatorio'][0]['tipo'] == 'Alarma') {
+          programarAlarma(habito);
+        }
+      }
+    });
   }
 }
