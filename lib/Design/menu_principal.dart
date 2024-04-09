@@ -4,10 +4,11 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_proyecto_final/Design/drawer_menu.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/components/buttons.dart';
-import 'package:flutter_proyecto_final/entity/AuthService.dart';
+import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:rive/rive.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import '../Colors/colors.dart';
 import '../services/frases_motivacionales.dart';
 import './chat.dart';
@@ -15,7 +16,6 @@ import './habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -121,16 +121,13 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 isSideBarClosed.value = !isSideBarClosed.value;
                 if (isSideMenuClose) {
                   _animationController.forward();
-
                   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                    statusBarColor: AppColors.drawer,
-                    systemNavigationBarIconBrightness: Brightness.light,
-                    systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
+                    systemNavigationBarIconBrightness: Brightness.dark,
                   ));
                 } else {
                   _animationController.reverse();
                   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                    statusBarColor: Color.fromARGB(255, 191, 188, 191),
+                    statusBarColor: Color.fromARGB(255, 0, 0, 0),
                     systemNavigationBarIconBrightness: Brightness.light,
                     systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
                   ));
@@ -153,7 +150,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 height: 50,
                 items: _construirNavigationBarItems(),
                 backgroundColor: Colors.transparent,
-                color: Colors.blue, // Cambia esto al color que desees
+                color: Color(0xFF2773B9), // Cambia esto al color que desees
                 animationDuration: const Duration(milliseconds: 300),
                 onTap: (int index) {
                   setState(() {
@@ -173,13 +170,13 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
       Icons.home,
       Icons.chat,
       Icons.assignment,
-      Icons.track_changes,
+      Icons.directions_run,
       Icons.person,
     ].map((icon) => _construirNavigationBarItem(icon)).toList();
   }
 
   Widget _construirNavigationBarItem(IconData icon) {
-    return Icon(icon, size: 30);
+    return Icon(icon, size: 30, color: Colors.white);
   }
 }
 
@@ -249,12 +246,18 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildContent();
+    return Scaffold(
+            appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: CustomAppBar(titleText: 'Inicio'),
+      ),
+      body: _buildContent(),
+    );
   }
 
   Widget _buildContent() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(15, 80, 15, 15),
+      padding: EdgeInsets.fromLTRB(15, 5, 15, 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -402,15 +405,23 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
                 ],
               ),
               const SizedBox(height: 16),
-              IconButton(
-                icon: const Icon(
-                  Icons.share,
-                  color: AppColors.textColor,
-                  size: 30,
+              Container(
+                padding:
+                    EdgeInsets.all(0), // Ajusta el padding según sea necesario
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF2773B9), // Cambia el color del círculo aquí
                 ),
-                onPressed: () {
-                  _compartirFrase(fraseDelDia, autor);
-                },
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.share,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    _compartirFrase(fraseDelDia, autor);
+                  },
+                ),
               ),
             ],
           ),
