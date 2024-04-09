@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
-import 'package:get/get.dart';
+
 
 class FrecuenciaScreen extends StatefulWidget {
   final bool repetir;

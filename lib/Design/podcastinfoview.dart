@@ -14,6 +14,7 @@ class infopodcast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     Future<void>? _launched;
     return Scaffold(
       appBar: AppBar(
@@ -130,6 +131,7 @@ class infopodcast extends StatelessWidget {
   }
 
   Future<void> _launchInBrowser(String url) async {
+    // ignore: deprecated_member_use
     if (!await launch(
       url,
       forceSafariVC: true,

@@ -8,6 +8,7 @@ import 'package:flutter_proyecto_final/dialogs/ingresar_meta_dialog.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:flutter_proyecto_final/utils/ajustar_brillo_color.dart';
 import 'package:intl/intl.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -203,7 +204,7 @@ class _PantallaSeguimientoHabitosState
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(left: 10, right: 10, top: 10),
+            padding: EdgeInsets.only(left: 15, right: 15, top: 10),
             child: SizedBox(height: 100, child: construirCalendario(context)),
           ),
           _construirHabitoStream()
@@ -240,7 +241,7 @@ class _PantallaSeguimientoHabitosState
       child: Padding(
         padding: const EdgeInsets.only(bottom: 120.0), // Margen inferior
         child: StreamBuilder<List<Map<String, dynamic>>>(
-          stream: _streamControllerHabitos?.stream,
+          stream: _streamControllerHabitos.stream,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return _construirListaHabitos(snapshot.data!);
@@ -254,7 +255,6 @@ class _PantallaSeguimientoHabitosState
   }
 
   Widget _construirListaHabitos(List<Map<String, dynamic>> habitData) {
-    final GlobalKey<AnimatedListState> _listKey = GlobalKey();
     if (habitData.isEmpty) {
       return Center(
         child: Padding(
@@ -282,18 +282,15 @@ class _PantallaSeguimientoHabitosState
         ),
       );
     } else {
-      return AnimatedList(
-        key: _listKey,
-        initialItemCount: habitData.length,
-        itemBuilder: (context, index, animation) {
+      return ListView.builder(
+        itemCount: habitData.length,
+        itemBuilder: (context, index) {
           final habit = habitData[index];
-          return FadeTransition(
-            opacity: animation,
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                  vertical: 8), // Ajustar el espacio vertical entre elementos
-              child: _construirHabito(habit),
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: 8,
             ),
+            child: _construirHabito(habit),
           );
         },
       );
@@ -390,39 +387,76 @@ class _PantallaSeguimientoHabitosState
   }
 
   Widget _construirCheckbox(Map<String, dynamic> habito) {
-    return FutureBuilder<bool>(
-      future: _verificarHabitoCompletado(habito),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final bool elHabitoEstaCompletado = snapshot.data!;
-          print("el habito esta completado");
-          print(elHabitoEstaCompletado);
-          return Transform.scale(
-            scale: 1.5,
-            child: Checkbox(
+    // Obtener la fecha actual
+    DateTime fechaActual = DateTime.now();
+
+    // Utiliza la fecha actual si no se proporciona una fecha de inicio
+
+    // Determinar si la fecha del hábito es posterior a la fecha actual
+    bool esFechaPosterior = fechaActual.isBefore(_fechaSeleccionadCalendario);
+
+    // Si la fecha del hábito es posterior a la fecha actual, desactiva el RadioButton
+    if (esFechaPosterior) {
+      return Transform.scale(
+        scale: 1.5,
+        child: Stack(
+          children: [
+            Checkbox(
               visualDensity: VisualDensity.adaptivePlatformDensity,
               shape: CircleBorder(),
-              fillColor: MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> estados) {
-                  if (estados.contains(MaterialState.selected)) {
-                    return Color(0xFF2773B9);
-                  }
-                  return Colors.transparent;
+              fillColor: MaterialStateProperty.all<Color>(Colors.grey),
+              value:
+                  false, // Establecer el valor en falso para desactivar el checkbox
+              onChanged:
+                  null, // Establecer onChanged como null para deshabilitar el checkbox
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Icon(Icons.lock,
+                  color: Colors.black, size: 10), // Icono del candado
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Si la fecha del hábito no es posterior a la fecha actual, construye el checkbox normalmente
+      return FutureBuilder<bool>(
+        future: _verificarHabitoCompletado(habito),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final bool elHabitoEstaCompletado = snapshot.data!;
+            print("el habito esta completado");
+            print(elHabitoEstaCompletado);
+            return Transform.scale(
+              scale: 1.5,
+              child: Checkbox(
+                visualDensity: VisualDensity.adaptivePlatformDensity,
+                shape: CircleBorder(),
+                fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> estados) {
+                    if (estados.contains(MaterialState.selected)) {
+                      return Color(0xFF2773B9);
+                    }
+                    return Colors.transparent;
+                  },
+                ),
+                value: elHabitoEstaCompletado,
+                onChanged: (bool? value) {
+                  // Aquí puedes agregar la lógica para manejar el cambio de estado del checkbox si es necesario
                 },
               ),
-              value: elHabitoEstaCompletado,
-              onChanged: (bool? value) {
-                // Aquí puedes agregar la lógica para manejar el cambio de estado del checkbox si es necesario
-              },
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return SizedBox(); // O cualquier otro widget que desees mostrar mientras esperas los datos
-        }
-      },
-    );
+            );
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            return SizedBox(); // O cualquier otro widget que desees mostrar mientras esperas los datos
+          }
+        },
+      );
+    }
   }
 
   void actualizarHabitos() {
@@ -455,8 +489,6 @@ class _PantallaSeguimientoHabitosState
           verificarHabitoCompletadoExiste(habito, fechaSinHora);
 
       if (await elHabitoCompletadoExiste) {
-        String? idDocumentoHabitoCompletado = await HabitosService()
-            .obtenerIdDocumentoHabitoCompletado(habito['id'], fechaSinHora);
         await HabitosService()
             .borrarHabitoCompletado(habito['id'], fechaSinHora);
       } else {
@@ -484,13 +516,6 @@ class _PantallaSeguimientoHabitosState
             habit: habito, actualizarHabitos: actualizarHabitos);
       },
     );
-  }
-
-  Color ajustarBrilloColor(Color color) {
-    int rojo = (color.red * 0.8).round();
-    int verde = (color.green * 0.8).round();
-    int azul = (color.blue * 0.8).round();
-    return Color.fromRGBO(rojo, verde, azul, 1);
   }
 
   void programarNotificacion(Map<String, dynamic> habito) {
@@ -589,7 +614,7 @@ class _PantallaSeguimientoHabitosState
     await flutterLocalNotificationsPlugin.zonedSchedule(
       0, // ID único para la notificación
       'Recordatorio', // Título de la notificación
-      'Es hora de completar el hábito', // Cuerpo de la notificación
+      cuerpoAlarma, // Cuerpo de la notificación
       _nextInstanceOfTime(horaNotificacion), // Hora de la notificación
       platformChannelSpecifics,
       androidAllowWhileIdle: true,
@@ -620,8 +645,10 @@ class _PantallaSeguimientoHabitosState
   void cargarHabitoYProgramarNotificaciones(
       List<Map<String, dynamic>> habitos) {
     habitos.forEach((habito) {
-      print("toy en cagai habito y programar notifacion");
-      if (habito['horaRecordatorio'] != null) {
+      if (habito['horaRecordatorio'] != null &&
+          habito['horaRecordatorio'].isNotEmpty) {
+        print(habito['horaRecordatorio']);
+        print("Xd");
         if (habito['horaRecordatorio'][0]['tipo'] == 'Notificación') {
           programarNotificacion(habito);
         } else if (habito['horaRecordatorio'][0]['tipo'] == 'Alarma') {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+
 
 class DefineHabitoScreen extends StatefulWidget {
   final Function(String) onHabitoChanged;
@@ -17,9 +17,6 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   String _habito = '';
   String _descripcion = '';
   int meta = 0;
-  bool _seleccionarDiasSemana = false;
-  bool _seleccionarDiasMes = false;
-  bool _repetir = false;
   FocusNode _focusNode = FocusNode();
   FocusNode _descripcionFocusNode = FocusNode();
   FocusNode _metaFocusNode = FocusNode();

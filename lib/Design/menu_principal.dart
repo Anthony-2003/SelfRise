@@ -35,6 +35,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
   late Animation<double> scalAnimation;
 
   int _selectedTab = 0;
+  // ignore: unused_field
   late String _nombreUsuario = '';
 
   @override
@@ -108,12 +109,13 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
           AnimatedPositioned(
             duration: Duration(milliseconds: 200),
             left: isSideMenuClose ? 0 : 220,
-            top: 16,
+            top: 10,
             child: menubtn(
               riveOnInit: (artboard) {
                 StateMachineController controller = RiveUtils.getRiveController(
-                    artboard,
-                    stateMachineName: "Morph");
+                  artboard,
+                  stateMachineName: "Morph",
+                );
                 isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
                 isSideBarClosed.value = true;
               },
@@ -121,23 +123,30 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 isSideBarClosed.value = !isSideBarClosed.value;
                 if (isSideMenuClose) {
                   _animationController.forward();
-                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                    systemNavigationBarIconBrightness: Brightness.dark,
-                  ));
                 } else {
                   _animationController.reverse();
-                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                    statusBarColor: Color.fromARGB(255, 0, 0, 0),
-                    systemNavigationBarIconBrightness: Brightness.light,
-                    systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
-                  ));
                 }
+
+                // Configuración del SystemUiOverlayStyle
+                SystemChrome.setSystemUIOverlayStyle(
+                  isSideMenuClose
+                      ? SystemUiOverlayStyle.dark.copyWith(
+                          statusBarColor: Colors
+                              .transparent, // Coloca el color de la barra de estado transparente
+                        )
+                      : SystemUiOverlayStyle.dark.copyWith(
+                          statusBarColor: Colors
+                              .black, // Mantén el color de la barra de estado negro
+                        ),
+                );
+
                 setState(() {
                   isSideMenuClose = isSideBarClosed.value;
                 });
               },
             ),
           ),
+
           // Barra de navegación curvada
           Align(
             alignment: Alignment.bottomCenter,
@@ -247,7 +256,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            appBar: PreferredSize(
+      appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
         child: CustomAppBar(titleText: 'Inicio'),
       ),

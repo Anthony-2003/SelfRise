@@ -42,7 +42,7 @@ Future<void> loadFavoriteBookIds(String userId) async {
   }
     Stream<List<Book>> streamFavorites(String userId) {
     return _firestore.collection('favorites').doc(userId).collection('books').snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => Book.fromJson(doc.data() as Map<String, dynamic>)).toList();
+      return snapshot.docs.map((doc) => Book.fromJson(doc.data())).toList();
     });
   }
 

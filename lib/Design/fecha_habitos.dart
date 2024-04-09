@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/entity/Alarma.dart';
-import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
 
 class FechaHabitosScreen extends StatefulWidget {
@@ -62,19 +61,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (Habito.frequency != null &&
-        Habito.frequency!.nombre == 'Días específicos de la semana') {
-      print(Frecuencia.diasSemana);
-    }
-
-    if (Habito.frequency != null &&
-        Habito.frequency!.nombre == 'Días específicos del mes') {
-      print(Frecuencia.diasMes);
-    }
-
-    if (Habito.frequency != null && Habito.frequency!.nombre == 'Repetir') {
-      print(Frecuencia.diasDespues);
-    }
+ 
 
     DateTime fechaSinHora =
         DateTime(_fechaInicio.year, _fechaInicio.month, _fechaInicio.day);
@@ -559,11 +546,6 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
       hora: horaRecordatorio,
       dias: opcionesSeleccionadas,
     );
-
-    String recordatorio =
-        '$tipoRecordatorio - $horaRecordatorio\n$opcionesSeleccionadas';
-    
-    
 
     // Actualizar la interfaz de usuario
     setState(() {

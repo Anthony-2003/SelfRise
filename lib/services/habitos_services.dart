@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/entity/Alarma.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
-import 'package:intl/intl.dart';
 
 class HabitosService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -50,6 +49,19 @@ class HabitosService {
       print('Hábito guardado en Firestore correctamente.');
     } catch (e) {
       print('Error al guardar el hábito en Firestore: $e');
+      throw e;
+    }
+  }
+
+  Future<void> borrarHabito(String idHabito) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('habitos')
+          .doc(idHabito)
+          .delete();
+      print('Hábito eliminado de Firestore correctamente.');
+    } catch (e) {
+      print('Error al eliminar el hábito de Firestore: $e');
       throw e;
     }
   }

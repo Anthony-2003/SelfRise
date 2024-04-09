@@ -10,7 +10,7 @@ class Habito {
   static late DateTime startDate;
   static late DateTime? endDate = null;
   static late Color color;
-  static late List<Alarma>? recordatorio;
+  static late List<Alarma>? recordatorio = null;
   static late String category;
   static late IconData categoryIcon;
   static late bool isTracked;

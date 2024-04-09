@@ -103,6 +103,7 @@ class _PodcastPageState extends State<PodcastPage> {
                   child: CarouselSlider.builder(
                       itemCount: motivacionList.length,
                       itemBuilder: (context, index, realIndex) {
+                        // ignore: unused_local_variable
                         final carruselImage = carousel[index];
                         return cardImages(
                           card: motivacionList[index],
@@ -136,6 +137,7 @@ class _PodcastPageState extends State<PodcastPage> {
                   child: CarouselSlider.builder(
                       itemCount: saludMentalList.length,
                       itemBuilder: (context, index, realIndex) {
+                        // ignore: unused_local_variable
                         final carruselImage = carousel[index];
                         return cardImages(
                           card: saludMentalList[index],
@@ -169,6 +171,7 @@ class _PodcastPageState extends State<PodcastPage> {
                   child: CarouselSlider.builder(
                       itemCount: DesarrolloPersonalList.length,
                       itemBuilder: (context, index, realIndex) {
+                        // ignore: unused_local_variable
                         final carruselImage = carousel[index];
                         return cardImages(
                           card: DesarrolloPersonalList[index],
@@ -202,6 +205,7 @@ class _PodcastPageState extends State<PodcastPage> {
                   child: CarouselSlider.builder(
                       itemCount: BienestarFisicolList.length,
                       itemBuilder: (context, index, realIndex) {
+                        // ignore: unused_local_variable
                         final carruselImage = carousel[index];
                         return cardImages(
                           card: BienestarFisicolList[index],

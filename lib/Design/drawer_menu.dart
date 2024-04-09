@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_proyecto_final/Design/ver_habitos.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/Design/booksPage.dart';
 
@@ -192,11 +193,15 @@ class _DrawerMenuState extends State<DrawerMenu> {
                     child: ListTile(
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),
                         onTap: () {
-                          //FUNCIONES AQUIIIIIIIIII
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => VerHabitosScreen()),
+                          );
                         },
                         leading: SizedBox(
-                          height: 42,
-                          width: 42,
+                          height: 35,
+                          width: 35,
                           child: Image.asset("assets/icon-menu/habits.png"),
                         ),
                         title: Container(
