@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Users/engel/Desktop/TESIS/SelfRise - TDS/windows/runner"
+    "cmake.sourceDirectory": "C:/Users/engel/Desktop/TESIS/SelfRise - TDS/windows/runner",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

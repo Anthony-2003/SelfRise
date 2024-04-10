@@ -61,7 +61,7 @@ dependencies:
   flutter_timezone: ^1.0.8
   carousel_slider: ^4.0.0
   url_launcher: ^6.2.5
-
+  dropdown_button2: ^2.3.8
 
 
   # The followig adds the Cupertino Icons font to your application.
@@ -100,11 +100,11 @@ flutter:
    - assets/imagenes/
    - assets/iconos/
    - assets/icon-menu/
-   - assets/podcast-carousel/
-   - assets/podcast-carousel/motivacion/
-   - assets/podcast-carousel/salud-mental/
-   - assets/podcast-carousel/desarrollo-personal/
-   - assets/podcast-carousel/bienestar-fisico/
+   - assets/podcast/
+   - assets/podcast/motivacion/
+   - assets/podcast/salud-mental/
+   - assets/podcast/desarrollo-personal/
+   - assets/podcast/bienestar-fisico/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
