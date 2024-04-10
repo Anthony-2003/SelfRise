@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
+import 'package:flutter_proyecto_final/entity/Habito.dart';
+import 'package:get/get.dart';
 
 class FrecuenciaScreen extends StatefulWidget {
   final bool repetir;
@@ -23,6 +26,19 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
 
   // Definir _isSelected fuera del método build
   Map<int, bool> _isSelected = {};
+
+  Color selectedColor = Color(0xFF2773B9); // Color seleccionado
+
+  @override
+  void initState() {
+    super.initState();
+    Habito.frequency = Frecuencia.CADA_DIA;
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,8 +86,10 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             onChanged: (value) {
               setState(() {
                 _currentIndex = value as int;
+                Habito.frequency = Frecuencia.CADA_DIA;
               });
             },
+            activeColor: selectedColor,
           ),
         ),
         Transform.scale(
@@ -89,8 +107,10 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             onChanged: (value) {
               setState(() {
                 _currentIndex = value as int;
+                Habito.frequency = Frecuencia.DIAS_ESPECIFICOS;
               });
             },
+            activeColor: selectedColor,
           ),
         ),
         if (_currentIndex == 1) _buildDiasSemanaCheckboxes(),
@@ -109,8 +129,11 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             onChanged: (value) {
               setState(() {
                 _currentIndex = value as int;
+                Habito.frequency = Frecuencia.DIAS_MES;
+                print(Habito.frequency.nombre);
               });
             },
+            activeColor: selectedColor,
           ),
         ),
         if (_currentIndex == 2) _buildDiasMesCheckboxes(),
@@ -129,8 +152,10 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             onChanged: (value) {
               setState(() {
                 _currentIndex = value as int;
+                Habito.frequency = Frecuencia.REPETIR;
               });
             },
+            activeColor: selectedColor,
           ),
         ),
         if (_currentIndex == 3) _buildRepetirTextBox(),
@@ -144,6 +169,9 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
         onTap: () {
           setState(() {
             _diasSeleccionados[dia] = !_diasSeleccionados[dia]!;
+            Frecuencia.actualizarDiasSemana(_diasSeleccionados.keys
+                .where((dia) => _diasSeleccionados[dia]!)
+                .toSet());
           });
         },
         child: Container(
@@ -156,6 +184,18 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                     _diasSeleccionados[dia] = value!;
                   });
                 },
+                checkColor:
+                    Colors.white, // Color del tick cuando está seleccionado
+                fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    // Cambia el color de fondo del checkbox cuando está seleccionado
+                    if (states.contains(MaterialState.selected)) {
+                      return Color(
+                          0xFF2773B9); // Color cuando está seleccionado
+                    }
+                    return Colors.transparent; // Color por defecto
+                  },
+                ),
               ),
               Text(
                 dia,
@@ -206,13 +246,21 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                 onTap: () {
                   setState(() {
                     _isSelected.update(day, (isSelected) => !isSelected);
+                    Habito.frequency = Frecuencia.DIAS_MES;
+                    Frecuencia.actualizarDiasMes(_isSelected.keys
+                        .toList()
+                        .where((day) => _isSelected[day]!)
+                        .toList()
+                        .cast<int>()
+                        .toSet());
+                    print(Frecuencia.diasMes);
                   });
                 },
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _isSelected[day]!
-                        ? Colors.lightBlueAccent
+                        ? Color(0xFF2773B9)
                         : Colors.transparent,
                   ),
                   child: Center(
@@ -236,6 +284,10 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
   Widget _buildRepetirTextBox() {
     TextEditingController _controller = TextEditingController();
 
+    _controller.addListener(() {
+      Frecuencia.actualizarDiasDespues(_controller.text);
+    });
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Row(
@@ -256,6 +308,11 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 hintText: '',
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Color(
+                          0xFF2773B9)), // Color del borde cuando el TextField está activo
+                ),
               ),
             ),
           ),

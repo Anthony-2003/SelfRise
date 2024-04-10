@@ -123,19 +123,13 @@ class menubtn extends StatelessWidget {
         child: GestureDetector(
       onTap: press,
       child: Container(
-        margin: const EdgeInsets.only(left: 20, top: 10),
+        margin: const EdgeInsets.only(left: 20, top: 5),
         height: 45,
         width: 45,
         decoration: const BoxDecoration(
-            color: AppColors.buttonCoLor,
-            shape: BoxShape.circle,
-            boxShadow: const [
-              BoxShadow(
-                color: Color.fromARGB(94, 3, 3, 3),
-                offset: Offset(0, 3),
-                blurRadius: 8,
-              )
-            ]),
+          color: AppColors.buttonCoLor,
+          shape: BoxShape.circle,
+        ),
         child: Center(
           child: Transform.scale(
             scale: 0.7, // Ajusta este valor según sea necesario
