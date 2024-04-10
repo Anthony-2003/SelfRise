@@ -47,7 +47,7 @@ class CategoriesService {
         return Categoria(
           id: doc.id,
           nombre: data['nombre'],
-          icono: IconData(data['icono'], fontFamily: 'MaterialIcons'),
+          icono:  IconData(data['icono'], fontFamily: 'MaterialIcons'),
           color: Color(data['color']),
         );
       }).toList();

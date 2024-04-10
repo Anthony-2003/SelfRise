@@ -159,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                           text: "Logueate con google",
                           route: 'assets/iconos/google.png',
                           onTap: () {
-                            //_auth.signInGoogle(context);
+                            _auth.signInGoogle(context);
                             Navigator.push(
                               context,
                               MaterialPageRoute(

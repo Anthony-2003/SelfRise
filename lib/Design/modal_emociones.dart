@@ -140,7 +140,34 @@ class _ModalEmocionesState extends State<ModalEmociones> {
   }
 
 Widget _buildVoiceRecordingSection() {
-    return SizedBox();
-  }
+  bool _isRecording = false;
+
+  return Row(
+    children: <Widget>[
+      IconButton(
+        icon: Icon(_isRecording ? Icons.stop : Icons.mic),
+        onPressed: () {
+          setState(() {
+            _isRecording = !_isRecording;
+          });
+          if (_isRecording) {
+            //*Iniciar grabación
+            //*lógica para iniciar la grabación de voz
+          } else {
+            // Detener grabación
+            //*lógica para detener la grabación de voz
+          }
+        },
+      ),
+      SizedBox(width: 8),
+      Text(
+        _isRecording ? 'Grabando...' : 'Presiona para grabar',
+        style: TextStyle(
+          fontWeight: _isRecording ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+    ],
+  );
+}
 
 }

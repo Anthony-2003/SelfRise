@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:math';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +16,7 @@ import './habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
-
-
+import 'package:flutter_proyecto_final/Design/modal_emociones.dart';
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
 
@@ -324,7 +322,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
     );
   }
 
-  Widget _construirIconoConTexto(String nombreAsset, String texto) {
+Widget _construirIconoConTexto(String nombreAsset, String texto) {
     return GestureDetector(
       onTap: () {
         print("object gg");
@@ -340,6 +338,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
             width: 50,
             height: 50,
           ),
+          
           const SizedBox(height: 5), 
           Text(
             texto,

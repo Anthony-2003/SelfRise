@@ -12,9 +12,10 @@ dependencies:
   awesome_dialog: ^3.2.0
   cached_network_image: ^3.3.1
   carousel_slider: ^4.0.0
-  cloud_firestore: ^4.15.4
+  cloud_firestore: ^4.16.1
   cupertino_icons: ^1.0.2
   curved_navigation_bar: ^1.0.3
+  date_picker_timeline: ^1.2.6
   datetime_picker_formfield: ^2.0.1
   firebase_auth: ^4.17.4
   firebase_core: ^2.27.0
@@ -40,7 +41,8 @@ dependencies:
   share_plus: ^8.0.2 # Updated to latest as per second YAML
   shared_preferences: ^2.2.2
   smooth_page_indicator: ^1.1.0
-  flutter_keyboard_visibility: ^6.0.0
+  url_launcher: ^6.2.5
+  audioplayers: ^6.0.0
 
   # The followig adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
