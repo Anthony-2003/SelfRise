@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, must_be_immutable
+
 import 'dart:typed_data';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +13,12 @@ import '../components/buttons.dart';
 import 'login.dart';
 
 class RegistroScreen extends StatefulWidget {
-  RegistroScreen({Key? key}) : super(key: key);
+  RegistroScreen({super.key});
 
   bool checkBoxValue = false;
 
   @override
+  // ignore: library_private_types_in_public_api
   _RegistroScreenState createState() => _RegistroScreenState();
 }
 
@@ -37,7 +40,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   void selectImage() async {
     Uint8List img = await pickerImage(ImageSource.gallery);
     setState(() {
-      this.image = img;
+      image = img;
     });
   }
 
@@ -48,7 +51,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title:
-            Text('Registro de Usuario', style: TextStyle(color: Colors.white)),
+           const Text('Registro de Usuario', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
@@ -84,7 +87,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                     headerAnimationLoop: true,
                     animType: AnimType.bottomSlide,
                     title: 'Registrar usuario',
-                    titleTextStyle: TextStyle(
+                    titleTextStyle: const TextStyle(
                       color: Colors.white,
                     ),
                     reverseBtnOrder: true,
@@ -94,7 +97,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                     },
                     btnCancelOnPress: () {},
                     desc: "¿Estás seguro que quieres registrar este usuario?",
-                    descTextStyle: TextStyle(
+                    descTextStyle: const TextStyle(
                       color: Colors.white,
                     ),
                     btnOkText: 'Aceptar',
@@ -133,7 +136,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                               details.onStepContinue!();
                             } else if (widget.checkBoxValue == false) {
                               ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
+                                  .showSnackBar(const SnackBar(
                                 backgroundColor: Colors.orange,
                                 content: Text(
                                   'Debes aceptar los términos y condiciones.',
@@ -143,7 +146,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                             } else if (passwordController.text !=
                                 repeatpasswordController.text) {
                               ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
+                                  .showSnackBar(const SnackBar(
                                 backgroundColor: Colors.orange,
                                 content: Text(
                                   'Las contraseñas no coinciden',
@@ -152,7 +155,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                               ));
                             }
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                               backgroundColor: Colors.orange,
                               content: Text(
                                 'Ya existe un usuario con este email',
@@ -194,7 +197,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
           showCloseIcon: true,
           animType: AnimType.leftSlide,
           title: 'Usuario registrado',
-          titleTextStyle: TextStyle(
+          titleTextStyle: const TextStyle(
             color: Colors.white,
           ),
           reverseBtnOrder: true,
@@ -211,14 +214,14 @@ class _RegistroScreenState extends State<RegistroScreen> {
             debugPrint('Dialog Dissmiss from callback $type');
           },
           desc: "Tu registro ha sido completado con éxito!!",
-          descTextStyle: TextStyle(
+          descTextStyle: const TextStyle(
             color: Colors.white,
           ),
           btnOkText: 'Aceptar',
           btnCancelText: 'Cancelar',
         ).show();
       } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           backgroundColor: Colors.red,
           content: Text(
             'Error durante el registro. Inténtalo de nuevo.',
@@ -336,7 +339,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 alignment: Alignment.center,
                 child: Column(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 40,
                     ),
                     InputsRegister(
@@ -351,7 +354,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     InputsRegister(
@@ -366,7 +369,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     ImputDate(
@@ -380,10 +383,10 @@ class _RegistroScreenState extends State<RegistroScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 80,
                     ),
                   ],
@@ -411,14 +414,16 @@ class _RegistroScreenState extends State<RegistroScreen> {
                         backgroundImage: MemoryImage(image!),
                       )
                     else
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 200,
                         backgroundImage: NetworkImage(
                             'https://icons.iconarchive.com/icons/papirus-team/papirus-status/512/avatar-default-icon.png'),
                       ),
                     Positioned(
+                      bottom: 40,
+                      right: 20,
                       child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.add_a_photo_rounded,
                           color: Colors.white,
                           size: 60,
@@ -427,8 +432,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
                           selectImage();
                         },
                       ),
-                      bottom: 40,
-                      right: 20,
                     )
                   ],
                 ),

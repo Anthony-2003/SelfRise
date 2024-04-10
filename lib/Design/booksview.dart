@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Design/booksPage.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
+import 'package:provider/provider.dart';
+import '../components/favorite_provider.dart';
 
-// Agregar una nueva propiedad book
 class BookViewPage extends StatefulWidget {
   final ImageProvider<Object>? imageProvider;
   final PreferredSizeWidget? appBarCustom;
   final Book book;
-  final VoidCallback? onFavoriteChanged;
 
   final String title;
   final String subtitle;
@@ -22,11 +23,10 @@ class BookViewPage extends StatefulWidget {
     required this.authors,
     required this.subtitle,
     required this.description,
-    this.onFavoriteChanged,
     required this.publisher,
     required this.publishedDate,
-    required this.appBarCustom,
-    required this.book, // Asignar el libro actual
+    this.appBarCustom,
+    required this.book,
   }) : super(key: key);
 
   @override
@@ -34,20 +34,41 @@ class BookViewPage extends StatefulWidget {
 }
 
 class _BookViewPageState extends State<BookViewPage> {
-  List<Book> _favoriteBooks = []; // Lista de libros favoritos
+  late bool isFavorite = false;
+
+  void initState() {
+    super.initState();
+    checkFavoriteStatus();
+  }
+
+  void checkFavoriteStatus() async {
+    final provider = Provider.of<FavoriteProvider>(context, listen: false);
+    final userId = AuthService.getUserId();
+    if (userId != null) {
+      final favorites = await provider.getFavorites(userId);
+      print(favorites.length);
+      setState(() {
+        isFavorite = favorites.any((book) => book.id == widget.book.id);
+      });
+    } else {
+      setState(() {
+        isFavorite = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    bool isFavorite = isBookFavorite(widget.book); // Calcular isFavorite aquí
-
+    final provider = Provider.of<FavoriteProvider>(context);
+    final String? userId = AuthService.getUserId();
     return Scaffold(
-      appBar: widget.appBarCustom,
+      appBar: widget.appBarCustom ?? AppBar(),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              height: 140.0,
+              height: 144.0,
               child: Padding(
                 padding:
                     const EdgeInsets.only(left: 8.0, right: 8.0, top: 10.0),
@@ -100,25 +121,23 @@ class _BookViewPageState extends State<BookViewPage> {
                         ],
                       ),
                     ),
-                    // Botón de favoritos
                     GestureDetector(
                       onTap: () {
-                        setState(() {
-                          if (isFavorite) {
-                            _favoriteBooks.remove(widget.book);
-                          } else {
-                            _favoriteBooks.add(widget.book);
-                          }
-                          // Notificar el cambio de estado de favoritos
-                          widget.onFavoriteChanged?.call();
-                        });
+                        if (userId != null) {
+                          provider.toggleFavorite(widget.book, userId);
+                          setState(() {
+                            isFavorite = !isFavorite;
+                          });
+                        } else {
+                          print("Error: userId es null");
+                        }
                       },
                       child: Icon(
-                        isFavorite ? Icons.star : Icons.star_border,
-                        size: 32,
-                        color: isFavorite ? Colors.yellow : null,
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.red : null,
+                        size: 30,
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -142,10 +161,5 @@ class _BookViewPageState extends State<BookViewPage> {
         ),
       ),
     );
-  }
-
-  // Método para verificar si el libro está en la lista de favoritos
-  bool isBookFavorite(Book book) {
-    return _favoriteBooks.contains(book);
   }
 }

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-class cardsdata {
+class cards {
   final int id;
   final String categoria;
   final String autor;
@@ -9,7 +9,7 @@ class cardsdata {
   final String link;
   final String description;
 
-  const cardsdata({
+  const cards({
     required this.id,
     required this.categoria,
     required this.autor,
@@ -19,7 +19,7 @@ class cardsdata {
     required this.description,
   });
 
-  factory cardsdata.fromJson(Map<String, dynamic> json) => cardsdata(
+  factory cards.fromJson(Map<String, dynamic> json) => cards(
       id: json["id"],
       categoria: json["categoria"],
       autor: json["autor"],
@@ -38,7 +38,7 @@ class cardsdata {
         "description": description,
       };
 
-  cardsdata copy() => cardsdata(
+  cards copy() => cards(
       id: id,
       categoria: categoria,
       autor: autor,
