@@ -107,7 +107,7 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
             Icons.analytics_rounded,
             color: Colors.white,
           ),
-          title: Text('Estadísticas', style: TextStyle(color: Colors.white)),
+          title: Text('Estadístiecas', style: TextStyle(color: Colors.white)),
           onTap: () {
             Navigator.of(context).pop();
             Navigator.push(
