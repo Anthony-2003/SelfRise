@@ -377,4 +377,37 @@ class HabitosService {
       throw e;
     }
   }
+
+  Future<void> actualizarFrecuenciaHabito(String habitId,
+      Frecuencia frecuenciaHabito, dynamic frecuenciaValor) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('habitos')
+          .doc(habitId)
+          .update({
+        'frecuenciaHabito': frecuenciaHabito.nombre,
+        'valorFrecuencia': frecuenciaValor,
+      });
+      print('Frecuencia del hábito actualizada correctamente.');
+    } catch (e) {
+      print('Error al actualizar la frecuencia del hábito: $e');
+      throw e;
+    }
+  }
+
+  Future<void> actualizarFechaInicioHabito(
+      String habitId, DateTime nuevaFecha) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('habitos')
+          .doc(habitId)
+          .update({
+        'fechaInicio': nuevaFecha,
+      });
+      print('Fecha del hábito actualizada correctamente.');
+    } catch (e) {
+      print('Error al actualizar la fecha del hábito: $e');
+      throw e;
+    }
+  }
 }

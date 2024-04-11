@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/ver_habitos.dart';
+import 'package:flutter_proyecto_final/Design/frecuenciaHabito.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
-import 'package:flutter_proyecto_final/dialogs/ver_categorias_dialog.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:flutter_proyecto_final/entity/BarraCircularProgreso.dart';
 import 'package:flutter_proyecto_final/entity/categoria.dart';
@@ -45,6 +44,8 @@ class _EditarHabitoState extends State<EditarHabito>
   late String nombreCategoria = '';
   late Icon iconoCategoria;
   late Color colorCategoria;
+  late List<Map<String, dynamic>> habitosUsuario = [];
+  late DateTime fechaInicioDateTime;
 
   @override
   void initState() {
@@ -56,12 +57,26 @@ class _EditarHabitoState extends State<EditarHabito>
     _fetchConteosAdicionales();
     _nombreController =
         TextEditingController(text: widget.habito['nombreHabito']);
-         _descripcionController =
-      TextEditingController(text: widget.habito['descripcionHabito']);
+    _descripcionController =
+        TextEditingController(text: widget.habito['descripcionHabito']);
     _categoriasFuture =
         CategoriesService.getCategoriesByUserId(idUsuarioActual!);
-        nombreCategoria = widget.habito['categoria'];
-        
+    nombreCategoria = widget.habito['categoria'];
+    if (widget.habito['fechaInicio'] is Timestamp) {
+      fechaInicioDateTime =
+          (widget.habito['fechaInicio'] as Timestamp).toDate();
+    } else if (widget.habito['fechaInicio'] is DateTime) {
+      fechaInicioDateTime = widget.habito['fechaInicio'];
+    }
+  }
+
+  Future<void> cargarHabitos() async {
+    List<Map<String, dynamic>> habitosCargados =
+        await HabitosService().obtenerHabitos(idUsuarioActual!);
+
+    setState(() {
+      habitosUsuario = habitosCargados;
+    });
   }
 
   void _fetchConteoHabito() {
@@ -226,10 +241,6 @@ class _EditarHabitoState extends State<EditarHabito>
                 // Llama a EditarHabito
                 Navigator.pop(context);
 
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => VerHabitosScreen()));
                 // Cierra el diálogo
               },
             ),
@@ -541,23 +552,39 @@ class _EditarHabitoState extends State<EditarHabito>
                         return ListTile(
                           leading: Icon(Icons.repeat),
                           onTap: () {
-                            print('View habit information');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FrecuenciaScreen(
+                                  editar: true,
+                                  habito: widget.habito,
+                                  actualizarHabito: widget.cargarHabitos,
+                                  obtenerHabitos: cargarHabitos,
+                                ),
+                              ),
+                            );
                           },
                           title: Text(
                             'Frecuencia',
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          trailing: Text(
-                            widget.habito['frecuenciaHabito'],
-                            style: TextStyle(fontSize: 20),
+                          trailing: Container(
+                            child: Flexible(
+                              child: Text(
+                                widget.habito['frecuenciaHabito'],
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
                           ),
                         );
                       } else if (index == 5) {
                         return ListTile(
                           leading: Icon(Icons.calendar_month),
                           onTap: () {
-                            print('View habit information');
+                            _seleccionarFecha(context, fechaInicioDateTime);
                           },
                           title: Text(
                             'Fecha inicio',
@@ -572,8 +599,8 @@ class _EditarHabitoState extends State<EditarHabito>
                                   Radius.circular(10.0)), // Set rounded corners
                             ),
                             child: Text(
-                              DateFormat('dd/MM/yy').format(
-                                  widget.habito['fechaInicio'].toDate()),
+                              DateFormat('dd/MM/yy')
+                                  .format(fechaInicioDateTime),
                               style:
                                   TextStyle(fontSize: 17, color: Colors.white),
                             ),
@@ -636,6 +663,53 @@ class _EditarHabitoState extends State<EditarHabito>
     );
   }
 
+  Future<void> _seleccionarFecha(
+      BuildContext context, DateTime isFechaInicio) async {
+    final DateTime? pickedDate = await showDatePicker(
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF2773B9),
+              onSurface: Colors.white,
+              background: Colors.red,
+              surface: AppColors.drawer,
+            ),
+            dialogBackgroundColor: Color(0xFF2773B9),
+            highlightColor: Colors.white,
+            hintColor: Colors.red,
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+      context: context,
+      initialDate: isFechaInicio,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+      cancelText: 'Cancelar',
+      confirmText: 'Aceptar',
+      helpText: 'Seleccionar Fecha',
+    );
+
+    if (pickedDate != null) {
+      try {
+        fechaInicioDateTime = pickedDate;
+        await HabitosService().actualizarFechaInicioHabito(
+            widget.habito['id'], fechaInicioDateTime);
+        setState(() {
+          widget.habito['fechaInicio'] = fechaInicioDateTime;
+        });
+      } catch (e) {
+        print('Error al actualizar la fecha del hábito: $e');
+      }
+    }
+  }
+
   void actualizarNombreHabito(String nuevoNombre) async {
     String habitId = widget.habito['id'];
     await HabitosService().actualizarNombreHabito(
@@ -648,9 +722,8 @@ class _EditarHabitoState extends State<EditarHabito>
   }
 
   void actualizarInterfazCategoria(Categoria categoriaSeleccionada) async {
-    print("xdddddddddddddd");
     String habitId = widget.habito['id'];
-       print(nombreCategoria);
+    print(nombreCategoria);
     await HabitosService().actualizarCategoriaHabito(
       habitId,
       categoriaSeleccionada.nombre,
@@ -658,16 +731,14 @@ class _EditarHabitoState extends State<EditarHabito>
       categoriaSeleccionada.color,
     );
     setState(() {
-          nombreCategoria = categoriaSeleccionada.nombre;
+      nombreCategoria = categoriaSeleccionada.nombre;
       widget.habito['categoria'] = categoriaSeleccionada.nombre;
       widget.habito['color'] = categoriaSeleccionada.color.value;
       widget.habito['iconoCategoria'] = categoriaSeleccionada.icono.codePoint;
     });
 
-
+    widget.cargarHabitos();
     Navigator.pop(context);
-
-    
   }
 
   void mostrarDialogoEditarCategoria() {
@@ -809,82 +880,77 @@ class _EditarHabitoState extends State<EditarHabito>
     );
   }
 
+  void actualizarDescripcionHabito(String nuevaDescripcion) async {
+    String habitId = widget.habito['id'];
+    await HabitosService().actualizarDescripcionHabito(
+        habitId, nuevaDescripcion); // Actualizar la descripción en Firebase
+    setState(() {
+      widget.habito['descripcionHabito'] =
+          nuevaDescripcion; // Actualizar la descripción en el widget
+    });
+    widget.cargarHabitos(); // Cargar los hábitos actualizados
+  }
 
-void actualizarDescripcionHabito(String nuevaDescripcion) async {
-  String habitId = widget.habito['id'];
-  await HabitosService().actualizarDescripcionHabito(
-      habitId, nuevaDescripcion); // Actualizar la descripción en Firebase
-  setState(() {
-    widget.habito['descripcionHabito'] =
-        nuevaDescripcion; // Actualizar la descripción en el widget
-  });
-  widget.cargarHabitos(); // Cargar los hábitos actualizados
-}
+  void mostrarDialogEditarDescripcion() {
+    _descripcionController =
+        TextEditingController(text: widget.habito['descripcionHabito']);
 
-void mostrarDialogEditarDescripcion() {
-  _descripcionController =
-      TextEditingController(text: widget.habito['descripcionHabito']);
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: AppColors.drawer,
-            content: Form(
-              child: TextFormField(
-                controller: _descripcionController,
-                autofocus: true,
-                maxLines: null, // Permite múltiples líneas
-                decoration: InputDecoration(
-                  labelText: 'Descripción',
-                  labelStyle: TextStyle(color: Colors.white, fontSize: 20),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: AppColors.drawer,
+              content: Form(
+                child: TextFormField(
+                  controller: _descripcionController,
+                  autofocus: true,
+                  maxLines: null, // Permite múltiples líneas
+                  decoration: InputDecoration(
+                    labelText: 'Descripción',
+                    labelStyle: TextStyle(color: Colors.white, fontSize: 20),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.all(10),
+                    backgroundColor: ajustarBrilloColor(Colors.red),
                   ),
+                  child: Text('Cancelar'),
                 ),
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.all(10),
-                  backgroundColor: ajustarBrilloColor(Colors.red),
+                TextButton(
+                  onPressed: () {
+                    String nuevaDescripcion = _descripcionController.text;
+                    actualizarDescripcionHabito(
+                        nuevaDescripcion); // Llamar a actualizarDescripcionHabito
+                    Navigator.of(context).pop();
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.all(10),
+                    backgroundColor: Colors.blue,
+                  ),
+                  child: Text('Guardar'),
                 ),
-                child: Text('Cancelar'),
-              ),
-              TextButton(
-                onPressed: () {
-                  String nuevaDescripcion = _descripcionController.text;
-                  actualizarDescripcionHabito(
-                      nuevaDescripcion); // Llamar a actualizarDescripcionHabito
-                  Navigator.of(context).pop();
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.all(10),
-                  backgroundColor: Colors.blue,
-                ),
-                child: Text('Guardar'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-
-
-
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }

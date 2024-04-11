@@ -1,6 +1,6 @@
 
 
-class cards {
+class cardsdata {
   final int id;
   final String categoria;
   final String autor;
@@ -9,7 +9,7 @@ class cards {
   final String link;
   final String description;
 
-  const cards({
+  const cardsdata({
     required this.id,
     required this.categoria,
     required this.autor,
@@ -19,7 +19,7 @@ class cards {
     required this.description,
   });
 
-  factory cards.fromJson(Map<String, dynamic> json) => cards(
+  factory cardsdata.fromJson(Map<String, dynamic> json) => cardsdata(
       id: json["id"],
       categoria: json["categoria"],
       autor: json["autor"],
@@ -38,7 +38,7 @@ class cards {
         "description": description,
       };
 
-  cards copy() => cards(
+  cardsdata copy() => cardsdata(
       id: id,
       categoria: categoria,
       autor: autor,

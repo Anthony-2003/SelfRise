@@ -129,13 +129,7 @@ class menubtn extends StatelessWidget {
         decoration: const BoxDecoration(
             color: AppColors.buttonCoLor,
             shape: BoxShape.circle,
-            boxShadow: const [
-              BoxShadow(
-                color: Color.fromARGB(94, 3, 3, 3),
-                offset: Offset(0, 3),
-                blurRadius: 8,
-              )
-            ]),
+          ),
         child: Center(
           child: Transform.scale(
             scale: 0.7, // Ajusta este valor según sea necesario

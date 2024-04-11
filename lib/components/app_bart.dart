@@ -51,9 +51,14 @@ class CustomAppBar extends StatelessWidget {
                     alignment:
                         icon == null ? Alignment.center : Alignment.centerLeft,
                     padding: EdgeInsets.only(
-                        right: titleText == "Mis hábitos" ? 15 : 0,
-                        bottom: titleText == "Mis hábitos"
-                            ? 15
+                        right: titleText == "Mis hábitos" ||
+                                titleText == "Podcasts"
+                            ? 25
+                            : 0,
+                        bottom: titleText == "Mis hábitos" ||
+                                titleText == "Podcasts" ||
+                                titleText == "Mejores psicólogos del país"
+                            ? 16
                             : (icon != null ? 15 : 0)),
                     child: Text(
                       titleText,
@@ -67,7 +72,8 @@ class CustomAppBar extends StatelessWidget {
                 ),
                 if (icon != null)
                   Padding(
-                    padding: EdgeInsets.only(bottom: 20), // Ajusta el relleno según sea necesario
+                    padding: EdgeInsets.only(
+                        bottom: 20), // Ajusta el relleno según sea necesario
                     child: Icon(
                       icon,
                       color: Colors.white,

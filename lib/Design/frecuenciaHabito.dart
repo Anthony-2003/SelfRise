@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
-
+import 'package:flutter_proyecto_final/services/habitos_services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class FrecuenciaScreen extends StatefulWidget {
-  final bool repetir;
+  final bool editar;
+  final Map<String, dynamic> habito;
+  final Function()? actualizarHabito;
+  final Function()? obtenerHabitos;
 
-  FrecuenciaScreen({this.repetir = false});
+  // Asignar un valor predeterminado null a actualizarHabito
+  FrecuenciaScreen(
+      {this.editar = false, this.habito = const {}, this.actualizarHabito, this.obtenerHabitos});
 
   @override
   _FrecuenciaScreenState createState() => _FrecuenciaScreenState();
@@ -24,10 +31,20 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
   };
   int _currentIndex = 0;
 
-  // Definir _isSelected fuera del método build
+   late List<Map<String, dynamic>> habitosUsuario = [];
   Map<int, bool> _isSelected = {};
 
-  Color selectedColor = Color(0xFF2773B9); // Color seleccionado
+  Color selectedColor = Color(0xFF2773B9);
+
+   Future<void> cargarHabitos() async {
+    final String? idUsuarioActual = AuthService.getUserId();
+    List<Map<String, dynamic>> habitosCargados =
+        await HabitosService().obtenerHabitos(idUsuarioActual!);
+
+    setState(() {
+      habitosUsuario = habitosCargados;
+    });
+  }
 
   @override
   void initState() {
@@ -42,124 +59,135 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(
-                top: 40.0), // Ajusta el valor de top según sea necesario
-            child: Center(
-              child: Container(
-                alignment: Alignment.center,
-                child: Text(
-                  '¿Con qué frecuencia planeas realizar el hábito?',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
+          Expanded(
+            child: ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: 40.0), // Ajusta el valor de top según sea necesario
+                  child: Center(
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        '¿Con qué frecuencia planeas realizar el hábito?',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ),
-                  textAlign: TextAlign.center,
                 ),
-              ),
+                _buildPage(),
+              ],
             ),
           ),
-          _buildPage(),
+          if (widget.editar) _buildBotonesConfirmarCancelar(),
         ],
       ),
     );
   }
 
   Widget _buildPage() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Transform.scale(
-          scale: 1.1, // Factor de escala ajustable según tus necesidades
-          child: RadioListTile(
-            title: Text(
-              'Cada día',
-              style: TextStyle(
-                fontSize:
-                    18.0, // Ajusta el tamaño de fuente según tus necesidades
+    return Padding(
+      padding:
+          EdgeInsets.all(widget.editar ? 10 : 0), // Define el padding deseado
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Transform.scale(
+            scale: 1.1, // Factor de escala ajustable según tus necesidades
+            child: RadioListTile(
+              title: Text(
+                'Cada día',
+                style: TextStyle(
+                  fontSize:
+                      18.0, // Ajusta el tamaño de fuente según tus necesidades
+                ),
               ),
+              value: 0,
+              groupValue: _currentIndex,
+              onChanged: (value) {
+                setState(() {
+                  _currentIndex = value as int;
+                  Habito.frequency = Frecuencia.CADA_DIA;
+                });
+              },
+              activeColor: selectedColor,
             ),
-            value: 0,
-            groupValue: _currentIndex,
-            onChanged: (value) {
-              setState(() {
-                _currentIndex = value as int;
-                Habito.frequency = Frecuencia.CADA_DIA;
-              });
-            },
-            activeColor: selectedColor,
           ),
-        ),
-        Transform.scale(
-          scale: 1.1, // Factor de escala ajustable según tus necesidades
-          child: RadioListTile(
-            title: Text(
-              'Días específicos de la semana',
-              style: TextStyle(
-                fontSize:
-                    18.0, // Ajusta el tamaño de fuente según tus necesidades
+          Transform.scale(
+            scale: 1.1, // Factor de escala ajustable según tus necesidades
+            child: RadioListTile(
+              title: Text(
+                'Días específicos de la semana',
+                style: TextStyle(
+                  fontSize:
+                      18.0, // Ajusta el tamaño de fuente según tus necesidades
+                ),
               ),
+              value: 1,
+              groupValue: _currentIndex,
+              onChanged: (value) {
+                setState(() {
+                  _currentIndex = value as int;
+                  Habito.frequency = Frecuencia.DIAS_ESPECIFICOS;
+                });
+              },
+              activeColor: selectedColor,
             ),
-            value: 1,
-            groupValue: _currentIndex,
-            onChanged: (value) {
-              setState(() {
-                _currentIndex = value as int;
-                Habito.frequency = Frecuencia.DIAS_ESPECIFICOS;
-              });
-            },
-            activeColor: selectedColor,
           ),
-        ),
-        if (_currentIndex == 1) _buildDiasSemanaCheckboxes(),
-        Transform.scale(
-          scale: 1.1, // Factor de escala ajustable según tus necesidades
-          child: RadioListTile(
-            title: Text(
-              'Días específicos del mes',
-              style: TextStyle(
-                fontSize:
-                    18.0, // Ajusta el tamaño de fuente según tus necesidades
+          if (_currentIndex == 1) _buildDiasSemanaCheckboxes(),
+          Transform.scale(
+            scale: 1.1, // Factor de escala ajustable según tus necesidades
+            child: RadioListTile(
+              title: Text(
+                'Días específicos del mes',
+                style: TextStyle(
+                  fontSize:
+                      18.0, // Ajusta el tamaño de fuente según tus necesidades
+                ),
               ),
+              value: 2,
+              groupValue: _currentIndex,
+              onChanged: (value) {
+                setState(() {
+                  _currentIndex = value as int;
+                  Habito.frequency = Frecuencia.DIAS_MES;
+                });
+              },
+              activeColor: selectedColor,
             ),
-            value: 2,
-            groupValue: _currentIndex,
-            onChanged: (value) {
-              setState(() {
-                _currentIndex = value as int;
-                Habito.frequency = Frecuencia.DIAS_MES;
-                print(Habito.frequency.nombre);
-              });
-            },
-            activeColor: selectedColor,
           ),
-        ),
-        if (_currentIndex == 2) _buildDiasMesCheckboxes(),
-        Transform.scale(
-          scale: 1.1, // Factor de escala ajustable según tus necesidades
-          child: RadioListTile(
-            title: Text(
-              'Repetir',
-              style: TextStyle(
-                fontSize:
-                    18.0, // Ajusta el tamaño de fuente según tus necesidades
+          if (_currentIndex == 2) _buildDiasMesCheckboxes(),
+          Transform.scale(
+            scale: 1.1, // Factor de escala ajustable según tus necesidades
+            child: RadioListTile(
+              title: Text(
+                'Repetir',
+                style: TextStyle(
+                  fontSize:
+                      18.0, // Ajusta el tamaño de fuente según tus necesidades
+                ),
               ),
+              value: 3,
+              groupValue: _currentIndex,
+              onChanged: (value) {
+                setState(() {
+                  _currentIndex = value as int;
+                  Habito.frequency = Frecuencia.REPETIR;
+                });
+              },
+              activeColor: selectedColor,
             ),
-            value: 3,
-            groupValue: _currentIndex,
-            onChanged: (value) {
-              setState(() {
-                _currentIndex = value as int;
-                Habito.frequency = Frecuencia.REPETIR;
-              });
-            },
-            activeColor: selectedColor,
           ),
-        ),
-        if (_currentIndex == 3) _buildRepetirTextBox(),
-      ],
+          if (_currentIndex == 3) _buildRepetirTextBox(),
+        ],
+      ),
     );
   }
 
@@ -290,6 +318,104 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBotonesConfirmarCancelar() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Material(
+        color: Color(0xFF2773B9), // Color azul original del container
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: 25,
+              horizontal: 30), // Ajusta el espacio interno según sea necesario
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  // Acción al presionar el botón Cancelar
+                  Navigator.of(context).pop(); // Cerrar la pantalla actual
+                },
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(
+                      color: Colors.white, // Color del texto blanco
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20 // Negrita
+                      ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  dynamic frecuenciaValor;
+
+                  switch (Habito.frequency.nombre) {
+                    case 'Cada día':
+                      frecuenciaValor = Frecuencia.cadaDia;
+                      break;
+                    case 'Días específicos de la semana':
+                      frecuenciaValor = Frecuencia.diasSemana;
+                      break;
+                    case 'Días específicos del mes':
+                      frecuenciaValor = Frecuencia.diasMes;
+                      break;
+                    case 'Repetir':
+                      frecuenciaValor = Frecuencia.diasDespues;
+                      break;
+                    default:
+                      throw ArgumentError(
+                          'Frecuencia no válida: ${Habito.frequency.nombre}');
+                  }
+
+                  String idHabito = widget.habito['id'];
+
+                  HabitosService().actualizarFrecuenciaHabito(
+                      idHabito, Habito.frequency, frecuenciaValor);
+
+                  widget.habito['frecuenciaHabito'] = Habito.frequency.nombre;
+
+                  if (widget.actualizarHabito != null) {
+                    // La función actualizarHabito no es null, así que podemos llamarla
+                    await widget.actualizarHabito!();
+                    print('Función actualizarHabito ejecutada exitosamente');
+                  } else {
+                    // La función actualizarHabito es null
+                    print('La función actualizarHabito es nula');
+                  }
+
+                 
+                  widget.obtenerHabitos!();
+                  cargarHabitos();
+
+                  Fluttertoast.showToast(
+                    msg: "Frecuencia actualizada correctamente",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.black,
+                    textColor: Colors.white,
+                  );
+
+                   widget.actualizarHabito!();
+
+                  
+
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Confirmar',
+                  style: TextStyle(
+                      color: Colors.white, // Color del texto blanco
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20 // Negrita
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

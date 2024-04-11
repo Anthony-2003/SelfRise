@@ -67,6 +67,12 @@ dependencies:
   fl_chart: ^0.67.0
   graphic: ^2.2.1
   syncfusion_flutter_charts: ^25.1.39+1
+  dropdown_button2: ^2.3.9
+  webview_flutter: ^3.0.4
+  google_maps_flutter: ^2.6.0
+  confetti: ^0.7.0
+
+
 
 dev_dependencies:
   cloud_firestore: ^4.16.0
@@ -108,6 +114,11 @@ flutter:
     - assets/podcast-carousel/salud-mental/
     - assets/podcast-carousel/desarrollo-personal/
     - assets/podcast-carousel/bienestar-fisico/
+    - assets/podcast/
+    - assets/podcast/motivacion/
+    - assets/podcast/salud-mental/
+    - assets/podcast/desarrollo-personal/
+    - assets/podcast/bienestar-fisico/
     - lib/data/frases_motivacionales.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

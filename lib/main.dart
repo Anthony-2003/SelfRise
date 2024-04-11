@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Providers/habitos_provider.dart';
 import 'package:flutter_proyecto_final/components/favorite_provider.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:get/get.dart';
@@ -48,7 +47,6 @@ class MyApp extends StatelessWidget {
     return MultiProvider( // Utiliza MultiProvider para envolver tu MaterialApp con varios providers
       providers: [
         ChangeNotifierProvider(create: (context) => FavoriteProvider()),
-        ChangeNotifierProvider(create: (context) => HabitoProvider()),
         // Agrega otros providers si los necesitas
       ],
       child: MaterialApp(

@@ -1,15 +1,19 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/habitos_stepper.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
+import 'package:flutter_proyecto_final/const/frases_felicitacion.dart';
 import 'package:flutter_proyecto_final/dialogs/ingresar_meta_dialog.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter_proyecto_final/utils/ajustar_brillo_color.dart';
 import 'package:intl/intl.dart';
+import 'package:confetti/confetti.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 class PantallaSeguimientoHabitos extends StatefulWidget {
@@ -25,6 +29,8 @@ class _PantallaSeguimientoHabitosState
   bool elHabitoEstaCompletado = false;
   DateTime fechaActual = DateTime.now();
   late bool esFechaPosterior;
+  bool estaCorriendo = false;
+  final controller = ConfettiController();
 
   final String? idUsuarioActual = AuthService.getUserId();
 
@@ -37,8 +43,70 @@ class _PantallaSeguimientoHabitosState
     _streamControllerHabitos =
         StreamController<List<Map<String, dynamic>>>.broadcast();
     _cargarHabitos();
-    print("xd");
     esFechaPosterior = fechaActual.isBefore(_fechaSeleccionadCalendario);
+
+    controller.addListener(() {
+      setState(() {
+        estaCorriendo = controller.state == ConfettiControllerState.playing;
+      });
+    });
+  }
+
+  void mostrarDialogoFelicitacion(String mensajeFelicitacion) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.drawer,
+          title: Text('¡Felicitaciones!',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          content: Text(
+            mensajeFelicitacion,
+            style: TextStyle(color: Colors.white),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: ajustarBrilloColor(Colors.red), // text color
+              ),
+              onPressed: () {
+                controller.stop();
+                Navigator.of(context).pop();
+              },
+              child: Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Activar el confeti
+  }
+
+  Path drawStar(Size size) {
+    // Method to convert degree to radians
+    double degToRad(double deg) => deg * (pi / 180.0);
+
+    const numberOfPoints = 5;
+    final halfWidth = size.width / 2;
+    final externalRadius = halfWidth;
+    final internalRadius = halfWidth / 2.5;
+    final degreesPerStep = degToRad(360 / numberOfPoints);
+    final halfDegreesPerStep = degreesPerStep / 2;
+    final path = Path();
+    final fullAngle = degToRad(360);
+    path.moveTo(size.width, halfWidth);
+
+    for (double step = 0; step < fullAngle; step += degreesPerStep) {
+      path.lineTo(halfWidth + externalRadius * cos(step),
+          halfWidth + externalRadius * sin(step));
+      path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
+          halfWidth + internalRadius * sin(step + halfDegreesPerStep));
+    }
+    path.close();
+    return path;
   }
 
   void _cargarHabitos() async {
@@ -206,13 +274,39 @@ class _PantallaSeguimientoHabitosState
         preferredSize: Size.fromHeight(80.0),
         child: CustomAppBar(titleText: 'Rastreador de hábitos'),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Padding(
-            padding: EdgeInsets.only(left: 15, right: 15, top: 10),
-            child: SizedBox(height: 100, child: construirCalendario(context)),
+          Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 15, right: 15, top: 10),
+                child:
+                    SizedBox(height: 100, child: construirCalendario(context)),
+              ),
+              _construirHabitoStream(),
+            ],
           ),
-          _construirHabitoStream()
+          Positioned(
+            top: 0,
+            right: 0,
+            left: 0,
+            child:  ConfettiWidget(
+              confettiController: controller,
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
+              maxBlastForce: 20,
+              minBlastForce: 8,
+              emissionFrequency: 0.05,
+              numberOfParticles: 50,
+              gravity: 0.2,
+              colors: const [
+                Colors.green,
+                Colors.blue,
+                Colors.yellow,
+                Colors.red,
+              ],
+            ),
+          ),
         ],
       ),
       floatingActionButton: Container(
@@ -480,7 +574,6 @@ class _PantallaSeguimientoHabitosState
   }
 
   Future<void> _manejarClicEnHabito(Map<String, dynamic> habito) async {
-
     if (habito['evaluarProgreso'] == 'valor numerico') {
       _mostrarDialogo(context, habito);
     } else {
@@ -496,11 +589,19 @@ class _PantallaSeguimientoHabitosState
       } else {
         await HabitosService()
             .guardarHabitoCompletado(habito['id'], fechaSinHora, 1);
+        final random = Random();
+        final indiceAleatorio = random.nextInt(frasesDeFelicitacion.length);
+        final mensajeFelicitacion = frasesDeFelicitacion[indiceAleatorio];
+        mostrarDialogoFelicitacion(mensajeFelicitacion);
+        if (estaCorriendo) {
+          controller.stop();
+        } else {
+          controller.play();
+        }
       }
 
       setState(() {});
     }
-    
   }
 
   Future<bool> verificarHabitoCompletadoExiste(
