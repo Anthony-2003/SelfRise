@@ -1,21 +1,110 @@
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
+import 'package:flutter_proyecto_final/const/frases_felicitacion.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 import 'package:intl/intl.dart';
 
 class IngresarMetaDialog extends StatefulWidget {
+  final BuildContext context;
   final Map<String, dynamic> habit;
-  final Function()?
-      actualizarHabitos; // Nueva función para actualizar los hábitos
+  final Function()? actualizarHabitos;
 
-  IngresarMetaDialog({required this.habit, this.actualizarHabitos});
+  IngresarMetaDialog({
+    required this.context,
+    required this.habit,
+    this.actualizarHabitos,
+  });
 
   @override
   _IngresarMetaDialogState createState() => _IngresarMetaDialogState();
 }
 
 class _IngresarMetaDialogState extends State<IngresarMetaDialog> {
-  late int count; // Variable de estado para almacenar el conteo
+  late int count;
+  final controller = ConfettiController();
+  bool estaCorriendo = false;
+
+  void initState() {
+    super.initState();
+    controller.addListener(() {
+      setState(() {
+        estaCorriendo = controller.state == ConfettiControllerState.playing;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> mostrarDialogoFelicitacion(String mensajeFelicitacion) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.drawer,
+          title: Text(
+            '¡Felicitaciones!',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Stack(
+            // Utilizamos un Stack para posicionar el ConfettiWidget
+            alignment: Alignment.topCenter, // Ajustamos la alineación del Stack
+            children: [
+              Positioned(
+                top: 0,
+                child: ConfettiWidget(
+                  confettiController: controller,
+                  blastDirectionality: BlastDirectionality.explosive,
+                  shouldLoop: false,
+                  maxBlastForce: 30,
+                  minBlastForce: 2,
+                  emissionFrequency: 0.03,
+                  numberOfParticles: 5,
+                  gravity: 0.1,
+                  colors: const [
+                    Colors.green,
+                    Colors.blue,
+                    Colors.yellow,
+                    Colors.red,
+                  ],
+                ),
+              ),
+              // Aquí colocamos el contenido original del AlertDialog
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    mensajeFelicitacion,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: ajustarBrilloColor(Colors.red),
+                    ),
+                    onPressed: () {
+                      controller.stop();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Cerrar'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -263,6 +352,12 @@ class _IngresarMetaDialogState extends State<IngresarMetaDialog> {
             bool elHabitoCompletadoExiste = await HabitosService()
                 .verificarHabitoCompletadoExistente(habit['id'], fechaSinHora);
 
+            if (estaCorriendo) {
+              controller.stop();
+            } else {
+              controller.play();
+            }
+
             if (elHabitoCompletadoExiste) {
               String? idDocumentoHabitoCompletado = await HabitosService()
                   .obtenerIdDocumentoHabitoCompletado(
@@ -271,15 +366,22 @@ class _IngresarMetaDialogState extends State<IngresarMetaDialog> {
               await HabitosService().actualizarValorHabito(
                   idDocumentoHabitoCompletado!, habit['metaUsuario']);
             } else {
+              final random = Random();
+              final indiceAleatorio =
+                  random.nextInt(frasesDeFelicitacion.length);
+              final mensajeFelicitacion = frasesDeFelicitacion[indiceAleatorio];
+
               await HabitosService().guardarHabitoCompletado(
                   habit['id'], fechaSinHora, habit['metaUsuario']);
+              await mostrarDialogoFelicitacion(mensajeFelicitacion);
             }
           } else {
             await HabitosService()
                 .borrarHabitoCompletado(habit['id'], fechaSinHora);
           }
-          widget.actualizarHabitos!();
           Navigator.pop(context);
+          widget.actualizarHabitos!();
+          print("aceptar");
         },
         child: Container(
           decoration: BoxDecoration(

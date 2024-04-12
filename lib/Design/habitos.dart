@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/habitos_stepper.dart';
@@ -46,8 +47,10 @@ class _PantallaSeguimientoHabitosState
     esFechaPosterior = fechaActual.isBefore(_fechaSeleccionadCalendario);
 
     controller.addListener(() {
-      setState(() {
-        estaCorriendo = controller.state == ConfettiControllerState.playing;
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          estaCorriendo = controller.state == ConfettiControllerState.playing;
+        });
       });
     });
   }
@@ -61,52 +64,54 @@ class _PantallaSeguimientoHabitosState
           title: Text('¡Felicitaciones!',
               style:
                   TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          content: Text(
-            mensajeFelicitacion,
-            style: TextStyle(color: Colors.white),
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: ajustarBrilloColor(Colors.red), // text color
+          content: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              Positioned(
+                child: ConfettiWidget(
+                  confettiController: controller,
+                  blastDirectionality: BlastDirectionality.explosive,
+                  shouldLoop: false,
+                  maxBlastForce: 9,
+                  minBlastForce: 2,
+                  emissionFrequency: 0.03,
+                  numberOfParticles: 5,
+                  gravity: 0.1,
+                  colors: const [
+                    Colors.green,
+                    Colors.blue,
+                    Colors.yellow,
+                    Colors.red,
+                  ],
+                ),
               ),
-              onPressed: () {
-                controller.stop();
-                Navigator.of(context).pop();
-              },
-              child: Text('Cerrar'),
-            ),
-          ],
+              // Aquí colocamos el contenido original del AlertDialog
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    mensajeFelicitacion,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor:
+                          ajustarBrilloColor(Colors.red), // text color
+                    ),
+                    onPressed: () {
+                      controller.stop();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Cerrar'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
-
-    // Activar el confeti
-  }
-
-  Path drawStar(Size size) {
-    // Method to convert degree to radians
-    double degToRad(double deg) => deg * (pi / 180.0);
-
-    const numberOfPoints = 5;
-    final halfWidth = size.width / 2;
-    final externalRadius = halfWidth;
-    final internalRadius = halfWidth / 2.5;
-    final degreesPerStep = degToRad(360 / numberOfPoints);
-    final halfDegreesPerStep = degreesPerStep / 2;
-    final path = Path();
-    final fullAngle = degToRad(360);
-    path.moveTo(size.width, halfWidth);
-
-    for (double step = 0; step < fullAngle; step += degreesPerStep) {
-      path.lineTo(halfWidth + externalRadius * cos(step),
-          halfWidth + externalRadius * sin(step));
-      path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
-          halfWidth + internalRadius * sin(step + halfDegreesPerStep));
-    }
-    path.close();
-    return path;
   }
 
   void _cargarHabitos() async {
@@ -275,6 +280,7 @@ class _PantallaSeguimientoHabitosState
         child: CustomAppBar(titleText: 'Rastreador de hábitos'),
       ),
       body: Stack(
+        alignment: Alignment.topCenter,
         children: [
           Column(
             children: [
@@ -285,27 +291,6 @@ class _PantallaSeguimientoHabitosState
               ),
               _construirHabitoStream(),
             ],
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            left: 0,
-            child:  ConfettiWidget(
-              confettiController: controller,
-              blastDirectionality: BlastDirectionality.explosive,
-              shouldLoop: false,
-              maxBlastForce: 20,
-              minBlastForce: 8,
-              emissionFrequency: 0.05,
-              numberOfParticles: 50,
-              gravity: 0.2,
-              colors: const [
-                Colors.green,
-                Colors.blue,
-                Colors.yellow,
-                Colors.red,
-              ],
-            ),
           ),
         ],
       ),
@@ -617,7 +602,9 @@ class _PantallaSeguimientoHabitosState
       builder: (context) {
         // Crear una instancia de IngresarMetaDialog y pasarle el mapa habito
         return IngresarMetaDialog(
-            habit: habito, actualizarHabitos: actualizarHabitos);
+            context: context,
+            habit: habito,
+            actualizarHabitos: actualizarHabitos);
       },
     );
   }
@@ -673,7 +660,6 @@ class _PantallaSeguimientoHabitosState
             'channel_id',
             'channel_name',
             importance: Importance.max,
-            priority: Priority.high,
           ),
         ),
         androidAllowWhileIdle: true,
@@ -709,7 +695,6 @@ class _PantallaSeguimientoHabitosState
       'channel_id',
       'channel_name',
       importance: Importance.max,
-      priority: Priority.high,
     );
     var platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
