@@ -5,7 +5,7 @@ class CustomAppBar extends StatelessWidget {
   final bool showBackButton;
   final IconData? icon;
 
-  CustomAppBar({
+    CustomAppBar({
     required this.titleText,
     this.showBackButton = false,
     this.icon,
@@ -57,7 +57,7 @@ class CustomAppBar extends StatelessWidget {
                             : 0,
                         bottom: titleText == "Mis hábitos" ||
                                 titleText == "Podcasts" ||
-                                titleText == "Mejores psicólogos del país"
+                                titleText == "Psicólogos del país"
                             ? 16
                             : (icon != null ? 15 : 0)),
                     child: Text(

@@ -395,6 +395,30 @@ class HabitosService {
     }
   }
 
+  Future<bool> verificarHabitoCompletadoExistenteParaDia(
+      String habitId, DateTime fechaCompletado) async {
+    try {
+      // Acceder a la instancia de Firestore
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Convertir la fecha a un Timestamp
+      Timestamp fechaCompletadoTimestamp = Timestamp.fromDate(fechaCompletado);
+
+      // Obtener la referencia del documento del hábito completado
+      QuerySnapshot querySnapshot = await firestore
+          .collection('habito_progreso')
+          .where('fk_idHabito', isEqualTo: habitId)
+          .where('fechaCompletado', isEqualTo: fechaCompletadoTimestamp)
+          .get();
+
+      // Si hay documentos que cumplen con los criterios de consulta, el hábito existe
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error al verificar el hábito completado para el día: $e');
+      throw e;
+    }
+  }
+
   Future<void> actualizarFechaInicioHabito(
       String habitId, DateTime nuevaFecha) async {
     try {

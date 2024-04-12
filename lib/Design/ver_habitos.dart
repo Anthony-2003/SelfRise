@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/editar_habito.dart';
@@ -260,7 +261,7 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
   Widget buildHabitoCard(Map<String, dynamic> habito) {
     return Card(
       margin: EdgeInsets.all(8.0),
-      color: Colors.white,
+      color: AppColors.drawer,
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
@@ -276,18 +277,21 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildHabitoInfo(habito),
-              buildDivider(),
+              buildDivider(color: Colors.white),
               SizedBox(height: 15),
               buildWeekDays(),
               SizedBox(height: 15),
-              buildDivider(),
+              buildDivider(color: Colors.white),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Spacer(),
                   Padding(
                     padding: EdgeInsets.all(10),
-                    child: Icon(Icons.more_vert),
+                    child: Icon(
+                      Icons.more_vert,
+                      color: Colors.white,
+                    ),
                   )
                 ],
               ),
@@ -317,7 +321,7 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
   }
 
   Widget buildHabitoInfo(Map<String, dynamic> habito, {Color? color}) {
-    Color nombreColor = color ?? Colors.black;
+    Color nombreColor = color ?? Colors.white;
     return ListTile(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -394,7 +398,6 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
 
   Widget buildWeekDays() {
     List<DateTime> weekDaysList = [];
-    // Generar la lista de días de la semana actual
     for (int i = 6; i >= 0; i--) {
       DateTime day = now.subtract(Duration(days: i));
       weekDaysList.add(day);
@@ -405,32 +408,100 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: weekDaysList.map((day) {
-            String dayName =
-                weekDays[day.weekday - 1]; // Obtener el nombre del día
-            int dayOfMonth = day.day;
-            return Column(
-              children: [
-                Text(
-                  dayName,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 5),
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: Text(
-                    '$dayOfMonth',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
+            return FutureBuilder<Color>(
+              future: getColorForDay(day, habitosUsuario),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Muestra un indicador de carga mientras se obtiene el color
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  // Muestra un mensaje de error si ocurre un error
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  Color color = snapshot.data!; // Obtén el color del snapshot
+                  String dayName =
+                      weekDays[day.weekday - 1]; // Obtener el nombre del día
+                  int dayOfMonth = day.day;
+                  return Column(
+                    children: [
+                      Text(
+                        dayName,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      SizedBox(height: 5),
+                      Container(
+                        width: 44, // Ancho fijo del contenedor
+                        height: 44, // Alto fijo del contenedor
+                        padding: EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey),
+                          color: color,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$dayOfMonth',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              },
             );
           }).toList(),
         ),
       ],
     );
+  }
+
+  Future<Color> getColorForDay(
+      DateTime day, List<Map<String, dynamic>> habitos) async {
+    // Lógica para determinar el color del círculo según el estado del hábito
+    Color color = Colors.grey; // Color predeterminado
+    String habitId = ''; // Identificador del hábito
+
+    // Obtener el identificador del hábito para este día
+    for (var habito in habitos) {
+      Timestamp fechaInicioTimestamp = habito['fechaInicio'];
+      DateTime fechaInicio = fechaInicioTimestamp.toDate();
+      if (day.isAfter(fechaInicio.subtract(Duration(days: 1)))) {
+        habitId = habito['id'];
+        break;
+      }
+    }
+
+    // Verificar si el hábito fue completado para este día
+    if (habitId.isNotEmpty) {
+      DateTime fechaSinHora = DateTime(day.year, day.month, day.day);
+      bool completado = await HabitosService()
+          .verificarHabitoCompletadoExistenteParaDia(habitId, fechaSinHora);
+
+      if (completado) {
+        color = (Colors.green); // Hábito completado
+      } else if (day.year == DateTime.now().year &&
+          day.month == DateTime.now().month &&
+          day.day == DateTime.now().day) {
+        color = (Colors.yellow); // Hábito pendiente para el día actual
+      } else if (day.isBefore(DateTime.now())) {
+        color = (Colors.red); // Hábito no completado y el día ya pasó
+      }
+    } else {
+      // Si no se encontró ningún hábito para el día actual, marcarlo como pendiente (amarillo)
+      if (day.year == DateTime.now().year &&
+          day.month == DateTime.now().month &&
+          day.day == DateTime.now().day) {
+        color = Colors.yellow; // Hábito pendiente para el día actual
+      }
+    }
+
+    return color;
   }
 }

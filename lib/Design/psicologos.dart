@@ -10,7 +10,7 @@
       @override
       State<PsicologosScreen> createState() => MapSampleState();
     }
-  
+
     class MapSampleState extends State<PsicologosScreen> {
       final Completer<GoogleMapController> _controller =
           Completer<GoogleMapController>();
@@ -55,7 +55,7 @@
           appBar: PreferredSize(
             preferredSize: Size.fromHeight(80.0),
             child: CustomAppBar(
-                titleText: 'Mejores psicólogos del país', showBackButton: true),
+                titleText: 'Psicólogos del país', showBackButton: true),
           ),
           body: SafeArea(
             child: GoogleMap(
