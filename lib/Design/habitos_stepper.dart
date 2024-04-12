@@ -163,6 +163,8 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                                       'Frecuencia no válida: ${Habito.frequency.nombre}');
                               }
 
+                              print(Habito.startDate);
+
                               try {
                                 await HabitosService().guardarHabito(
                                   userId,
