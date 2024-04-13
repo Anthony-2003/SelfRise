@@ -10,7 +10,7 @@ import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:image_picker/image_picker.dart';
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
-import 'login.dart';
+import 'login/login.dart';
 
 class RegistroScreen extends StatefulWidget {
   RegistroScreen({super.key});

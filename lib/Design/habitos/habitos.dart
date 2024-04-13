@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/habitos_stepper.dart';
+import 'package:flutter_proyecto_final/Design/habitos/habitos_stepper.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/const/frases_felicitacion.dart';
 import 'package:flutter_proyecto_final/dialogs/ingresar_meta_dialog.dart';
@@ -40,7 +40,7 @@ class _PantallaSeguimientoHabitosState
   @override
   void initState() {
     super.initState();
-    print(_fechaSeleccionadCalendario);
+
     _streamControllerHabitos =
         StreamController<List<Map<String, dynamic>>>.broadcast();
     _cargarHabitos();
@@ -141,7 +141,29 @@ class _PantallaSeguimientoHabitosState
   }
 
   bool _debeMostrarseEnDiasEspecificosSemana(
-      List<int> diasSeleccionados, int diaSemanaSeleccionado) {
+      List<int> diasSeleccionados,
+      int diaSemanaSeleccionado,
+      int diaSemanaInicio,
+      DateTime fechaInicio,
+      DateTime fechaSeleccionada) {
+    // Verificamos si la fecha seleccionada es igual a la fecha de inicio.
+    // Si es así, el hábito debería mostrarse en la fecha de inicio.
+    if (fechaSeleccionada.year == fechaInicio.year &&
+        fechaSeleccionada.month == fechaInicio.month &&
+        fechaSeleccionada.day == fechaInicio.day) {
+      return true;
+    }
+
+    // Si el día de la semana seleccionado es igual al día de inicio,
+    // y el día de inicio está en la lista de días seleccionados,
+    // entonces no debería mostrarse en el día de inicio mismo.
+    if (diaSemanaSeleccionado == diaSemanaInicio &&
+        diasSeleccionados.contains(diaSemanaInicio)) {
+      return false;
+    }
+
+    // Si el día de la semana seleccionado está en la lista de días seleccionados,
+    // entonces el hábito debería mostrarse.
     return diasSeleccionados.contains(diaSemanaSeleccionado);
   }
 
@@ -207,20 +229,32 @@ class _PantallaSeguimientoHabitosState
         List<String> diasSeleccionados =
             valorFrecuencia.map((dia) => dia.toString()).toList();
 
-        // Imprimir para verificar los días seleccionados
-        print('Días seleccionados: $diasSeleccionados');
-
-        // Convertir los nombres de los días a números
+        print("Dias seleccionados ${diasSeleccionados}");
         List<int> diasNumericos = diasSeleccionados
             .map((dia) => convertirDiaSemanaStringANumero(dia))
             .toList();
 
+        print("Dias numericos: $diasNumericos");
+
+        // Obtener el día de la semana de la fecha de inicio del hábito
+        int diaSemanaInicio = fechaInicio?.weekday ?? 0;
+
+        print("Dias semana inicio: $diaSemanaInicio");
+
         // Obtener el día de la semana de la fecha seleccionada
         int diaSemanaSeleccionado = fechaSeleccionada.weekday;
 
-        // Retornar el resultado de la función de filtrado
-        return _debeMostrarseEnDiasEspecificosSemana(
-            diasNumericos, diaSemanaSeleccionado);
+        print("Dias semana seleciconado $diaSemanaSeleccionado");
+
+        // Retornar true si el día de la semana de la fecha seleccionada está entre los días seleccionados
+        // o si coincide con el día de inicio del hábito
+       return _debeMostrarseEnDiasEspecificosSemana(
+            diasNumericos,
+            diaSemanaSeleccionado,
+            diaSemanaInicio,
+            fechaInicio!,
+            fechaSeleccionada);
+
       } else if (frecuencia == 'Días específicos del mes') {
         // Obtener la lista de días como List<dynamic>
         List<dynamic> valorFrecuencia = habito['valorFrecuencia'];
@@ -232,9 +266,13 @@ class _PantallaSeguimientoHabitosState
         // Obtener el día del mes de la fecha seleccionada
         int diaMesSeleccionado = fechaSeleccionada.day;
 
-        // Retornar el resultado de la función de filtrado
-        return _debeMostrarseEnDiasEspecificosMes(
-            diasSeleccionados, diaMesSeleccionado);
+        // Obtener el día del mes de la fecha de inicio del hábito
+        int diaMesInicio = fechaInicio?.day ?? 0;
+
+        // Retornar true si el día de la fecha seleccionada está entre los días seleccionados
+        // o si es igual al día de inicio del hábito
+        return diasSeleccionados.contains(diaMesSeleccionado) ||
+            diaMesInicio == diaMesSeleccionado;
       } else if (frecuencia == 'Repetir') {
         int intervaloRepetir = int.parse(habito['valorFrecuencia']);
         return _debeMostrarseRepetir(
@@ -295,7 +333,7 @@ class _PantallaSeguimientoHabitosState
         ],
       ),
       floatingActionButton: Container(
-        margin: EdgeInsets.only(bottom: 60.0),
+        margin: EdgeInsets.only(bottom: 65),
         child: _construirBotonFlotante(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
@@ -508,8 +546,7 @@ class _PantallaSeguimientoHabitosState
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final bool elHabitoEstaCompletado = snapshot.data!;
-            print("el habito esta completado");
-            print(elHabitoEstaCompletado);
+
             return Transform.scale(
               scale: 1.5,
               child: Checkbox(
@@ -549,11 +586,8 @@ class _PantallaSeguimientoHabitosState
     DateTime fechaSinHora = DateTime(_fechaSeleccionadCalendario.year,
         _fechaSeleccionadCalendario.month, _fechaSeleccionadCalendario.day);
 
-    print(habito['id']);
     verificarValor = await HabitosService()
         .obtenerValorHabitoCompletado(habito['id'], fechaSinHora);
-    print(verificarValor);
-    print("bicho velde");
 
     return verificarValor > 0;
   }
@@ -612,8 +646,6 @@ class _PantallaSeguimientoHabitosState
   void programarNotificacion(Map<String, dynamic> habito) {
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
-
-    print("Estoy en programarNotificacion");
 
     List<dynamic> recordatorios = habito['horaRecordatorio'];
 

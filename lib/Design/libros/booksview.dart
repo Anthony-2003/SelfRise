@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Design/booksPage.dart';
+import 'package:flutter_proyecto_final/Design/libros/booksPage.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:provider/provider.dart';
-import '../components/favorite_provider.dart';
+import '../../components/favorite_provider.dart';
 
 class BookViewPage extends StatefulWidget {
   final ImageProvider<Object>? imageProvider;

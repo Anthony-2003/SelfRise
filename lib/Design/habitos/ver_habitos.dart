@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/editar_habito.dart';
-import 'package:flutter_proyecto_final/Design/habitos_stepper.dart';
+import 'package:flutter_proyecto_final/Design/habitos/editar_habito.dart';
+import 'package:flutter_proyecto_final/Design/habitos/habitos_stepper.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
@@ -460,23 +460,28 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
 
   Future<Color> getColorsForDay(
       DateTime day, Map<String, dynamic> habito) async {
-    Color color = Colors.grey; // Color predeterminado
+    Color color = Colors.grey;
+    int num = 0;
 
     Timestamp fechaInicioTimestamp = habito['fechaInicio'];
     DateTime fechaInicio = fechaInicioTimestamp.toDate();
     DateTime fechaFin = habito['fechaFinal'] != null
         ? (habito['fechaFinal'] as Timestamp).toDate()
         : DateTime.now(); // Si fechaFinal es nula, usar la fecha actual
-
+    
+    print(fechaInicioTimestamp.toDate());
+    print("object");
     // Verificar si el día está dentro del rango de fechas del hábito
-    if (day.isAfter(fechaInicio.subtract(Duration(days: 1))) &&
+    if (day.isAfter(fechaInicio.subtract(Duration(days: 0))) &&
         day.isBefore(fechaFin.add(Duration(days: 1)))) {
       // Verificar si el hábito fue completado para este día
       String habitId = habito['id'];
       DateTime fechaSinHora = DateTime(day.year, day.month, day.day);
+
+      print("xd ${num} ${fechaSinHora.toIso8601String()}");
       bool completado = await HabitosService()
           .verificarHabitoCompletadoExistenteParaDia(habitId, fechaSinHora);
-
+      num++;
       if (completado) {
         color = Colors.green; // Hábito completado
       } else if (day.year == DateTime.now().year &&

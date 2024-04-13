@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Design/booksPage.dart';
-import 'package:flutter_proyecto_final/Design/booksview.dart';
+import 'package:flutter_proyecto_final/Design/libros/booksPage.dart';
+import 'package:flutter_proyecto_final/Design/libros/booksview.dart';
 import 'package:flutter_proyecto_final/components/imageprovider.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:provider/provider.dart';
-import '../components/favorite_provider.dart';
+import '../../components/favorite_provider.dart';
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({Key? key}) : super(key: key);

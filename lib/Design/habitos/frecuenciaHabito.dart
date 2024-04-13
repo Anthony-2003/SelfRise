@@ -10,10 +10,25 @@ class FrecuenciaScreen extends StatefulWidget {
   final Map<String, dynamic> habito;
   final Function()? actualizarHabito;
   final Function()? obtenerHabitos;
+  final void Function(bool)? validarDiasSemana;
+  final Function()? validarDiasMes;
+  final Function()? validarRepetir;
+  int currentIndex = 0;
+  final Function(int)? onUpdateIndex;
+
 
   // Asignar un valor predeterminado null a actualizarHabito
-  FrecuenciaScreen(
-      {this.editar = false, this.habito = const {}, this.actualizarHabito, this.obtenerHabitos});
+  FrecuenciaScreen({
+    this.editar = false,
+    this.habito = const {},
+    this.actualizarHabito,
+    this.obtenerHabitos,
+    this.validarDiasSemana,
+    this.validarDiasMes,
+    this.validarRepetir,
+    required this.currentIndex,
+    this.onUpdateIndex,
+  });
 
   @override
   _FrecuenciaScreenState createState() => _FrecuenciaScreenState();
@@ -31,12 +46,12 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
   };
   int _currentIndex = 0;
 
-   late List<Map<String, dynamic>> habitosUsuario = [];
+  late List<Map<String, dynamic>> habitosUsuario = [];
   Map<int, bool> _isSelected = {};
 
   Color selectedColor = Color(0xFF2773B9);
 
-   Future<void> cargarHabitos() async {
+  Future<void> cargarHabitos() async {
     final String? idUsuarioActual = AuthService.getUserId();
     List<Map<String, dynamic>> habitosCargados =
         await HabitosService().obtenerHabitos(idUsuarioActual!);
@@ -200,6 +215,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
             Frecuencia.actualizarDiasSemana(_diasSeleccionados.keys
                 .where((dia) => _diasSeleccionados[dia]!)
                 .toSet());
+            print(dia);
           });
         },
         child: Container(
@@ -209,6 +225,9 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                 value: _diasSeleccionados[dia],
                 onChanged: (value) {
                   setState(() {
+                    Frecuencia.actualizarDiasSemana(_diasSeleccionados.keys
+                        .where((dia) => _diasSeleccionados[dia]!)
+                        .toSet());
                     _diasSeleccionados[dia] = value!;
                   });
                 },
@@ -386,7 +405,6 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                     print('La función actualizarHabito es nula');
                   }
 
-                 
                   widget.obtenerHabitos!();
                   cargarHabitos();
 
@@ -398,9 +416,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                     textColor: Colors.white,
                   );
 
-                   widget.actualizarHabito!();
-
-                  
+                  widget.actualizarHabito!();
 
                   Navigator.pop(context);
                 },

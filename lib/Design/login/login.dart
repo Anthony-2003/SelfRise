@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/inputs.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:flutter_proyecto_final/services/firebase_auth.dart';
-import '../Colors/colors.dart';
-import '../components/buttons.dart';
-import '../components/loginwith.dart';
-import 'register.dart';
+import '../../Colors/colors.dart';
+import '../../components/buttons.dart';
+import '../../components/loginwith.dart';
+import '../register.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);

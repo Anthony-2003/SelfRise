@@ -12,7 +12,7 @@ import 'package:share_plus/share_plus.dart';
 import '../Colors/colors.dart';
 import '../services/frases_motivacionales.dart';
 import './chat.dart';
-import './habitos.dart';
+import 'habitos/habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';

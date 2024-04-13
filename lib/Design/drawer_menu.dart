@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
+import 'package:flutter_proyecto_final/Design/configuracion/Configuracion.dart';
+import 'package:flutter_proyecto_final/Design/libros/booksPage.dart';
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_proyecto_final/Design/podcastpage.dart';
-import 'package:flutter_proyecto_final/Design/psicologos.dart';
-import 'package:flutter_proyecto_final/Design/ver_habitos.dart';
+import 'package:flutter_proyecto_final/Design/podcast/podcastpage.dart';
+import 'package:flutter_proyecto_final/Design/psicologo/psicologos.dart';
+import 'package:flutter_proyecto_final/Design/habitos/ver_habitos.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
-import 'package:flutter_proyecto_final/Design/booksPage.dart';
+
 
 class DrawerMenu extends StatefulWidget {
   const DrawerMenu({super.key});
@@ -265,7 +267,11 @@ class _DrawerMenuState extends State<DrawerMenu> {
                     child: ListTile(
                         contentPadding: EdgeInsets.symmetric(horizontal: 15),
                         onTap: () {
-                          //FUNCIONES AQUIIIIIIIIII
+                           Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Configuracion()),
+                          );
                         },
                         leading: SizedBox(
                           height: 34,

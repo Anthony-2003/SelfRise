@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Design/login/slide_login.dart';
 import 'package:flutter_proyecto_final/components/favorite_provider.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'Design/login.dart';
+import 'Design/login/login.dart';
 import 'Design/menu_principal.dart';
 import 'Design/register.dart';
-import 'Design/slide_login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'firebase_options.dart';

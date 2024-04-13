@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter_proyecto_final/Design/podcastcontroller.dart';
+import 'package:flutter_proyecto_final/Design/podcast/podcastcontroller.dart';
 import 'package:map_location_picker/generated/l10n.dart';
 
 final podcascards = <cardsdata>[

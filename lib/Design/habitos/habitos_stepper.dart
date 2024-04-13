@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/Design/defineHabito.dart';
-import 'package:flutter_proyecto_final/Design/evaluar_progreso.dart';
-import 'package:flutter_proyecto_final/Design/fecha_habitos.dart';
-import 'package:flutter_proyecto_final/Design/seleccionar_categoria.dart';
+import 'package:flutter_proyecto_final/Design/habitos/defineHabito.dart';
+import 'package:flutter_proyecto_final/Design/habitos/evaluar_progreso.dart';
+import 'package:flutter_proyecto_final/Design/habitos/fecha_habitos.dart';
+import 'package:flutter_proyecto_final/Design/habitos/frecuenciaHabito.dart';
+import 'package:flutter_proyecto_final/Design/habitos/seleccionar_categoria.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/entity/Frecuencia.dart';
 import 'package:flutter_proyecto_final/entity/Habito.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'frecuenciaHabito.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 
 class HabitosPageView extends StatefulWidget {
@@ -23,6 +23,15 @@ class _HabitosPageViewState extends State<HabitosPageView> {
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPageIndex = 0;
   String _habito = '';
+  int meta = 0;
+  bool _validacionDiasSemana = false;
+  int currentIndex = 0;
+
+  void _actualizarValidacionDiasSemana(bool esValido) {
+    setState(() {
+      _validacionDiasSemana = esValido;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +64,26 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                         _habito = value;
                       });
                     },
+                    onMetaChanged: (value) {
+                      setState(() {
+                        meta = value;
+                      });
+                    },
                   );
                 case 3:
-                  return FrecuenciaScreen();
+                  return FrecuenciaScreen(
+                    validarDiasSemana: (bool esValido) {
+                      setState(() {
+                        _actualizarValidacionDiasSemana(esValido);
+                      });
+                    },
+                    currentIndex: currentIndex,
+                    onUpdateIndex: (int newIndex) {
+                      setState(() {
+                        currentIndex = newIndex;
+                      });
+                    },
+                  );
                 case 4:
                   return FechaHabitosScreen();
               }
@@ -133,13 +159,27 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                         width: 100,
                         child: TextButton(
                           onPressed: () async {
-                            if (_habito.isEmpty) {
+                            if (_habito.trim().isEmpty) {
                               Fluttertoast.showToast(
                                 msg: "Por favor ingresa un hábito",
                                 toastLength: Toast.LENGTH_SHORT,
                                 gravity: ToastGravity.CENTER,
                               );
-                            } else if (_currentPageIndex == 4) {
+                              return;
+                            }
+
+                            if (Habito.evaluateProgress == "valor numerico") {
+                              if (meta <= 0) {
+                                Fluttertoast.showToast(
+                                  msg: "La meta debe ser mayor o igual a 1",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                );
+                                return;
+                              }
+                            }
+
+                            if (_currentPageIndex == 4) {
                               print("Guardando hábito...");
 
                               dynamic frecuenciaValor;
@@ -163,8 +203,6 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                                       'Frecuencia no válida: ${Habito.frequency.nombre}');
                               }
 
-                              print(Habito.startDate);
-
                               try {
                                 await HabitosService().guardarHabito(
                                   userId,
@@ -183,9 +221,8 @@ class _HabitosPageViewState extends State<HabitosPageView> {
                                   Habito.habitDescription,
                                 );
 
-                              
                                 widget.manejarHabitoGuardado();
-                                      
+
                                 Fluttertoast.showToast(
                                   msg: "Hábito guardado correctamente!",
                                   toastLength: Toast.LENGTH_SHORT,

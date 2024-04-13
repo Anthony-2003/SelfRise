@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
-import 'package:flutter_proyecto_final/Design/podcastcontroller.dart';
+import 'package:flutter_proyecto_final/Design/podcast/podcastcontroller.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/data/podcast_data.dart';
 import 'package:flutter_proyecto_final/components/cardwidget.dart';

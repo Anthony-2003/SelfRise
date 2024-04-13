@@ -5,13 +5,18 @@ import 'package:flutter_proyecto_final/entity/Habito.dart';
 
 class DefineHabitoScreen extends StatefulWidget {
   final Function(String) onHabitoChanged;
+  final Function(int) onMetaChanged;
 
-  DefineHabitoScreen({Key? key, required this.onHabitoChanged})
-      : super(key: key);
+  DefineHabitoScreen({
+    Key? key,
+    required this.onHabitoChanged,
+    required this.onMetaChanged, // Se añadió la coma aquí
+  }) : super(key: key);
 
   @override
   _DefineHabitoScreenState createState() => _DefineHabitoScreenState();
 }
+
 
 class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
   String _habito = '';
@@ -123,6 +128,7 @@ class _DefineHabitoScreenState extends State<DefineHabitoScreen> {
                       meta = int.tryParse(value)!;
                       Habito.meta = meta;
                     });
+                    widget.onMetaChanged(meta = int.tryParse(value)!);
                   },
                 ),
               SizedBox(height: 20.0),

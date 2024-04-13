@@ -36,7 +36,7 @@ class CustomAppBar extends StatelessWidget {
                 if (showBackButton)
                   Padding(
                     padding: EdgeInsets.only(
-                        bottom: 15), // Ajusta este valor según sea necesario
+                        bottom: 1), // Ajusta este valor según sea necesario
                     child: IconButton(
                       icon: Icon(Icons.arrow_back),
                       color: Colors.white,

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/frecuenciaHabito.dart';
+import 'package:flutter_proyecto_final/Design/habitos/frecuenciaHabito.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:flutter_proyecto_final/entity/BarraCircularProgreso.dart';
@@ -560,6 +560,7 @@ class _EditarHabitoState extends State<EditarHabito>
                                   habito: widget.habito,
                                   actualizarHabito: widget.cargarHabitos,
                                   obtenerHabitos: cargarHabitos,
+                                  currentIndex: index,
                                 ),
                               ),
                             );
