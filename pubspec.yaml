@@ -45,6 +45,7 @@ dependencies:
   date_picker_timeline: ^1.2.6
   collection: ^1.15.0
   material_dialogs: ^1.1.4
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

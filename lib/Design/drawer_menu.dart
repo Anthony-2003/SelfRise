@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_proyecto_final/components/profilProvider.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/Design/booksPage.dart';
-import 'package:flutter_proyecto_final/services/openAIservices.dart';
+import 'package:provider/provider.dart';
+
+import '../components/imageprovider.dart';
 
 class DrawerMenu extends StatefulWidget {
-  const DrawerMenu({Key? key}) : super(key: key);
+  const DrawerMenu({super.key});
 
   @override
   State<DrawerMenu> createState() => _DrawerMenuState();
@@ -16,131 +19,298 @@ class DrawerMenu extends StatefulWidget {
 class _DrawerMenuState extends State<DrawerMenu> {
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: Container(
-        color: AppColors.drawer,
-        child: ListView(
-          // Usar ListView para permitir el desplazamiento
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const SizedBox(
-                height: 48), // Espacio adicional en la parte superior
-            const InfoCard(),
-            Divider(color: AppColors.linecolor),
-            _buildDrawerItem(
-              icon: Icons.psychology,
-              text: 'Psicólogo',
-              onTap: () {
-                // Acción para Psicólogo
-              },
-            ),
-            _buildDrawerItem(
-              icon: Icons.book,
-              text: 'Libros',
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => BookListScreen()));
-              },
-            ),
-            _buildDrawerItem(
-              icon: Icons.podcasts,
-              text: 'Podcast',
-              onTap: () {
-                // Acción para Podcast
-              },
-            ),
-            _buildDrawerItem(
-              icon: Icons.computer,
-              text: 'Chat con IA',
-              onTap: () {
-                final OpenAIServices openai = OpenAIServices();
-                openai.chatGPTAPI('soy leny');
-              },
-            ),
-            Divider(color: AppColors.linecolor),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Text(
-                "Más Opciones".toUpperCase(),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium!
-                    .copyWith(color: AppColors.white_trans),
+    final userDataProvider =
+        Provider.of<UserDataProvider>(context, listen: false);
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          width: 288,
+          height: double.infinity,
+          color: AppColors.drawer,
+          child: SingleChildScrollView(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 5, vertical: 16),
+                child: InfoCard(),
               ),
-            ),
-            _buildDrawerItem(
-              icon: Icons.settings,
-              text: 'Configuración',
-              onTap: () {
-                // Acción para Configuración
-              },
-            ),
-            _buildDrawerItem(
-              icon: Icons.exit_to_app,
-              text: 'Salir',
-              onTap: () async {
-                await FirebaseAuth.instance.signOut();
-                // signOutFromGoogle(); // Asegúrate de que este método esté implementado si usas Google Sign-In
-                Navigator.pushNamed(context, '/login');
-              },
-            ),
-          ],
+              Container(
+                margin: EdgeInsets.only(left: 10, bottom: 10),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10, top: 32, bottom: 0),
+                  child: Text("Explorar".toUpperCase(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(color: AppColors.white_trans)),
+                ),
+              ),
+              //    ***** BOTON PSICOLOGO ******
+              Container(
+                //LEFT, TOP, RIGHT, BOTTOM
+                margin: EdgeInsets.fromLTRB(5, 5, 5, 0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Divider(
+                        color: AppColors.linecolor,
+                        height: 1,
+                      ),
+                    ),
+                    Container(
+                      //LEFT, TOP, RIGHT, BOTTOM
+                      margin: EdgeInsets.fromLTRB(5, 9, 5, 0),
+                      child: Stack(
+                        children: [
+                          ListTile(
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 15),
+                              onTap: () {},
+                              leading: SizedBox(
+                                height: 34,
+                                width: 34,
+                                child: Image.asset(
+                                    "assets/icon-menu/psicologo.png"),
+                              ),
+                              title: Container(
+                                margin: EdgeInsets.symmetric(horizontal: 20),
+                                child: Text(
+                                  "Psicologo",
+                                  style: TextStyle(
+                                      color: AppColors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                ),
+                              )),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              //   ***** FINAL BOTON PSICOLOGO *****
+              //   ***** BOTON LIBROS ******
+              Container(
+                //LEFT, TOP, RIGHT, BOTTOM
+                margin: EdgeInsets.fromLTRB(5, 10, 5, 0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Divider(
+                        color: AppColors.linecolor,
+                        height: 1,
+                      ),
+                    ),
+                    Container(
+                      //LEFT, TOP, RIGHT, BOTTOM
+                      margin: EdgeInsets.fromLTRB(5, 9, 5, 0),
+                      child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    BookListScreen(), // Aquí se crea la instancia de BookListScreen
+                              ),
+                            );
+                          },
+                          leading: SizedBox(
+                            height: 34,
+                            width: 34,
+                            child: Image.asset("assets/icon-menu/libros.png"),
+                          ),
+                          title: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Libros",
+                              style: TextStyle(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+              //   ***** FINAL BOTON LIBROS *****
+              //   ***** BOTON PODCAST ******
+              Container(
+                //LEFT, TOP, RIGHT, BOTTOM
+                margin: EdgeInsets.fromLTRB(5, 10, 5, 0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Divider(
+                        color: AppColors.linecolor,
+                        height: 1,
+                      ),
+                    ),
+                    Container(
+                      //LEFT, TOP, RIGHT, BOTTOM
+                      margin: EdgeInsets.fromLTRB(5, 9, 5, 0),
+                      child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                          onTap: () {
+                            //FUNCIONES AQUIIIIIIIIII
+                          },
+                          leading: SizedBox(
+                            height: 34,
+                            width: 34,
+                            child: Image.asset("assets/icon-menu/podcast.png"),
+                          ),
+                          title: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Podcast",
+                              style: TextStyle(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+              //   ***** FINAL BOTON PODCAST *****
+              Container(
+                margin: EdgeInsets.only(left: 10, bottom: 4, top: 40),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10, top: 32, bottom: 0),
+                  child: Text("Mas Opciones".toUpperCase(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(color: AppColors.white_trans)),
+                ),
+              ),
+
+              //   ***** BOTON CONFIGURACION ******
+              Container(
+                //LEFT, TOP, RIGHT, BOTTOM
+                margin: EdgeInsets.fromLTRB(5, 10, 5, 0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Divider(
+                        color: AppColors.linecolor,
+                        height: 1,
+                      ),
+                    ),
+                    Container(
+                      //LEFT, TOP, RIGHT, BOTTOM
+                      margin: EdgeInsets.fromLTRB(5, 9, 5, 0),
+                      child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                          onTap: () {
+                            //FUNCIONES AQUIIIIIIIIII
+                          },
+                          leading: SizedBox(
+                            height: 34,
+                            width: 34,
+                            child: Image.asset(
+                                "assets/icon-menu/configuracion.png"),
+                          ),
+                          title: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Configuracion",
+                              style: TextStyle(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+              //   ***** FINAL BOTON CONFIGURACION *****
+              //   ***** BOTON SALIR ******
+              Container(
+                //LEFT, TOP, RIGHT, BOTTOM
+                margin: EdgeInsets.fromLTRB(5, 10, 5, 0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Divider(
+                        color: AppColors.linecolor,
+                        height: 1,
+                      ),
+                    ),
+                    Container(
+                      //LEFT, TOP, RIGHT, BOTTOM
+                      margin: EdgeInsets.fromLTRB(5, 9, 5, 0),
+                      child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                          onTap: () {
+                            FirebaseAuth.instance.signOut();
+                            signOutFromGoogle();
+                            userDataProvider.setImageUrl('');
+                            userDataProvider.setCorreo('');
+                            userDataProvider.setNombre('');
+                            Navigator.pushNamed(context, '/login');
+                          },
+                          leading: SizedBox(
+                            height: 34,
+                            width: 34,
+                            child: Image.asset("assets/icon-menu/salir.png"),
+                          ),
+                          title: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Salir",
+                              style: TextStyle(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+              //   ***** FINAL BOTON SALIR *****
+            ]),
+          ),
         ),
       ),
     );
   }
-
-  Widget _buildDrawerItem(
-      {required IconData icon, required String text, VoidCallback? onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: AppColors.white),
-      title: Text(text,
-          style:
-              TextStyle(color: AppColors.white, fontWeight: FontWeight.bold)),
-      onTap: onTap,
-    );
-  }
 }
 
-//INFORMACIÓN DEL USUARIO
+//INFORMACION DEL USUARIO
 class InfoCard extends StatelessWidget {
-  const InfoCard({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: AuthService.getUserData(AuthService.getUserId()),
-      builder: (BuildContext context,
-          AsyncSnapshot<Map<String, dynamic>?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else {
-          if (snapshot.hasError || snapshot.data == null) {
-            return const Text('Error al obtener los datos del usuario');
-          } else {
-            final userData = snapshot.data!;
-            final name = userData['name'] ?? 'Nombre de usuario no disponible';
-            final photoUrl = userData['imageLink'];
-            final email = userData['email'] ?? 'Email no disponible';
-            return ListTile(
-              leading: ClipOval(
-                child: CircleAvatar(
-                  backgroundColor: AppColors.white_trans,
-                  radius: 25,
-                  child: photoUrl != null
-                      ? Image.network(photoUrl, fit: BoxFit.cover)
-                      : const Icon(Icons.account_circle),
-                ),
-              ),
-              title: Text(name,
-                  style: TextStyle(
-                      color: AppColors.white, fontWeight: FontWeight.bold)),
-              subtitle: Text(email, style: TextStyle(color: AppColors.white)),
-            );
-          }
-        }
-      },
+    final userData = Provider.of<UserDataProvider>(context);
+    final name = userData.nombre ?? 'Nombre no disponible';
+    final email = userData.correo ?? 'Email no disponible';
+    final imageUrl = userData.imageUrl;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 60.0),
+      child: ListTile(
+        leading: ClipOval(
+          child: CircleAvatar(
+            backgroundColor: AppColors.white_trans,
+            radius: 25,
+            backgroundImage:
+                imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+          ),
+        ),
+        title: Text(name,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        subtitle: Text(email, style: TextStyle(fontSize: 10)),
+        textColor: AppColors.white,
+      ),
     );
   }
 }

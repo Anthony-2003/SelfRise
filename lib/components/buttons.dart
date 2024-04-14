@@ -85,7 +85,6 @@ class CustomBackButton extends StatelessWidget {
         child: Container(
           height: 50,
           padding: const EdgeInsets.all(10),
-          // Cambiar el espacio horizontal
           decoration: BoxDecoration(
             color: AppColors.buttonCoLor,
             borderRadius: const BorderRadius.all(Radius.circular(8)),

@@ -16,6 +16,7 @@ import './habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
+import 'package:flutter_proyecto_final/Design/profilepage.dart';
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -73,13 +74,26 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
     PantallaChat(),
     PantallaAsignaciones(),
     PantallaSeguimientoHabitos(),
-    PantallaPerfil(),
+    ProfileSettingsPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.drawer,
+      bottomNavigationBar: CurvedNavigationBar(
+        index: _selectedTab,
+        height: 50,
+        items: _construirNavigationBarItems(),
+        backgroundColor: Colors.white,
+        color: Color(0xFF2773B9), // Cambia esto al color que desees
+        animationDuration: const Duration(milliseconds: 300),
+        onTap: (int index) {
+          setState(() {
+            _selectedTab = index;
+          });
+        },
+      ),
       body: Stack(
         children: [
           AnimatedPositioned(
@@ -138,28 +152,6 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
               },
             ),
           ),
-          // Barra de navegación curvada
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Transform.translate(
-              offset: _isKeyboardVisible
-                  ? Offset(1000, 150 * animation.value)
-                  : Offset(0, 150 * animation.value),
-              child: CurvedNavigationBar(
-                index: _selectedTab,
-                height: 50,
-                items: _construirNavigationBarItems(),
-                backgroundColor: Colors.transparent,
-                color: Color(0xFF2773B9), // Cambia esto al color que desees
-                animationDuration: const Duration(milliseconds: 300),
-                onTap: (int index) {
-                  setState(() {
-                    _selectedTab = index;
-                  });
-                },
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -167,7 +159,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
 
   List<Widget> _construirNavigationBarItems() {
     return [
-      Icons.home,
+      Icons.home_filled,
       Icons.chat,
       Icons.assignment,
       Icons.directions_run,
@@ -247,7 +239,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            appBar: PreferredSize(
+      appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
         child: CustomAppBar(titleText: 'Inicio'),
       ),

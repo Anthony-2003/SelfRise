@@ -102,12 +102,56 @@ class AuthService {
       if (userId != null) {
         final DocumentSnapshot userDataSnapshot =
             await _firestore.collection('user').doc(userId).get();
-        return userDataSnapshot.data() as Map<String,
-            dynamic>?;
+        return userDataSnapshot.data() as Map<String, dynamic>?;
       }
       return null;
     } catch (error) {
       print('Error al obtener los datos del usuario: $error');
+      return null;
+    }
+  }
+
+  static Future<void> updateUserData(
+      String userId, Map<String, dynamic> data) async {
+    await _firestore.collection('user').doc(userId).update(data);
+  }
+
+  // Asume que esta es tu función modificada que ahora acepta una contraseña para reautenticación.
+  static Future<void> updateEmail(String newEmail, String password) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    AuthCredential credential = EmailAuthProvider.credential(
+      email: user!.email!,
+      password: password,
+    );
+
+    try {
+      // Reautentica al usuario
+      await user.reauthenticateWithCredential(credential);
+      // Actualiza el correo electrónico
+      await user.verifyBeforeUpdateEmail(newEmail);
+      print("Correo electrónico actualizado con éxito en Firebase Auth.");
+    } on FirebaseAuthException catch (e) {
+      print("Error al actualizar el correo electrónico: $e");
+      throw e;
+    }
+  }
+
+  static Future<void>? updateName(String name) {
+    try {
+      final User? user = _firebaseAuth.currentUser;
+      return user?.updateDisplayName(name);
+    } catch (error) {
+      print('Error al obtener el ID del usuario: $error');
+      return null;
+    }
+  }
+
+  static Future<void>? updatePhoto(String? photoURL) {
+    try {
+      final User? user = _firebaseAuth.currentUser;
+      return user?.updatePhotoURL(photoURL);
+    } catch (error) {
+      print('Error al obtener el ID del usuario: $error');
       return null;
     }
   }

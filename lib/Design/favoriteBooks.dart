@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/booksPage.dart';
 import 'package:flutter_proyecto_final/Design/booksview.dart';
 import 'package:flutter_proyecto_final/components/imageprovider.dart';
@@ -54,6 +55,7 @@ class _FavoritePageState extends State<FavoritePage> {
       );
     }
     return Scaffold(
+      backgroundColor: AppColors.drawer,
       appBar: AppBar(
         title: Text('Libros favoritos'),
       ),
@@ -74,7 +76,8 @@ class _FavoritePageState extends State<FavoritePage> {
                 final List<Book> favoriteBooks = snapshot.data ?? [];
                 return favoriteBooks.isEmpty
                     ? Center(
-                        child: Text('No tienes libros en favoritos'),
+                        child: Text('No tienes libros en favoritos',
+                            style: TextStyle(color: Colors.white)),
                       )
                     : ListView.builder(
                         itemCount: favoriteBooks.length,
@@ -88,6 +91,10 @@ class _FavoritePageState extends State<FavoritePage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => BookViewPage(
+                                    appBarCustom: AppBar(
+                                      title: Text('Descripción de libros'),
+                                      automaticallyImplyLeading: true,
+                                    ),
                                     imageProvider: ImageUtils.getImageProvider(
                                         book.thumbnailUrl),
                                     title: book.title,
@@ -101,73 +108,105 @@ class _FavoritePageState extends State<FavoritePage> {
                                 ),
                               );
                             },
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 140.0,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: Container(
-                                        width: 100.0,
-                                        height: 120.0,
-                                        color: Colors.grey[300],
-                                        child: Image(
-                                          image: ImageUtils.getImageProvider(
-                                              book.thumbnailUrl),
-                                          fit: BoxFit.fill,
-                                        ),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 140.0,
+                                  child: Container(
+                                    padding: EdgeInsets.only(top: 10),
+                                    margin:
+                                        EdgeInsets.only(left: 10, right: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Colors.blue,
+                                        width: 2,
                                       ),
                                     ),
-                                    const SizedBox(width: 8.0),
-                                    Expanded(
-                                      child: Column(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            book.title,
-                                            style: const TextStyle(
-                                                fontSize: 18.0,
-                                                fontWeight: FontWeight.bold),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            child: Container(
+                                              width: 100.0,
+                                              height: 120.0,
+                                              color: Colors.grey[300],
+                                              child: Image(
+                                                image:
+                                                    ImageUtils.getImageProvider(
+                                                        book.thumbnailUrl),
+                                                fit: BoxFit.fill,
+                                              ),
+                                            ),
                                           ),
-                                          Text(
-                                            book.subtitle,
-                                            style:
-                                                const TextStyle(fontSize: 14.0),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                          const SizedBox(width: 8.0),
+                                          Expanded(
+                                            child: SingleChildScrollView(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    book.title,
+                                                    style: const TextStyle(
+                                                        fontSize: 18.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.white),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  Text(
+                                                    book.subtitle,
+                                                    style: const TextStyle(
+                                                        fontSize: 14.0,
+                                                        color: Colors.white),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  const SizedBox(height: 8.0),
+                                                  Text(
+                                                    '- ${book.authors.join(',')}',
+                                                    style: const TextStyle(
+                                                        fontSize: 12.0,
+                                                        color: Colors.white),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
-                                          const SizedBox(height: 8.0),
-                                          Text(
-                                            '- ${book.authors.join(',')}',
-                                            style:
-                                                const TextStyle(fontSize: 12.0),
+                                          GestureDetector(
+                                            onTap: () {
+                                              favoriteProvider.toggleFavorite(
+                                                  book, userId);
+                                            },
+                                            child: Icon(
+                                              isFavorite
+                                                  ? Icons.favorite
+                                                  : Icons.favorite_border,
+                                              color: isFavorite
+                                                  ? Colors.red
+                                                  : Colors.white,
+                                              size: 32,
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        favoriteProvider.toggleFavorite(
-                                            book, userId);
-                                      },
-                                      child: Icon(
-                                        isFavorite
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: isFavorite ? Colors.red : null,
-                                        size: 32,
-                                      ),
-                                    )
-                                  ],
+                                  ),
                                 ),
-                              ),
+                                SizedBox(
+                                  height: 10,
+                                )
+                              ],
                             ),
                           );
                         },
