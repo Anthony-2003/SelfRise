@@ -36,12 +36,12 @@ class _FavoritePageState extends State<FavoritePage> {
   }
 
   Future<List<Book>> obtenerFavoriteBooks() async {
-    if (userId!.isEmpty) {
+    if (userId == null || userId!.isEmpty) {
       return [];
     }
     final favoriteProvider =
         Provider.of<FavoriteProvider>(context, listen: false);
-    return await favoriteProvider.getFavorites(userId);
+    return await favoriteProvider.getFavorites(userId!);
   }
 
   @override
@@ -50,32 +50,29 @@ class _FavoritePageState extends State<FavoritePage> {
     final userId = AuthService.getUserId();
     if (userId == null) {
       return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(80.0),
-          child: Container(
-            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-            decoration: BoxDecoration(
-              color: Color(0xFF2773B9),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20.0),
-                bottomRight: Radius.circular(20.0),
-              ),
-            ),
-            child: Center(
-              child: CustomAppBar(
-                titleText: "Libros favoritos",
-                showBackButton: true,
-              ),
-            ),
-          ),
-        ),
         body: Center(child: Text('Usuario no identificado')),
       );
     }
     return Scaffold(
       backgroundColor: AppColors.drawer,
-      appBar: AppBar(
-        title: Text('Libros favoritos'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(
+              titleText: "Libros favoritos",
+              showBackButton: true,
+            ),
+          ),
+        ),
       ),
       body: Consumer<FavoriteProvider>(
         builder: (context, favoriteProvider, child) {
@@ -98,6 +95,7 @@ class _FavoritePageState extends State<FavoritePage> {
                             style: TextStyle(color: Colors.white)),
                       )
                     : ListView.builder(
+                      padding: EdgeInsets.only(top: 20),
                         itemCount: favoriteBooks.length,
                         itemBuilder: (context, index) {
                           final Book book = favoriteBooks[index];

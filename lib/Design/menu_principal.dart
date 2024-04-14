@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_proyecto_final/Design/drawer_menu.dart';
+import 'package:flutter_proyecto_final/Design/evaluaciones/evaluacion_screen.dart';
 import 'package:flutter_proyecto_final/Design/profilepage.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/components/buttons.dart';
@@ -74,7 +74,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
   final List<Widget> _pages = [
     PantallaPrincipal(),
     PantallaChat(),
-    PantallaAsignaciones(),
+    EvaluationScreen(),
     PantallaSeguimientoHabitos(),
     ProfileSettingsPage(),
   ];
@@ -447,32 +447,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
   }
 }
 
-class PantallaAsignaciones extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(80.0),
-        child: Container(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          decoration: BoxDecoration(
-            color: Color(0xFF2773B9),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20.0),
-              bottomRight: Radius.circular(20.0),
-            ),
-          ),
-          child: Center(
-            child: CustomAppBar(titleText: "Asignaciones"),
-          ),
-        ),
-      ),
-      body: Center(
-        child: Text('Pantalla de Asignaciones'),
-      ),
-    );
-  }
-}
+
 
 void signOutFromGoogle() async {
   GoogleSignIn googleSignIn = GoogleSignIn();

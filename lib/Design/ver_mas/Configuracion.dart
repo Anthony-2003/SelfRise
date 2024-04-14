@@ -4,7 +4,6 @@ import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/ver_mas/Acercadenosotros.dart';
 import 'package:flutter_proyecto_final/Design/ver_mas/Licencias.dart';
 import 'package:flutter_proyecto_final/Design/ver_mas/Terminosycondiciones.dart';
-import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:flutter_proyecto_final/Design/ver_mas/peticiondeamigos.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/utils/ajustar_color_navigation_bar_icon.dart';
@@ -45,7 +44,7 @@ class _ConfiguracionState extends State<Configuracion> {
             ),
           ),
           child: Center(
-            child: CustomAppBar(titleText: "Configuración", showBackButton: true,),
+            child: CustomAppBar(titleText: "Ver más", showBackButton: true,),
           ),
         ),
       ),
