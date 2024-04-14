@@ -468,7 +468,7 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
     DateTime fechaFin = habito['fechaFinal'] != null
         ? (habito['fechaFinal'] as Timestamp).toDate()
         : DateTime.now(); // Si fechaFinal es nula, usar la fecha actual
-    
+
     print(fechaInicioTimestamp.toDate());
     print("object");
     // Verificar si el día está dentro del rango de fechas del hábito

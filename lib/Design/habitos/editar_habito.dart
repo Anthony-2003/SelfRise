@@ -454,8 +454,9 @@ class _EditarHabitoState extends State<EditarHabito>
                   ),
                   // Contenido de la pestaña de editar
                   ListView.separated(
-                    itemCount: 8,
+                    itemCount: 9,
                     itemBuilder: (context, index) {
+                      print(index);
                       if (index == 0) {
                         return ListTile(
                           leading: Icon(Icons.edit),
@@ -573,11 +574,16 @@ class _EditarHabitoState extends State<EditarHabito>
                             ),
                           ),
                           trailing: Container(
-                            child: Flexible(
-                              child: Text(
-                                widget.habito['frecuenciaHabito'],
-                                style: TextStyle(fontSize: 16),
-                              ),
+                            constraints: BoxConstraints(
+                              maxWidth: 200, // Define el ancho máximo del texto
+                            ),
+                            child: Text(
+                              widget.habito['frecuenciaHabito'],
+                              style: TextStyle(fontSize: 16),
+                              softWrap:
+                                  true, // Permite que el texto se envuelva automáticamente
+                              overflow: TextOverflow
+                                  .clip, // Controla el desbordamiento de texto
                             ),
                           ),
                         );
@@ -638,6 +644,39 @@ class _EditarHabitoState extends State<EditarHabito>
                           ),
                         );
                       } else if (index == 7) {
+                        if (widget.habito['evaluarProgreso'] ==
+                            "valor numerico") {
+                          return ListTile(
+                            leading: Icon(Icons.flag),
+                            onTap: () {
+                              print('View habit information');
+                            },
+                            title: Text(
+                              'Meta',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            trailing: Container(
+                              padding: EdgeInsets.all(10),
+                              width: 96,
+                              decoration: BoxDecoration(
+                                color: Color(0xFF2773B9),
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    10.0)), // Set rounded corners
+                              ),
+                              child: Text(
+                                textAlign: TextAlign.center,
+                                widget.habito['fechaFinal'] == null
+                                    ? '-'
+                                    : DateFormat('dd/MM/yy').format(
+                                        widget.habito['fechaFinal'].toDate()),
+                                style: TextStyle(
+                                    fontSize: 17, color: Colors.white),
+                              ),
+                            ),
+                          );
+                        }
+                      } else if (index == 8) {
                         return ListTile(
                           leading: Icon(Icons.delete),
                           onTap: () {
