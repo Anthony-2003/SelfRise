@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/configuracion/Configuracion.dart';
-import 'package:flutter_proyecto_final/Design/menu_principal.dart';
+import 'package:flutter_proyecto_final/Design/ver_mas/Configuracion.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
+
 
 class acercade extends StatefulWidget {
   const acercade({super.key});
@@ -14,31 +15,11 @@ class _acercadeState extends State<acercade> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.textColor,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Acerca de nosotros',
-          style: TextStyle(
-              color: AppColors.appcolor,
-              fontWeight: FontWeight.bold,
-              fontSize: 25,
-              fontFamily: AutofillHints.sublocality),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: AppColors.appcolor,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Configuracion(),
-              ),
-            );
-          },
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: CustomAppBar(
+          titleText: 'Acerca de nosotros',
+          showBackButton: true,
         ),
       ),
       body: SingleChildScrollView(
@@ -50,7 +31,7 @@ class _acercadeState extends State<acercade> {
                 child: Text(
                   "Acerca de Selfrise",
                   style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 25,
                       color: AppColors.drawer,
                       fontWeight: FontWeight.bold),
                 )),
@@ -79,7 +60,7 @@ class _acercadeState extends State<acercade> {
                 child: Text(
                   "Nuestra Misión",
                   style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 25,
                       color: AppColors.drawer,
                       fontWeight: FontWeight.bold),
                 )),
@@ -109,7 +90,7 @@ class _acercadeState extends State<acercade> {
                 child: Text(
                   "Lo Que Ofrecemos",
                   style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 25,
                       color: AppColors.drawer,
                       fontWeight: FontWeight.bold),
                 )),
@@ -139,7 +120,7 @@ class _acercadeState extends State<acercade> {
                 child: Text(
                   "Nuestro Equipo",
                   style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 25,
                       color: AppColors.drawer,
                       fontWeight: FontWeight.bold),
                 )),
@@ -169,7 +150,7 @@ class _acercadeState extends State<acercade> {
                 child: Text(
                   "Únete a Nosotros",
                   style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 25,
                       color: AppColors.drawer,
                       fontWeight: FontWeight.bold),
                 )),
@@ -197,10 +178,11 @@ class _acercadeState extends State<acercade> {
                 width: 350,
                 margin: EdgeInsets.symmetric(vertical: 50),
                 child: Text(
-                  "¡Gracias por ser parte de la familia Selfrise!",
+                  "¡¡¡Gracias por ser parte de la familia Selfrise!!!",
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                       color: AppColors.drawer,
-                      fontSize: 17,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold),
                 )),
           ],

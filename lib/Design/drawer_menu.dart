@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/configuracion/Configuracion.dart';
+import 'package:flutter_proyecto_final/Design/ver_mas/Configuracion.dart';
 import 'package:flutter_proyecto_final/Design/libros/booksPage.dart';
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -277,7 +277,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
                           height: 34,
                           width: 34,
                           child:
-                              Image.asset("assets/icon-menu/configuracion.png"),
+                              Image.asset("assets/icon-menu/mas-opciones.png"),
                         ),
                         title: Container(
                           margin: EdgeInsets.symmetric(horizontal: 20),

@@ -106,16 +106,15 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
           ),
 
           // Button animado
-          AnimatedPositioned(
+         AnimatedPositioned(
             duration: Duration(milliseconds: 200),
             left: isSideMenuClose ? 0 : 220,
-            top: 10,
+            top: 16,
             child: menubtn(
               riveOnInit: (artboard) {
                 StateMachineController controller = RiveUtils.getRiveController(
-                  artboard,
-                  stateMachineName: "Morph",
-                );
+                    artboard,
+                    stateMachineName: "Morph");
                 isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
                 isSideBarClosed.value = true;
               },
@@ -123,23 +122,20 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 isSideBarClosed.value = !isSideBarClosed.value;
                 if (isSideMenuClose) {
                   _animationController.forward();
+
+                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                    statusBarColor: AppColors.drawer,
+                    systemNavigationBarIconBrightness: Brightness.light,
+                    systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
+                  ));
                 } else {
                   _animationController.reverse();
+                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                    statusBarColor: Color.fromARGB(255, 191, 188, 191),
+                    systemNavigationBarIconBrightness: Brightness.light,
+                    systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
+                  ));
                 }
-
-                // Configuración del SystemUiOverlayStyle
-                SystemChrome.setSystemUIOverlayStyle(
-                  isSideMenuClose
-                      ? SystemUiOverlayStyle.dark.copyWith(
-                          statusBarColor: Colors
-                              .transparent, // Coloca el color de la barra de estado transparente
-                        )
-                      : SystemUiOverlayStyle.dark.copyWith(
-                          statusBarColor: Colors
-                              .black, // Mantén el color de la barra de estado negro
-                        ),
-                );
-
                 setState(() {
                   isSideMenuClose = isSideBarClosed.value;
                 });

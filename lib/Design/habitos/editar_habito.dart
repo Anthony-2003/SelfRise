@@ -311,348 +311,321 @@ class _EditarHabitoState extends State<EditarHabito>
                   fontWeight: FontWeight.bold), // Estilo del texto activo
               unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
             ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // Contenido de la pestaña de estadísticas
-                  SingleChildScrollView(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Sección de la barra de progreso circular
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10.0),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Container(
-                                    padding: EdgeInsets.all(
-                                        10), // Padding interno del Container
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue, // Color de fondo azul
-                                      borderRadius: BorderRadius.circular(
-                                          10), // Bordes redondeados
-                                    ),
-                                    child: Text(
-                                      'Puntuación de hábito',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize:
-                                            14, // Tamaño del texto del título
-                                        color: Colors
-                                            .white, // Color del texto del título
+
+              Expanded(
+                
+                child: TabBarView(
+                  
+                  controller: _tabController,
+                  children: [
+                    // Contenido de la pestaña de estadísticas
+                    SingleChildScrollView(
+                      child: Center(
+              
+                        child: Column(
+                          
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Sección de la barra de progreso circular
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.0),
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Container(
+                                      padding: EdgeInsets.all(
+                                          10), // Padding interno del Container
+                                      decoration: BoxDecoration(
+                                        color: AppColors.drawer, // Color de fondo azul
+                                        borderRadius: BorderRadius.circular(
+                                            10), // Bordes redondeados
+                                      ),
+                                      child: Text(
+                                        'Puntuación de hábito',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize:
+                                              14, // Tamaño del texto del título
+                                          color: Colors
+                                              .white, // Color del texto del título
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-
-                                SizedBox(
-                                    height:
-                                        10), // Espacio entre el título y el CircularProgressBar
-                                CircularProgressBar(
-                                  percentage: conteoHabito.toDouble(),
-                                  number: conteoHabito,
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          customDivider(),
-
-                          Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Container(
-                              padding: EdgeInsets.all(
-                                  10), // Padding interno del Container
-                              decoration: BoxDecoration(
-                                color: Colors.blue, // Color de fondo azul
-                                borderRadius: BorderRadius.circular(
-                                    10), // Bordes redondeados
-                              ),
-                              child: Text(
-                                'Tiempos completados',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14, // Tamaño del texto del título
-                                  color: Colors
-                                      .white, // Color del texto del título
-                                ),
+              
+                                  SizedBox(
+                                      height:
+                                          10), // Espacio entre el título y el CircularProgressBar
+                                  CircularProgressBar(
+                                    percentage: conteoHabito.toDouble(),
+                                    number: conteoHabito,
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 5.0, horizontal: 20),
-                            child: Column(
-                              children: [
-                                customDivider(height: 2, grosor: 1),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('Esta semana:'),
-                                    Text('$conteoSemana',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                                customDivider(height: 2, grosor: 1),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('Este mes:'),
-                                    Text('$conteoMes',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                                customDivider(height: 2, grosor: 1),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('Este año:'),
-                                    Text('$conteoAnio',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                                customDivider(height: 2, grosor: 1),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('Total:'),
-                                    Text(
-                                      '$conteoHabito',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                                customDivider(height: 2, grosor: 1),
-                              ],
-                            ),
-                          ),
-
-                          customDivider(),
-
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 40),
-                            child: HabitoProgresoChart(
-                              data: datosGrafica,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Contenido de la pestaña de editar
-                  ListView.separated(
-                    itemCount: 9,
-                    itemBuilder: (context, index) {
-                      print(index);
-                      if (index == 0) {
-                        return ListTile(
-                          leading: Icon(Icons.edit),
-                          onTap: () {
-                            mostrarDialogEditarNombre();
-                          },
-                          title: Text(
-                            'Editar hábito',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          trailing: Text(
-                            widget.habito['nombreHabito'],
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        );
-                      } else if (index == 1) {
-                        return ListTile(
-                          leading: Icon(Icons.category),
-                          onTap: () {
-                            mostrarDialogoEditarCategoria();
-                          },
-                          title: Text(
-                            'Categoría',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          trailing:
-                              Row(mainAxisSize: MainAxisSize.min, children: [
+              
+                            customDivider(),
+              
                             Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Text(
-                                nombreCategoria,
-                                style: TextStyle(fontSize: 20),
+                              padding: EdgeInsets.all(10),
+                              child: Container(
+                                padding: EdgeInsets.all(
+                                    10), // Padding interno del Container
+                                decoration: BoxDecoration(
+                                  color: AppColors.drawer, // Color de fondo azul
+                                  borderRadius: BorderRadius.circular(
+                                      10), // Bordes redondeados
+                                ),
+                                child: Text(
+                                  'Tiempos completados',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14, // Tamaño del texto del título
+                                    color: Colors
+                                        .white, // Color del texto del título
+                                  ),
+                                ),
                               ),
                             ),
-                            Container(
-                              padding: EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                color: colorAjustado,
-                                shape: BoxShape.circle,
+              
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5.0, horizontal: 20),
+                              child: Column(
+                                children: [
+                                  customDivider(height: 2, grosor: 1),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Esta semana:'),
+                                      Text('$conteoSemana',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                  customDivider(height: 2, grosor: 1),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Este mes:'),
+                                      Text('$conteoMes',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                  customDivider(height: 2, grosor: 1),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Este año:'),
+                                      Text('$conteoAnio',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                  customDivider(height: 2, grosor: 1),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Total:'),
+                                      Text(
+                                        '$conteoHabito',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  customDivider(height: 2, grosor: 1),
+                                ],
                               ),
-                              child: Icon(
-                                iconoDatos,
-                                size: 24,
-                                color: Colors.white,
+                            ),
+              
+                            customDivider(),
+              
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: HabitoProgresoChart(
+                                data: datosGrafica,
                               ),
                             )
-                          ]),
-                        );
-                      } else if (index == 2) {
-                        return ListTile(
-                          leading: Icon(Icons.info),
-                          onTap: () {
-                            mostrarDialogEditarDescripcion();
-                          },
-                          title: Text(
-                            'Descripción',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          trailing: Text(
-                            widget.habito['descripcionHabito'] == null
-                                ? ''
-                                : widget.habito['descripcionHabito'],
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        );
-                      } else if (index == 3) {
-                        return ListTile(
-                          leading: Icon(Icons.alarm),
-                          onTap: () {
-                            print('View habit information');
-                          },
-                          title: Text(
-                            'Recordatorios',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          trailing: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFF2773B9),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Contenido de la pestaña de editar
+                    ListView.separated(
+                      itemCount: 9,
+                      itemBuilder: (context, index) {
+                        print(index);
+                        if (index == 0) {
+                          return ListTile(
+                            leading: Icon(Icons.edit),
+                            onTap: () {
+                              mostrarDialogEditarNombre();
+                            },
+                            title: Text(
+                              'Editar hábito',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
                             ),
-                            padding: EdgeInsets.all(15),
-                            child: Text(
-                              '${conteoRecordatorios}',
-                              style:
-                                  TextStyle(fontSize: 15, color: Colors.white),
+                            trailing: Text(
+                              widget.habito['nombreHabito'],
+                              style: TextStyle(fontSize: 20),
                             ),
-                          ),
-                        );
-                      } else if (index == 4) {
-                        return ListTile(
-                          leading: Icon(Icons.repeat),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => FrecuenciaScreen(
-                                  editar: true,
-                                  habito: widget.habito,
-                                  actualizarHabito: widget.cargarHabitos,
-                                  obtenerHabitos: cargarHabitos,
-                                  currentIndex: index,
+                          );
+                        } else if (index == 1) {
+                          return ListTile(
+                            leading: Icon(Icons.category),
+                            onTap: () {
+                              mostrarDialogoEditarCategoria();
+                            },
+                            title: Text(
+                              'Categoría',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            trailing:
+                                Row(mainAxisSize: MainAxisSize.min, children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: Text(
+                                  nombreCategoria,
+                                  style: TextStyle(fontSize: 20),
                                 ),
                               ),
-                            );
-                          },
-                          title: Text(
-                            'Frecuencia',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          trailing: Container(
-                            constraints: BoxConstraints(
-                              maxWidth: 200, // Define el ancho máximo del texto
-                            ),
-                            child: Text(
-                              widget.habito['frecuenciaHabito'],
-                              style: TextStyle(fontSize: 16),
-                              softWrap:
-                                  true, // Permite que el texto se envuelva automáticamente
-                              overflow: TextOverflow
-                                  .clip, // Controla el desbordamiento de texto
-                            ),
-                          ),
-                        );
-                      } else if (index == 5) {
-                        return ListTile(
-                          leading: Icon(Icons.calendar_month),
-                          onTap: () {
-                            _seleccionarFecha(context, fechaInicioDateTime);
-                          },
-                          title: Text(
-                            'Fecha inicio',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          trailing: Container(
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Color(0xFF2773B9),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(10.0)), // Set rounded corners
-                            ),
-                            child: Text(
-                              DateFormat('dd/MM/yy')
-                                  .format(fechaInicioDateTime),
-                              style:
-                                  TextStyle(fontSize: 17, color: Colors.white),
-                            ),
-                          ),
-                        );
-                      } else if (index == 6) {
-                        return ListTile(
-                          leading: Icon(Icons.date_range_outlined),
-                          onTap: () {
-                            print('View habit information');
-                          },
-                          title: Text(
-                            'Fecha final',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          trailing: Container(
-                            padding: EdgeInsets.all(10),
-                            width: 96,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF2773B9),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(10.0)), // Set rounded corners
-                            ),
-                            child: Text(
-                              textAlign: TextAlign.center,
-                              widget.habito['fechaFinal'] == null
-                                  ? '-'
-                                  : DateFormat('dd/MM/yy').format(
-                                      widget.habito['fechaFinal'].toDate()),
-                              style:
-                                  TextStyle(fontSize: 17, color: Colors.white),
-                            ),
-                          ),
-                        );
-                      } else if (index == 7) {
-                        if (widget.habito['evaluarProgreso'] ==
-                            "valor numerico") {
+                              Container(
+                                padding: EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  color: colorAjustado,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  iconoDatos,
+                                  size: 24,
+                                  color: Colors.white,
+                                ),
+                              )
+                            ]),
+                          );
+                        } else if (index == 2) {
                           return ListTile(
-                            leading: Icon(Icons.flag),
+                            leading: Icon(Icons.info),
+                            onTap: () {
+                              mostrarDialogEditarDescripcion();
+                            },
+                            title: Text(
+                              'Descripción',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            trailing: Text(
+                              widget.habito['descripcionHabito'] == null
+                                  ? ''
+                                  : widget.habito['descripcionHabito'],
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          );
+                        } else if (index == 3) {
+                          return ListTile(
+                            leading: Icon(Icons.alarm),
                             onTap: () {
                               print('View habit information');
                             },
                             title: Text(
-                              'Meta',
+                              'Recordatorios',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            trailing: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xFF2773B9),
+                              ),
+                              padding: EdgeInsets.all(15),
+                              child: Text(
+                                '${conteoRecordatorios}',
+                                style:
+                                    TextStyle(fontSize: 15, color: Colors.white),
+                              ),
+                            ),
+                          );
+                        } else if (index == 4) {
+                          return ListTile(
+                            leading: Icon(Icons.repeat),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FrecuenciaScreen(
+                                    editar: true,
+                                    habito: widget.habito,
+                                    actualizarHabito: widget.cargarHabitos,
+                                    obtenerHabitos: cargarHabitos,
+                                    currentIndex: index,
+                                  ),
+                                ),
+                              );
+                            },
+                            title: Text(
+                              'Frecuencia',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            trailing: Container(
+                              constraints: BoxConstraints(
+                                maxWidth: 200, // Define el ancho máximo del texto
+                              ),
+                              child: Text(
+                                widget.habito['frecuenciaHabito'],
+                                style: TextStyle(fontSize: 16),
+                                softWrap:
+                                    true, // Permite que el texto se envuelva automáticamente
+                                overflow: TextOverflow
+                                    .clip, // Controla el desbordamiento de texto
+                              ),
+                            ),
+                          );
+                        } else if (index == 5) {
+                          return ListTile(
+                            leading: Icon(Icons.calendar_month),
+                            onTap: () {
+                              _seleccionarFecha(context, fechaInicioDateTime);
+                            },
+                            title: Text(
+                              'Fecha inicio',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            trailing: Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Color(0xFF2773B9),
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(10.0)), // Set rounded corners
+                              ),
+                              child: Text(
+                                DateFormat('dd/MM/yy')
+                                    .format(fechaInicioDateTime),
+                                style:
+                                    TextStyle(fontSize: 17, color: Colors.white),
+                              ),
+                            ),
+                          );
+                        } else if (index == 6) {
+                          return ListTile(
+                            leading: Icon(Icons.date_range_outlined),
+                            onTap: () {
+                              print('View habit information');
+                            },
+                            title: Text(
+                              'Fecha final',
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
@@ -661,8 +634,8 @@ class _EditarHabitoState extends State<EditarHabito>
                               width: 96,
                               decoration: BoxDecoration(
                                 color: Color(0xFF2773B9),
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    10.0)), // Set rounded corners
+                                borderRadius: BorderRadius.all(
+                                    Radius.circular(10.0)), // Set rounded corners
                               ),
                               child: Text(
                                 textAlign: TextAlign.center,
@@ -670,33 +643,65 @@ class _EditarHabitoState extends State<EditarHabito>
                                     ? '-'
                                     : DateFormat('dd/MM/yy').format(
                                         widget.habito['fechaFinal'].toDate()),
-                                style: TextStyle(
-                                    fontSize: 17, color: Colors.white),
+                                style:
+                                    TextStyle(fontSize: 17, color: Colors.white),
                               ),
                             ),
                           );
+                        } else if (index == 7) {
+                          if (widget.habito['evaluarProgreso'] ==
+                              "valor numerico") {
+                            return ListTile(
+                              leading: Icon(Icons.flag),
+                              onTap: () {
+                                print('View habit information');
+                              },
+                              title: Text(
+                                'Meta',
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              trailing: Container(
+                                padding: EdgeInsets.all(10),
+                                width: 96,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF2773B9),
+                                  borderRadius: BorderRadius.all(Radius.circular(
+                                      10.0)), // Set rounded corners
+                                ),
+                                child: Text(
+                                  textAlign: TextAlign.center,
+                                  widget.habito['fechaFinal'] == null
+                                      ? '-'
+                                      : DateFormat('dd/MM/yy').format(
+                                          widget.habito['fechaFinal'].toDate()),
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.white),
+                                ),
+                              ),
+                            );
+                          }
+                        } else if (index == 8) {
+                          return ListTile(
+                            leading: Icon(Icons.delete),
+                            onTap: () {
+                              _mostrarDialogoEliminarHabito(context);
+                            },
+                            title: Text(
+                              'Borrar hábito',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                          );
                         }
-                      } else if (index == 8) {
-                        return ListTile(
-                          leading: Icon(Icons.delete),
-                          onTap: () {
-                            _mostrarDialogoEliminarHabito(context);
-                          },
-                          title: Text(
-                            'Borrar hábito',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                        );
-                      }
-                      return null;
-                    },
-                    separatorBuilder: (context, index) =>
-                        Divider(), // Add divider after each item
-                  )
-                ],
+                        return null;
+                      },
+                      separatorBuilder: (context, index) =>
+                          Divider(), // Add divider after each item
+                    )
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),

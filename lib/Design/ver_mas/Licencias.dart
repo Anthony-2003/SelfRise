@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/configuracion/Configuracion.dart';
-import 'package:flutter_proyecto_final/Design/menu_principal.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
 
 class licencias extends StatefulWidget {
   const licencias({super.key});
@@ -14,31 +13,11 @@ class _licenciasState extends State<licencias> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.textColor,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Licencias',
-          style: TextStyle(
-              color: AppColors.appcolor,
-              fontWeight: FontWeight.bold,
-              fontSize: 25,
-              fontFamily: AutofillHints.sublocality),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: AppColors.appcolor,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Configuracion(),
-              ),
-            );
-          },
+     appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: CustomAppBar(
+          titleText: 'Licencias',
+          showBackButton: true,
         ),
       ),
       body: SingleChildScrollView(

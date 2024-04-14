@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/configuracion/Configuracion.dart';
-import 'package:flutter_proyecto_final/Design/menu_principal.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
 
 class terminos extends StatefulWidget {
   const terminos({Key? key});
@@ -14,31 +13,11 @@ class _terminosState extends State<terminos> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.textColor,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Términos y Condiciones',
-          style: TextStyle(
-              color: AppColors.appcolor,
-              fontWeight: FontWeight.bold,
-              fontSize: 25,
-              fontFamily: AutofillHints.sublocality),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: AppColors.appcolor,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Configuracion(),
-              ),
-            );
-          },
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: CustomAppBar(
+          titleText: 'Términos y condiciones',
+          showBackButton: true,
         ),
       ),
       body: SingleChildScrollView(
@@ -49,7 +28,7 @@ class _terminosState extends State<terminos> {
             children: [
               Container(
                 alignment: Alignment.center,
-                margin: EdgeInsets.only(top: 50),
+                margin: EdgeInsets.only(top: 30),
                 child: Text(
                   "Términos y Condiciones de Uso",
                   style: TextStyle(
@@ -69,6 +48,26 @@ class _terminosState extends State<terminos> {
                   ),
                 ),
               ),
+              Center(
+                child: Container(
+                  margin: EdgeInsets.only(top: 10),
+                  width: 330,
+                  child: Text(
+                    "Bienvenido a Selfrise. Estos términos y condiciones de uso (Términos) rigen tu acceso " +
+                        "y uso de nuestra plataforma, incluyendo nuestro sitio web y cualquier aplicación móvil " +
+                        "asociada (en adelante, Plataforma). Al acceder o utilizar nuestra Plataforma, aceptas estos " +
+                        "Términos en su totalidad. Si no estás de acuerdo con estos Términos, por favor abstente de " +
+                        "utilizar nuestra Plataforma.",
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal,
+                      color: AppColors.drawer,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
