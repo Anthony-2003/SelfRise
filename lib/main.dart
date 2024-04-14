@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/components/favorite_provider.dart'; // Asegúrate de importar FavoriteProvider
 import 'package:flutter_proyecto_final/components/imageprovider.dart';
 import 'package:flutter_proyecto_final/components/profilProvider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Design/login.dart';
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
+          textTheme: GoogleFonts.robotoTextTheme()
         ),
         home: seen ? LoginPage() : SlideLogin(),
         routes: {

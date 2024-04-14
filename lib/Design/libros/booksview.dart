@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/libros/booksPage.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
+import 'package:flutter_proyecto_final/utils/ajustar_brillo_color.dart';
 import 'package:provider/provider.dart';
 import '../../components/favorite_provider.dart';
 
@@ -65,7 +67,25 @@ class _BookViewPageState extends State<BookViewPage> {
     final String? userId = AuthService.getUserId();
     return Scaffold(
       backgroundColor: baseColor,
-      appBar: widget.appBarCustom ?? AppBar(),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(
+              titleText: "Descripción del libro",
+              showBackButton: true,
+            ),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -189,14 +209,21 @@ class _BookViewPageState extends State<BookViewPage> {
                               });
                             }
                           },
-                          child: Text(isFavorite
-                              ? 'Remover de Favoritos'
-                              : 'Agregar a Favoritos'),
+                          child: Text(
+                            isFavorite
+                                ? 'Remover de favoritos'
+                                : 'Agregar a favoritos',
+                            style: TextStyle(
+                              fontWeight: isFavorite
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white, // El color del texto
                             backgroundColor: isFavorite
-                                ? Colors.red
-                                : Colors.blue, // El color del botón
+                                ? ajustarBrilloColor(Colors.red)
+                                : Color(0xFF2773B9), // El color del botón
                           ),
                         ),
                       ),

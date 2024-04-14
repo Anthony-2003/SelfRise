@@ -249,7 +249,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
-                                backgroundColor: Colors.blue,
+                                backgroundColor: Color(0xFF2773B9),
                                 shape: StadiumBorder(),
                               ),
                               onPressed: () {
@@ -357,7 +357,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                   btnCancelText: 'Cancelar',
                                 ).show();
                               },
-                              child: Text('Guardar'),
+                              child: Text('Guardar',style: TextStyle(fontWeight: FontWeight.bold),),
                             ),
                           ),
                         ],

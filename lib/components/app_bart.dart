@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Colors/colors.dart';
+import 'package:flutter_proyecto_final/Design/libros/booksPage.dart';
+import 'package:flutter_proyecto_final/Design/libros/favoriteBooks.dart';
+import 'package:flutter_proyecto_final/components/favorite_provider.dart';
+import 'package:flutter_proyecto_final/entity/AuthService.dart';
+import 'package:provider/provider.dart';
 
 class CustomAppBar extends StatelessWidget {
   final String titleText;
@@ -11,9 +17,27 @@ class CustomAppBar extends StatelessWidget {
     this.icon,
   });
 
+  final Map<String, double> textToPadding = {
+    "Mis hábitos": 30,
+    "Psícologos del país": 40,
+    "Podcasts": 50,
+    "Configuración": 50,
+    "Petición de amigos": 50,
+    "Licencias": 50,
+    "Acerca de nosotros": 50,
+    "Términos y condiciones": 50,
+  };
+
   @override
   Widget build(BuildContext context) {
     double customPadding = titleText == 'Perfil' ? 0 : 15;
+
+    final double rightPadding =
+        textToPadding.containsKey(titleText) ? textToPadding[titleText]! : 0;
+
+    final String? currentUserId = AuthService.getUserId();
+    final bool isBookTitle = titleText.toLowerCase().contains('libros') ||
+        titleText.toLowerCase().contains('libro');
 
     return AppBar(
       backgroundColor: Color(0xFF2773B9),
@@ -57,8 +81,11 @@ class CustomAppBar extends StatelessWidget {
                           : Alignment.centerLeft,
                       child: Container(
                         padding: EdgeInsets.only(
-                            bottom:
-                                50), // Ajusta el padding horizontal según sea
+                          bottom:
+                              50, // Ajusta el padding vertical según sea necesario
+                          right:
+                              rightPadding, // Ajusta el padding derecho según el texto
+                        ),
                         child: Text(
                           titleText,
                           style: TextStyle(
@@ -70,6 +97,7 @@ class CustomAppBar extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   if (icon != null)
                     Padding(
                       padding: EdgeInsets.only(
@@ -80,10 +108,83 @@ class CustomAppBar extends StatelessWidget {
                         size: 30,
                       ),
                     ),
+
+                  // Agregar el icono y el contador si el título contiene la palabra "libro"
+                  if (isBookTitle)
+                    Positioned(
+                      right: 5,
+                      bottom: 65,
+                      child: Container(
+                        margin: EdgeInsets.only(
+                            bottom: 50), // Establece el margen deseado
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.bookmark_border,
+                                size: 30,
+                              ),
+                              color: Colors.white,
+                              onPressed: () {
+                                // Lógica al presionar el icono de favoritos
+                                final route = MaterialPageRoute(
+                                  builder: ((context) => const FavoritePage()),
+                                );
+                                Navigator.push(context, route);
+                              },
+                            ),
+                            Positioned(
+                              right: 5,
+                              bottom: 25,
+                              child: Consumer<FavoriteProvider>(
+                                builder: (context, provider, _) {
+                                  return FutureBuilder<List<Book>>(
+                                    future:
+                                        provider.getFavorites(currentUserId),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Container();
+                                      } else if (snapshot.hasError) {
+                                        return Container();
+                                      } else {
+                                        final List<Book> favoriteBooks =
+                                            snapshot.data ?? [];
+                                        return Container(
+                                          width: 20,
+                                          height: 20,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.drawer,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${favoriteBooks.length}',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
-            // Icono superpuesto
           ],
         ),
       ),

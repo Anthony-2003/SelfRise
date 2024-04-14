@@ -62,7 +62,7 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
             ),
           ),
           child: Center(
-            child: CustomAppBar(titleText: "Mis hábitos", showBackButton: true,),
+            child: CustomAppBar(titleText: "Mis hábitos", showBackButton: true),
           ),
         ),
       ),

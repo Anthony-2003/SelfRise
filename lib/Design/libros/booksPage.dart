@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/libros/booksview.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/components/imageprovider.dart';
+import 'package:flutter_proyecto_final/utils/ajustar_color_navigation_bar_icon.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
@@ -114,6 +116,7 @@ class _BookListScreenState extends State<BookListScreen> {
   void initState() {
     super.initState();
     _futureBooks = fetchBooks();
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
     _scrollController.addListener(_scrollListener);
     userId = AuthService.getUserId();
     Provider.of<FavoriteProvider>(context, listen: false)
@@ -123,6 +126,7 @@ class _BookListScreenState extends State<BookListScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
     super.dispose();
   }
 
@@ -195,52 +199,52 @@ class _BookListScreenState extends State<BookListScreen> {
     }
   }
 
-  PreferredSizeWidget? appBarCustom(
-      String titulo, String? userId, bool leading) {
-    print(userId);
-    return AppBar(
-      centerTitle: true,
-      title: Text(titulo),
-      actions: <Widget>[
-        Consumer<FavoriteProvider>(
-          builder: (context, provider, _) {
-            return FutureBuilder<List<Book>>(
-              future: provider.getFavorites(userId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return IconButton(
-                    icon: const Icon(Icons.bookmark_border),
-                    onPressed: () {},
-                  );
-                } else if (snapshot.hasError) {
-                  return IconButton(
-                    icon: Icon(Icons.error),
-                    onPressed: () {},
-                  );
-                } else {
-                  final List<Book> favoriteBooks = snapshot.data ?? [];
-                  return IconButton(
-                    icon: Badge(
-                      label: Text('${favoriteBooks.length}'),
-                      child: const Icon(Icons.bookmark_border),
-                    ),
-                    tooltip: 'Libros favoritos',
-                    onPressed: () {
-                      final route = MaterialPageRoute(
-                        builder: ((context) => const FavoritePage()),
-                      );
-                      Navigator.push(context, route);
-                    },
-                  );
-                }
-              },
-            );
-          },
-        ),
-      ],
-      automaticallyImplyLeading: leading,
-    );
-  }
+    PreferredSizeWidget? appBarCustom(
+        String titulo, String? userId, bool leading) {
+      print(userId);
+      return AppBar(
+        centerTitle: true,
+        title: Text(titulo),
+        actions: <Widget>[
+          Consumer<FavoriteProvider>(
+            builder: (context, provider, _) {
+              return FutureBuilder<List<Book>>(
+                future: provider.getFavorites(userId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return IconButton(
+                      icon: const Icon(Icons.bookmark_border),
+                      onPressed: () {},
+                    );
+                  } else if (snapshot.hasError) {
+                    return IconButton(
+                      icon: Icon(Icons.error),
+                      onPressed: () {},
+                    );
+                  } else {
+                    final List<Book> favoriteBooks = snapshot.data ?? [];
+                    return IconButton(
+                      icon: Badge(
+                        label: Text('${favoriteBooks.length}'),
+                        child: const Icon(Icons.bookmark_border),
+                      ),
+                      tooltip: 'Libros favoritos',
+                      onPressed: () {
+                        final route = MaterialPageRoute(
+                          builder: ((context) => const FavoritePage()),
+                        );
+                        Navigator.push(context, route);
+                      },
+                    );
+                  }
+                },
+              );
+            },
+          ),
+        ],
+        automaticallyImplyLeading: leading,
+      );
+    }
 
   int favoritelength(List<Book> favoriteBooks) {
     return favoriteBooks.length;
@@ -251,10 +255,24 @@ class _BookListScreenState extends State<BookListScreen> {
     final favoriteProvider = Provider.of<FavoriteProvider>(context);
     return Scaffold(
       backgroundColor: AppColors.drawer,
-      appBar: appBarCustom(
-        'Libros recomendados',
-        userId,
-        true,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(
+              titleText: "Libros recomendados",
+              showBackButton: true,
+            ),
+          ),
+        ),
       ),
       body: Column(
         children: [

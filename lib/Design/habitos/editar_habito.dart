@@ -292,8 +292,8 @@ class _EditarHabitoState extends State<EditarHabito>
             ),
             child: Center(
               child: CustomAppBar(
-                  titleText: widget.habito['nombreHabito'],
-                  showBackButton: true,
+                  titleText: widget.habito['nombreHabito'], 
+                  showBackButton: true, 
                   icon: IconData(widget.habito['iconoCategoria'],
                 fontFamily: 'MaterialIcons'),),
             ),

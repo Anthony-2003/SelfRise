@@ -1,8 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/libros/booksPage.dart';
 import 'package:flutter_proyecto_final/Design/libros/booksview.dart';
+import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/components/imageprovider.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +50,25 @@ class _FavoritePageState extends State<FavoritePage> {
     final userId = AuthService.getUserId();
     if (userId == null) {
       return Scaffold(
-        appBar: AppBar(title: Text('Libros favoritos')),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(80.0),
+          child: Container(
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+            decoration: BoxDecoration(
+              color: Color(0xFF2773B9),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20.0),
+                bottomRight: Radius.circular(20.0),
+              ),
+            ),
+            child: Center(
+              child: CustomAppBar(
+                titleText: "Libros favoritos",
+                showBackButton: true,
+              ),
+            ),
+          ),
+        ),
         body: Center(child: Text('Usuario no identificado')),
       );
     }
