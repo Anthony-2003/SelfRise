@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
+import 'package:flutter_proyecto_final/utils/ajustar_color_navigation_bar_icon.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PsicologosScreen extends StatefulWidget {
@@ -14,6 +16,16 @@ class PsicologosScreen extends StatefulWidget {
 class MapSampleState extends State<PsicologosScreen> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
+
+  void initState() {
+    super.initState();
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
+  }
+
+   void dispose() {
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
+    super.dispose();
+  }
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(18.4898366, -69.838963),
@@ -54,23 +66,36 @@ class MapSampleState extends State<PsicologosScreen> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
-        child: CustomAppBar(
-            titleText: 'Psicólogos del país', showBackButton: true),
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(
+              titleText: "Psícologos del país",
+              showBackButton: true,
+            ),
+          ),
+        ),
       ),
       body: SafeArea(
-        child: Positioned.fill(
-          child: GoogleMap(
-            mapType: MapType.normal,
-            initialCameraPosition: _kGooglePlex,
-            markers: _markers,
-            onMapCreated: (GoogleMapController controller) {
-              if (!_controller.isCompleted) {
-                _controller.complete(controller);
-              }
-            },
-          ),
-        )
-      ),
+          child: Positioned.fill(
+        child: GoogleMap(
+          mapType: MapType.normal,
+          initialCameraPosition: _kGooglePlex,
+          markers: _markers,
+          onMapCreated: (GoogleMapController controller) {
+            if (!_controller.isCompleted) {
+              _controller.complete(controller);
+            }
+          },
+        ),
+      )),
     );
   }
 }

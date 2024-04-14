@@ -6,6 +6,7 @@ import '../services/AuthService.dart';
 import '../entity/Chat.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
+
 class PantallaChat extends StatefulWidget {
   PantallaChat({Key? key}) : super(key: key);
 
@@ -48,7 +49,19 @@ class _PantallaChatState extends State<PantallaChat> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
-        child: CustomAppBar(titleText: 'Chat'),
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(titleText: "Chat"),
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -82,7 +95,6 @@ class _PantallaChatState extends State<PantallaChat> {
 
                 return ListView.builder(
                   controller: _scrollController,
-                
                   itemCount: chats.length,
                   itemBuilder: (BuildContext context, int index) {
                     final chat = chats[index];

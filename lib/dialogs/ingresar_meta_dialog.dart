@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/const/frases_felicitacion.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
@@ -30,15 +31,19 @@ class _IngresarMetaDialogState extends State<IngresarMetaDialog> {
   void initState() {
     super.initState();
     controller.addListener(() {
-      setState(() {
-        estaCorriendo = controller.state == ConfettiControllerState.playing;
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (this.mounted) {
+          setState(() {
+            estaCorriendo = controller.state == ConfettiControllerState.playing;
+          });
+        }
       });
     });
   }
 
   @override
   void dispose() {
-    controller.dispose();
+ 
     super.dispose();
   }
 
@@ -182,22 +187,22 @@ class _IngresarMetaDialogState extends State<IngresarMetaDialog> {
     );
   }
 
-Widget _construirContenido(Map<String, dynamic> habit) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Divider(),
-      SizedBox(height: 8),
-      _construirContador(habit),
-      SizedBox(height: 8),
-      Center( // Centrar horizontalmente el contenido
-        child: _construirMeta(habit),
-      ),
-    ],
-  );
-}
-
+  Widget _construirContenido(Map<String, dynamic> habit) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Divider(),
+        SizedBox(height: 8),
+        _construirContador(habit),
+        SizedBox(height: 8),
+        Center(
+          // Centrar horizontalmente el contenido
+          child: _construirMeta(habit),
+        ),
+      ],
+    );
+  }
 
   Widget _construirContador(Map<String, dynamic> habit) {
     count = habit['metaUsuario'];
@@ -258,61 +263,60 @@ Widget _construirContenido(Map<String, dynamic> habit) {
     );
   }
 
-Widget _construirMeta(Map<String, dynamic> habit) {
-  return Container(
-    decoration: BoxDecoration(
-      border: Border.all(
-        color: Colors.white,
-        width: 2.0,
-      ),
-      borderRadius: BorderRadius.circular(10.0),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          height: 50,
-          decoration: BoxDecoration(),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Hoy',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '${habit['metaUsuario']}/',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 20,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '${habit['meta']}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+  Widget _construirMeta(Map<String, dynamic> habit) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.white,
+          width: 2.0,
         ),
-      ],
-    ),
-  );
-}
-
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 50,
+            decoration: BoxDecoration(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Hoy',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '${habit['metaUsuario']}/',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '${habit['meta']}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   List<Widget> _construirAcciones(
       BuildContext context, Map<String, dynamic> habit) {

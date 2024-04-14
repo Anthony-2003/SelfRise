@@ -230,6 +230,7 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
                         .toSet());
                     _diasSeleccionados[dia] = value!;
                   });
+                  print(dia);
                 },
                 checkColor:
                     Colors.white, // Color del tick cuando está seleccionado
@@ -265,81 +266,69 @@ class _FrecuenciaScreenState extends State<FrecuenciaScreen> {
     );
   }
 
-  Widget _buildDiasMesCheckboxes() {
-    final DateTime now = DateTime.now();
-    final int currentDay = now.day;
-    final int daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+Widget _buildDiasMesCheckboxes() {
+  final int totalDaysToShow = 31;
+  final DateTime now = DateTime.now();
+  final int currentDay = now.day;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              mainAxisSpacing: 10.0,
-              crossAxisSpacing: 10.0,
-              childAspectRatio: 1.0,
-            ),
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: daysInMonth,
-            itemBuilder: (context, index) {
-              final int day = index + 1;
-              final bool isPastDay =
-                  day < currentDay; // Verificar si el día ya pasó
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            mainAxisSpacing: 10.0,
+            crossAxisSpacing: 10.0,
+            childAspectRatio: 1.0,
+          ),
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: totalDaysToShow,
+          itemBuilder: (context, index) {
+            final int day = index + 1;
 
-              _isSelected.putIfAbsent(day, () => false);
+            _isSelected.putIfAbsent(day, () => false);
 
-              return GestureDetector(
-                onTap: isPastDay
-                    ? null // Deshabilitar interactividad para los días pasados
-                    : () {
-                        setState(() {
-                          _isSelected.update(day, (isSelected) => !isSelected);
-                          Habito.frequency = Frecuencia.DIAS_MES;
-                          Frecuencia.actualizarDiasMes(_isSelected.keys
-                              .toList()
-                              .where((day) => _isSelected[day]!)
-                              .toList()
-                              .cast<int>()
-                              .toSet());
-                          print(Frecuencia.diasMes);
-                        });
-                      },
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _isSelected[day]!
-                        ? Color(0xFF2773B9)
-                        : (isPastDay
-                            ? Colors.grey
-                            : Colors
-                                .transparent), // Cambiar el color si el día ya pasó
-                  ),
-                  child: Center(
-                    child: Text(
-                      '$day',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: _isSelected[day]!
-                            ? Colors.white
-                            : (isPastDay
-                                ? Colors.black54
-                                : Colors
-                                    .black), // Cambiar el color del texto si el día ya pasó
-                      ),
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isSelected.update(day, (isSelected) => !isSelected);
+                  Habito.frequency = Frecuencia.DIAS_MES;
+                  Frecuencia.actualizarDiasMes(_isSelected.keys
+                      .toList()
+                      .where((day) => _isSelected[day]!)
+                      .toList()
+                      .cast<int>()
+                      .toSet());
+                  print(Frecuencia.diasMes);
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _isSelected[day]! ? Color(0xFF2773B9) : Colors.transparent,
+                ),
+                child: Center(
+                  child: Text(
+                    '$day',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: _isSelected[day]! ? Colors.white : Colors.black,
                     ),
                   ),
                 ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+  );
+}
+
+
 
   Widget _buildBotonesConfirmarCancelar() {
     return Align(

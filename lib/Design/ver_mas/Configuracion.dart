@@ -7,6 +7,7 @@ import 'package:flutter_proyecto_final/Design/ver_mas/Terminosycondiciones.dart'
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:flutter_proyecto_final/Design/ver_mas/peticiondeamigos.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
+import 'package:flutter_proyecto_final/utils/ajustar_color_navigation_bar_icon.dart';
 
 class Configuracion extends StatefulWidget {
   const Configuracion({super.key});
@@ -15,15 +16,37 @@ class Configuracion extends StatefulWidget {
   State<Configuracion> createState() => _ConfiguracionState();
 }
 
+
+
 class _ConfiguracionState extends State<Configuracion> {
+
+   void initState() {
+    super.initState();
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
+  }
+
+   void dispose() {
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
+    super.dispose();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
-        child: CustomAppBar(
-          titleText: 'Configuración',
-          showBackButton: true,
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(titleText: "Configuración", showBackButton: true,),
+          ),
         ),
       ),
       body: Center(

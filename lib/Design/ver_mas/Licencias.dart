@@ -13,11 +13,20 @@ class _licenciasState extends State<licencias> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar: PreferredSize(
+    appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
-        child: CustomAppBar(
-          titleText: 'Licencias',
-          showBackButton: true,
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(titleText: "Licencias", showBackButton: true,),
+          ),
         ),
       ),
       body: SingleChildScrollView(

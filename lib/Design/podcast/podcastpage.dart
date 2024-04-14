@@ -6,6 +6,7 @@ import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/data/podcast_data.dart';
 import 'package:flutter_proyecto_final/components/cardwidget.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter_proyecto_final/utils/ajustar_color_navigation_bar_icon.dart';
 
 class PodcastPage extends StatefulWidget {
   const PodcastPage({Key? key}) : super(key: key);
@@ -16,6 +17,16 @@ class PodcastPage extends StatefulWidget {
 
 class _PodcastPageState extends State<PodcastPage> {
   String _selectedCategory = "Motivación"; // Categoría predeterminada al inicio
+
+  void initState() {
+    super.initState();
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
+  }
+
+  void dispose() {
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
+    super.dispose();
+  }
 
   List<cardsdata> _filteredPodcasts() {
     return podcascards
@@ -32,9 +43,23 @@ class _PodcastPageState extends State<PodcastPage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
-        child: CustomAppBar(titleText: 'Podcasts',showBackButton: true),
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(
+              titleText: "Podcasts",
+              showBackButton: true,
+            ),
+          ),
+        ),
       ),
-      
       body: Center(
         child: Column(
           children: [

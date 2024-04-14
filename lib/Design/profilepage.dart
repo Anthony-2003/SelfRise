@@ -112,7 +112,20 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             return Scaffold(
               appBar: PreferredSize(
                 preferredSize: Size.fromHeight(80.0),
-                child: CustomAppBar(titleText: 'Perfil'),
+                child: Container(
+                  padding:
+                      EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF2773B9),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(0),
+                      bottomRight: Radius.circular(0),
+                    ),
+                  ),
+                  child: Center(
+                    child: CustomAppBar(titleText: "Perfil"),
+                  ),
+                ),
               ),
               body: SingleChildScrollView(
                 child: Column(
@@ -232,8 +245,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                        
-                  
                           Expanded(
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(

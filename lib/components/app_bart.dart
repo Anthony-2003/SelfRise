@@ -32,14 +32,15 @@ class CustomAppBar extends StatelessWidget {
         child: Stack(
           children: [
             // Título
-            Center( // Centra el título
+            Center(
+              // Centra el título
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (showBackButton)
                     Padding(
                       padding: EdgeInsets.only(
-                          bottom: 1), // Ajusta este valor según sea necesario
+                          bottom: 50), // Ajusta este valor según sea necesario
                       child: IconButton(
                         icon: Icon(Icons.arrow_back),
                         color: Colors.white,
@@ -51,28 +52,20 @@ class CustomAppBar extends StatelessWidget {
                     ),
                   Expanded(
                     child: Container(
-                      alignment:
-                          icon == null ? Alignment.center : Alignment.centerLeft,
-                      padding: EdgeInsets.only(
-                          right: titleText == "Mis hábitos" ||
-                                  titleText == "Podcasts" ||
-                                  titleText == "Psicólogos del país" ||
-                                  titleText == "Configuración"
-                                  
-                              ? 35
-                              : 0,
-                          bottom: titleText == "Mis hábitos" ||
-                                  titleText == "Podcasts" ||
-                                  titleText == "Psicólogos del país" ||
-                                  titleText == "Configuración"
-                              ? 6
-                              : (icon != null ? 5 : 0)),
-                      child: Text(
-                        titleText,
-                        style: TextStyle(
-                          fontSize: 25.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      alignment: icon == null
+                          ? Alignment.center
+                          : Alignment.centerLeft,
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            bottom:
+                                50), // Ajusta el padding horizontal según sea
+                        child: Text(
+                          titleText,
+                          style: TextStyle(
+                            fontSize: 25.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -80,7 +73,7 @@ class CustomAppBar extends StatelessWidget {
                   if (icon != null)
                     Padding(
                       padding: EdgeInsets.only(
-                          bottom: 20), // Ajusta el relleno según sea necesario
+                          bottom: 50), // Ajusta el relleno según sea necesario
                       child: Icon(
                         icon,
                         color: Colors.white,

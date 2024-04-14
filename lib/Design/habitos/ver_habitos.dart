@@ -7,6 +7,7 @@ import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/entity/AuthService.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 import 'package:flutter_proyecto_final/utils/ajustar_brillo_color.dart';
+import 'package:flutter_proyecto_final/utils/ajustar_color_navigation_bar_icon.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:material_dialogs/material_dialogs.dart';
 
@@ -24,7 +25,13 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
   @override
   void initState() {
     super.initState();
+     ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
     cargarHabitos();
+  }
+
+   void dispose() {
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
+    super.dispose();
   }
 
   Future<void> cargarHabitos() async {
@@ -43,11 +50,20 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
+       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
-        child: CustomAppBar(
-          titleText: 'Mis hábitos',
-          showBackButton: true,
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(titleText: "Mis hábitos", showBackButton: true,),
+          ),
         ),
       ),
       body: SingleChildScrollView(

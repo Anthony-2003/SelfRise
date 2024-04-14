@@ -8,6 +8,7 @@ import 'package:flutter_proyecto_final/Design/profilepage.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/components/buttons.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
+import 'package:flutter_proyecto_final/utils/ajustar_color_navigation_bar_icon.dart';
 import 'package:rive/rive.dart';
 import 'package:share_plus/share_plus.dart';
 import '../Colors/colors.dart';
@@ -17,7 +18,6 @@ import 'habitos/habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
-
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -103,15 +103,15 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 child: Transform.scale(
                     scale: scalAnimation.value,
                     child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(24)),
+                        borderRadius: BorderRadius.all(Radius.circular(0)),
                         child: _pages[_selectedTab]))),
           ),
 
           // Button animado
-         AnimatedPositioned(
+          AnimatedPositioned(
             duration: Duration(milliseconds: 200),
             left: isSideMenuClose ? 0 : 220,
-            top: 16,
+            top: 12,
             child: menubtn(
               riveOnInit: (artboard) {
                 StateMachineController controller = RiveUtils.getRiveController(
@@ -125,18 +125,10 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
                 if (isSideMenuClose) {
                   _animationController.forward();
 
-                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                    statusBarColor: AppColors.drawer,
-                    systemNavigationBarIconBrightness: Brightness.light,
-                    systemNavigationBarColor: Color.fromARGB(255, 1, 0, 0),
-                  ));
+                  ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
                 } else {
                   _animationController.reverse();
-                  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                    statusBarColor: Color.fromARGB(255, 191, 188, 191),
-                    systemNavigationBarIconBrightness: Brightness.light,
-                    systemNavigationBarColor: Color.fromARGB(255, 0, 0, 0),
-                  ));
+                  ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
                 }
                 setState(() {
                   isSideMenuClose = isSideBarClosed.value;
@@ -256,7 +248,19 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
-        child: CustomAppBar(titleText: 'Inicio'),
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(titleText: "Inicio"),
+          ),
+        ),
       ),
       body: _buildContent(),
     );
@@ -371,7 +375,7 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
       return Container(
         decoration: BoxDecoration(
           color: AppColors.darkGray,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
         ),
       );
     }
@@ -382,7 +386,8 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
           margin: const EdgeInsets.only(top: 20, bottom: 20),
           decoration: BoxDecoration(
             color: AppColors.darkGray,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(
+                20), // Ajusta el radio de borde según sea necesario
           ),
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -445,15 +450,31 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
 class PantallaAsignaciones extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Pantalla de Asignaciones'),
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(titleText: "Asignaciones"),
+          ),
+        ),
+      ),
+      body: Center(
+        child: Text('Pantalla de Asignaciones'),
+      ),
     );
   }
 }
-
 
 void signOutFromGoogle() async {
   GoogleSignIn googleSignIn = GoogleSignIn();
   await googleSignIn.signOut();
 }
-

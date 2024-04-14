@@ -16,9 +16,18 @@ class _peticiondeamigoState extends State<peticiondeamigo> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
-        child: CustomAppBar(
-          titleText: 'Petición de amigos',
-          showBackButton: true,
+        child: Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: Color(0xFF2773B9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+          ),
+          child: Center(
+            child: CustomAppBar(titleText: "Petición de amigos", showBackButton: true,),
+          ),
         ),
       ),
       body: SingleChildScrollView(
