@@ -22,7 +22,7 @@ class UserModel {
     required this.file,
   });
 
-   Future<String> uploadImageStorage(String childname, Uint8List? file) async {
+  Future<String> uploadImageStorage(String childname, Uint8List? file) async {
     if (file == null) {
       throw ArgumentError("El parámetro 'file' no puede ser nulo.");
     }

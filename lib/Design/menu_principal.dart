@@ -4,6 +4,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_proyecto_final/Design/drawer_menu.dart';
+import 'package:flutter_proyecto_final/Design/profilepage.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 import 'package:flutter_proyecto_final/components/buttons.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
@@ -16,6 +17,7 @@ import 'habitos/habitos.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyecto_final/components/rive_utils.dart';
+
 
 class PantallaMenuPrincipal extends StatefulWidget {
   const PantallaMenuPrincipal({Key? key}) : super(key: key);
@@ -74,7 +76,7 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
     PantallaChat(),
     PantallaAsignaciones(),
     PantallaSeguimientoHabitos(),
-    PantallaPerfil(),
+    ProfileSettingsPage(),
   ];
 
   @override
@@ -449,16 +451,9 @@ class PantallaAsignaciones extends StatelessWidget {
   }
 }
 
-class PantallaPerfil extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Pantalla de Perfil'),
-    );
-  }
-}
 
 void signOutFromGoogle() async {
   GoogleSignIn googleSignIn = GoogleSignIn();
   await googleSignIn.signOut();
 }
+

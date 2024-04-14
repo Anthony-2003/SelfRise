@@ -3,14 +3,15 @@
 import 'dart:typed_data';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_proyecto_final/components/UserModel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_proyecto_final/components/inputs.dart';
 import 'package:flutter_proyecto_final/components/pickerImage.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../Colors/colors.dart';
 import '../components/buttons.dart';
-import 'login/login.dart';
+import 'login.dart';
 
 class RegistroScreen extends StatefulWidget {
   RegistroScreen({super.key});
@@ -44,14 +45,40 @@ class _RegistroScreenState extends State<RegistroScreen> {
     });
   }
 
+  Future<bool> requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.storage,
+    ].request();
+
+    // Verifica si todos los permisos fueron concedidos
+    bool allPermissionsGranted =
+        statuses.values.every((status) => status == PermissionStatus.granted);
+
+    return allPermissionsGranted;
+  }
+
+// En tu función donde quieres solicitar permisos y seleccionar una imagen
+  void trySelectImage() async {
+    // Asegúrate de que todos los permisos fueron concedidos
+    bool permissionsGranted = await requestPermissions();
+    if (permissionsGranted) {
+      selectImage();
+    } else {
+      // Maneja el caso donde no todos los permisos fueron concedidos
+      // Por ejemplo, mostrando un diálogo al usuario explicando por qué necesitas los permisos
+      print("No se concedieron todos los permisos necesarios.");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title:
-           const Text('Registro de Usuario', style: TextStyle(color: Colors.white)),
+        title: const Text('Registro de Usuario',
+            style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
@@ -155,7 +182,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
                               ));
                             }
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
                               backgroundColor: Colors.orange,
                               content: Text(
                                 'Ya existe un usuario con este email',
@@ -180,15 +208,21 @@ class _RegistroScreenState extends State<RegistroScreen> {
   void _registerUser() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final user = UserModel(
+        // Crear una cuenta de usuario
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text,
-          name: nameController.text,
-          lastname: lastnameController.text,
-          birthday: birthdayController.text,
-          file: image!,
         );
-        await UserRep().createUserWithEmailAndPassword(user);
+
+        // Obtener el usuario recién creado
+        User? user = userCredential.user;
+
+        // Enviar un correo electrónico de verificación
+        if (!user!.emailVerified) {
+          await user.sendEmailVerification();
+        }
+
         AwesomeDialog(
           context: context,
           dialogType: DialogType.success,
@@ -213,18 +247,18 @@ class _RegistroScreenState extends State<RegistroScreen> {
           onDismissCallback: (type) {
             debugPrint('Dialog Dissmiss from callback $type');
           },
-          desc: "Tu registro ha sido completado con éxito!!",
+          desc:
+              "Se ha enviado un correo de verificación. Por favor, verifica tu correo antes de ingresar.",
           descTextStyle: const TextStyle(
             color: Colors.white,
           ),
           btnOkText: 'Aceptar',
-          btnCancelText: 'Cancelar',
         ).show();
       } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.red,
           content: Text(
-            'Error durante el registro. Inténtalo de nuevo.',
+            'Error durante el registro. Inténtalo de nuevo. $error',
             style: TextStyle(fontSize: 18),
           ),
         ));
@@ -429,10 +463,10 @@ class _RegistroScreenState extends State<RegistroScreen> {
                           size: 60,
                         ),
                         onPressed: () {
-                          selectImage();
+                          trySelectImage();
                         },
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

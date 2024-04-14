@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/libros/booksview.dart';
 import 'package:flutter_proyecto_final/components/imageprovider.dart';
 import 'package:provider/provider.dart';
@@ -194,18 +195,8 @@ class _BookListScreenState extends State<BookListScreen> {
     }
   }
 
-  // void _updateFavoriteList() async {
-  //   final favoriteProvider =
-  //       Provider.of<FavoriteProvider>(context, listen: false);
-  //   if (userId != null) {
-  //     List<Book> favorites = await favoriteProvider.getFavorites(userId);
-  //     setState(() {
-  //       _favoriteBooks = favorites;
-  //     });
-  //   }
-  // }
-
-  PreferredSizeWidget? appBarCustom(String titulo, String? userId) {
+  PreferredSizeWidget? appBarCustom(
+      String titulo, String? userId, bool leading) {
     print(userId);
     return AppBar(
       centerTitle: true,
@@ -247,7 +238,7 @@ class _BookListScreenState extends State<BookListScreen> {
           },
         ),
       ],
-      automaticallyImplyLeading: false,
+      automaticallyImplyLeading: leading,
     );
   }
 
@@ -259,24 +250,38 @@ class _BookListScreenState extends State<BookListScreen> {
   Widget build(BuildContext context) {
     final favoriteProvider = Provider.of<FavoriteProvider>(context);
     return Scaffold(
+      backgroundColor: AppColors.drawer,
       appBar: appBarCustom(
         'Libros recomendados',
         userId,
+        true,
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchbookcontroller,
-              decoration: const InputDecoration(
-                hintText: 'Buscar libros...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+          Container(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: searchbookcontroller,
+                decoration: const InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  hintText: 'Buscar libros...',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(50),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                ),
+                onChanged: (value) {
+                  _searchBooks(value);
+                },
               ),
-              onChanged: (value) {
-                _searchBooks(value);
-              },
             ),
           ),
           Expanded(
@@ -320,7 +325,7 @@ class _BookListScreenState extends State<BookListScreen> {
                               MaterialPageRoute(
                                 builder: (context) => BookViewPage(
                                   appBarCustom: appBarCustom(
-                                      'Descripción de libros', userId),
+                                      'Descripción de libros', userId, true),
                                   imageProvider: ImageUtils.getImageProvider(
                                       book.thumbnailUrl),
                                   title: book.title,
@@ -334,73 +339,104 @@ class _BookListScreenState extends State<BookListScreen> {
                               ),
                             );
                           },
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 140.0,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: Container(
-                                      width: 100.0,
-                                      height: 120.0,
-                                      color: Colors.grey[300],
-                                      child: Image(
-                                        image: ImageUtils.getImageProvider(
-                                            book.thumbnailUrl),
-                                        fit: BoxFit.fill,
-                                      ),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                width: double.infinity,
+                                height: 140.0,
+                                child: Container(
+                                  // padding: EdgeInsets.only(left: 10, right: 10),
+                                  margin: EdgeInsets.only(left: 10, right: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.blue,
+                                      width: 2,
                                     ),
                                   ),
-                                  const SizedBox(width: 8.0),
-                                  Expanded(
-                                    child: Column(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          book.title,
-                                          style: const TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.bold),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          child: Container(
+                                            width: 100.0,
+                                            height: 120.0,
+                                            color: Colors.grey[300],
+                                            child: Image(
+                                              image:
+                                                  ImageUtils.getImageProvider(
+                                                      book.thumbnailUrl),
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
                                         ),
-                                        Text(
-                                          book.subtitle,
-                                          style:
-                                              const TextStyle(fontSize: 14.0),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                        const SizedBox(width: 8.0),
+                                        Expanded(
+                                          child: SingleChildScrollView(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  book.title,
+                                                  style: const TextStyle(
+                                                      fontSize: 18.0,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                Text(
+                                                  book.subtitle,
+                                                  style: const TextStyle(
+                                                      fontSize: 14.0,
+                                                      color: Colors.white),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                const SizedBox(height: 8.0),
+                                                Text(
+                                                  '- ${book.authors.join(',')}',
+                                                  style: const TextStyle(
+                                                      fontSize: 12.0,
+                                                      color: Colors.white),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                        const SizedBox(height: 8.0),
-                                        Text(
-                                          '- ${book.authors.join(',')}',
-                                          style:
-                                              const TextStyle(fontSize: 12.0),
+                                        GestureDetector(
+                                          onTap: () {
+                                            favoriteProvider.toggleFavorite(
+                                                book, userId);
+                                          },
+                                          child: Icon(
+                                            isFavorite
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color: isFavorite
+                                                ? Colors.red
+                                                : Colors.white,
+                                            size: 32,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      favoriteProvider.toggleFavorite(
-                                          book, userId);
-                                    },
-                                    child: Icon(
-                                      isFavorite
-                                          ? Icons.favorite
-                                          : Icons.favorite_border,
-                                      color: isFavorite ? Colors.red : null,
-                                      size: 32,
-                                    ),
-                                  )
-                                ],
+                                ),
                               ),
-                            ),
+                              SizedBox(
+                                height: 10,
+                              )
+                            ],
                           ),
                         );
                       }

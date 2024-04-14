@@ -13,13 +13,15 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double customPadding = titleText == 'Perfil' ? 0 : 15;
+
     return AppBar(
       backgroundColor: Color(0xFF2773B9),
       automaticallyImplyLeading: false,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(15),
-          bottomRight: Radius.circular(15),
+          bottomLeft: Radius.circular(customPadding),
+          bottomRight: Radius.circular(customPadding),
         ),
       ),
       shadowColor: Color(0xFF000000).withOpacity(1),
