@@ -26,6 +26,8 @@ class CustomAppBar extends StatelessWidget {
     "Licencias": 50,
     "Acerca de nosotros": 50,
     "Términos y condiciones": 50,
+    "Evaluación": 50,
+    "Evaluación de autoestima":40
   };
 
   @override
