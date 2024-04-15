@@ -81,85 +81,94 @@ class _PantallaMenuPrincipalState extends State<PantallaMenuPrincipal>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.drawer,
-      body: Stack(
-        children: [
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 200),
-            curve: Curves.fastOutSlowIn,
-            width: 288,
-            left: isSideMenuClose ? -288 : 0,
-            height: MediaQuery.of(context).size.height,
-            child: DrawerMenu(),
-          ),
-          Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateY(animation.value - 30 * animation.value * pi / 180),
-            child: Transform.translate(
+    return PopScope(
+      canPop: false, // Deshabilitar las gestos de retroceso del sistema
+      onPopInvoked: (bool didPop) {
+        // Este callback se llama cuando se invoca un gesto de retroceso del sistema
+        // didPop indica si el gesto de retroceso tuvo éxito o no
+        print('Se invocó un gesto de retroceso del sistema: $didPop');
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.drawer,
+        body: Stack(
+          children: [
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 200),
+              curve: Curves.fastOutSlowIn,
+              width: 288,
+              left: isSideMenuClose ? -288 : 0,
+              height: MediaQuery.of(context).size.height,
+              child: DrawerMenu(),
+            ),
+            Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(animation.value - 30 * animation.value * pi / 180),
+              child: Transform.translate(
                 offset: Offset(animation.value * 265, 0),
                 child: Transform.scale(
-                    scale: scalAnimation.value,
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(0)),
-                        child: _pages[_selectedTab]))),
-          ),
-
-          // Button animado
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 200),
-            left: isSideMenuClose ? 0 : 220,
-            top: 12,
-            child: menubtn(
-              riveOnInit: (artboard) {
-                StateMachineController controller = RiveUtils.getRiveController(
-                    artboard,
-                    stateMachineName: "Morph");
-                isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
-                isSideBarClosed.value = true;
-              },
-              press: () {
-                isSideBarClosed.value = !isSideBarClosed.value;
-                if (isSideMenuClose) {
-                  _animationController.forward();
-
-                  ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
-                } else {
-                  _animationController.reverse();
-                  ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
-                }
-                setState(() {
-                  isSideMenuClose = isSideBarClosed.value;
-                });
-              },
+                  scale: scalAnimation.value,
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(0)),
+                      child: _pages[_selectedTab]),
+                ),
+              ),
             ),
-          ),
 
-          // Barra de navegación curvada
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Transform.translate(
-              offset: _isKeyboardVisible
-                  ? Offset(1000, 150 * animation.value)
-                  : Offset(0, 150 * animation.value),
-              child: CurvedNavigationBar(
-                index: _selectedTab,
-                height: 50,
-                items: _construirNavigationBarItems(),
-                backgroundColor: Colors.transparent,
-                color: Color(0xFF2773B9), // Cambia esto al color que desees
-                animationDuration: const Duration(milliseconds: 300),
-                onTap: (int index) {
+            // Button animado
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 200),
+              left: isSideMenuClose ? 0 : 220,
+              top: 12,
+              child: menubtn(
+                riveOnInit: (artboard) {
+                  StateMachineController controller =
+                      RiveUtils.getRiveController(artboard,
+                          stateMachineName: "Morph");
+                  isSideBarClosed = controller.findSMI("Boolean 1") as SMIBool;
+                  isSideBarClosed.value = true;
+                },
+                press: () {
+                  isSideBarClosed.value = !isSideBarClosed.value;
+                  if (isSideMenuClose) {
+                    _animationController.forward();
+                    ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
+                  } else {
+                    _animationController.reverse();
+                    ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
+                  }
                   setState(() {
-                    _selectedTab = index;
+                    isSideMenuClose = isSideBarClosed.value;
                   });
                 },
               ),
             ),
-          ),
-        ],
+
+            // Barra de navegación curvada
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Transform.translate(
+                offset: _isKeyboardVisible
+                    ? Offset(1000, 150 * animation.value)
+                    : Offset(0, 150 * animation.value),
+                child: CurvedNavigationBar(
+                  index: _selectedTab,
+                  height: 50,
+                  items: _construirNavigationBarItems(),
+                  backgroundColor: Colors.transparent,
+                  color: Color(0xFF2773B9), // Cambia esto al color que desees
+                  animationDuration: const Duration(milliseconds: 300),
+                  onTap: (int index) {
+                    setState(() {
+                      _selectedTab = index;
+                    });
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -446,8 +455,6 @@ class _PantallaPrincipalContentState extends State<PantallaPrincipalContent> {
     Share.share("$texto\n-$autor", subject: 'Compartir frase del día');
   }
 }
-
-
 
 void signOutFromGoogle() async {
   GoogleSignIn googleSignIn = GoogleSignIn();

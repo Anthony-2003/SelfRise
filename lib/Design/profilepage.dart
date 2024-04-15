@@ -95,7 +95,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       builder: (BuildContext context,
           AsyncSnapshot<Map<String, dynamic>?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return SizedBox.shrink();
         } else {
           if (snapshot.hasError || snapshot.data == null) {
             return Text('Error al obtener los datos del usuario');
