@@ -12,6 +12,7 @@ import 'package:flutter_proyecto_final/dialogs/ingresar_meta_dialog.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/services/habitos_services.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:flutter_proyecto_final/services/notificacion_services.dart';
 import 'package:flutter_proyecto_final/utils/ajustar_brillo_color.dart';
 import 'package:intl/intl.dart';
 import 'package:confetti/confetti.dart';
@@ -248,13 +249,12 @@ class _PantallaSeguimientoHabitosState
 
         // Retornar true si el día de la semana de la fecha seleccionada está entre los días seleccionados
         // o si coincide con el día de inicio del hábito
-       return _debeMostrarseEnDiasEspecificosSemana(
+        return _debeMostrarseEnDiasEspecificosSemana(
             diasNumericos,
             diaSemanaSeleccionado,
             diaSemanaInicio,
             fechaInicio!,
             fechaSeleccionada);
-
       } else if (frecuencia == 'Días específicos del mes') {
         // Obtener la lista de días como List<dynamic>
         List<dynamic> valorFrecuencia = habito['valorFrecuencia'];
@@ -656,9 +656,6 @@ class _PantallaSeguimientoHabitosState
   }
 
   void programarNotificacion(Map<String, dynamic> habito) {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-
     List<dynamic> recordatorios = habito['horaRecordatorio'];
 
     if (recordatorios.isNotEmpty) {
@@ -671,52 +668,39 @@ class _PantallaSeguimientoHabitosState
       final DateFormat format = DateFormat('h:mm a');
       final DateTime parsedTime = format.parse(horaRecordatorio);
 
-      // Crear la hora de notificación
-      TimeOfDay horaNotificacion = TimeOfDay(
-        hour: parsedTime.hour,
-        minute: parsedTime.minute,
-      );
+      // Obtener la fecha actual
+      DateTime now = DateTime.now();
 
-      // Calcular el tiempo de la próxima notificación
-      tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      tz.TZDateTime scheduledDate = tz.TZDateTime(
-        tz.local,
+      // Calcular la hora de notificación para hoy
+      DateTime scheduledDate = DateTime(
         now.year,
         now.month,
         now.day,
-        horaNotificacion.hour,
-        horaNotificacion.minute,
+        parsedTime.hour,
+        parsedTime.minute,
       );
 
-      // Asegurarse de que la notificación se programe para el día siguiente si la hora ya pasó hoy
+      // Si la hora ya pasó hoy, programar la notificación para mañana
       if (scheduledDate.isBefore(now)) {
         scheduledDate = scheduledDate.add(Duration(days: 1));
       }
 
-      // Mostrar la notificación
-      flutterLocalNotificationsPlugin.zonedSchedule(
-        habito.hashCode, // ID único para la notificación
+      print("${scheduledDate} ok la fehca");
+
+      // Programar la notificación
+      NotificationService notificationService = NotificationService();
+      notificationService.scheduleNotification(
         'Recordatorio', // Título de la notificación
         'Es hora de completar el hábito: ${habito['nombreHabito']}', // Cuerpo de la notificación
-        scheduledDate, // Hora aproximada de la notificación
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            'channel_id',
-            'channel_name',
-            importance: Importance.max,
-          ),
-        ),
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
+        scheduledDate, // Hora de la notificación
       );
+
+      print("xd ok");
     }
   }
 
   Future<void> programarAlarma(Map<String, dynamic> habito) async {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-
+    NotificationService notificationService = NotificationService();
     String horaAlarma = habito['horaRecordatorio'][0]['hora'];
     print("Hora de la alarma: $horaAlarma");
 
@@ -724,55 +708,27 @@ class _PantallaSeguimientoHabitosState
     final DateFormat format = DateFormat('h:mm a');
     final DateTime parsedTime = format.parse(horaAlarma);
 
-    // Crear la hora de alarma
-    TimeOfDay horaNotificacion = TimeOfDay(
-      hour: parsedTime.hour,
-      minute: parsedTime.minute,
+    // Calcular la hora de la alarma
+    final DateTime now = DateTime.now();
+    DateTime alarmaDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      parsedTime.hour,
+      parsedTime.minute,
     );
+
+    // Si la hora ya pasó hoy, programamos la alarma para mañana
+    if (now.isAfter(alarmaDateTime)) {
+      alarmaDateTime = alarmaDateTime.add(Duration(days: 1));
+    }
 
     // Crear una descripción para la alarma
     String cuerpoAlarma =
         'Es hora de completar el hábito: ${habito['nombreHabito']}';
 
-    // Configurar los detalles de la alarma
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'channel_id',
-      'channel_name',
-      importance: Importance.max,
-    );
-    var platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-
     // Mostrar la alarma
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      0, // ID único para la notificación
-      'Recordatorio', // Título de la notificación
-      cuerpoAlarma, // Cuerpo de la notificación
-      _nextInstanceOfTime(horaNotificacion), // Hora de la notificación
-      platformChannelSpecifics,
-      androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
-  }
-
-  tz.TZDateTime _nextInstanceOfTime(TimeOfDay time) {
-    final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-    );
-
-    if (scheduledDate.isBefore(now) || scheduledDate.isAtSameMomentAs(now)) {
-      scheduledDate = scheduledDate.add(Duration(days: 1));
-    }
-
-    return scheduledDate;
+    await notificationService.showAlarm('Alarma', cuerpoAlarma);
   }
 
   void cargarHabitoYProgramarNotificaciones(

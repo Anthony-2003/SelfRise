@@ -43,6 +43,7 @@ xmlns:tools="http://schemas.android.com/tools"
              <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyC4zvcgSNt7kzjwvjcEny8FOcIS6aadq8U"/>
                
+               
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

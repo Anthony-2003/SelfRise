@@ -25,11 +25,11 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
   @override
   void initState() {
     super.initState();
-     ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
+    ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
     cargarHabitos();
   }
 
-   void dispose() {
+  void dispose() {
     ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
     super.dispose();
   }
@@ -50,7 +50,7 @@ class _VerHabitosScreenState extends State<VerHabitosScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: PreferredSize(
+      appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.0),
         child: Container(
           padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),

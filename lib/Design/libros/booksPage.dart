@@ -251,221 +251,221 @@ class _BookListScreenState extends State<BookListScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final favoriteProvider = Provider.of<FavoriteProvider>(context);
-    return Scaffold(
-      backgroundColor: AppColors.drawer,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(80.0),
-        child: Container(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          decoration: BoxDecoration(
-            color: Color(0xFF2773B9),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20.0),
-              bottomRight: Radius.circular(20.0),
-            ),
+@override
+Widget build(BuildContext context) {
+  final favoriteProvider = Provider.of<FavoriteProvider>(context);
+  return Scaffold(
+    backgroundColor: AppColors.drawer,
+    appBar: PreferredSize(
+      preferredSize: Size.fromHeight(80.0),
+      child: Container(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        decoration: BoxDecoration(
+          color: Color(0xFF2773B9),
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20.0),
+            bottomRight: Radius.circular(20.0),
           ),
-          child: Center(
-            child: CustomAppBar(
-              titleText: "Libros recomendados",
-              showBackButton: true,
-            ),
+        ),
+        child: Center(
+          child: CustomAppBar(
+            titleText: "Libros recomendados",
+            showBackButton: true,
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Container(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: searchbookcontroller,
-                decoration: const InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Buscar libros...',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(50),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(50)),
-                    borderSide: BorderSide(color: Colors.blue),
+    ),
+    body: Column(
+      children: [
+        Container(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchbookcontroller,
+              decoration: const InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                hintText: 'Buscar libros...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(50),
                   ),
                 ),
-                onChanged: (value) {
-                  _searchBooks(value);
-                },
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
               ),
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<Book>>(
-              future: _futureBooks,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: SpinKitFadingCircle(
-                      color: Colors.blueGrey,
-                      size: 50.0,
-                    ),
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                } else {
-                  _books = snapshot.data!;
-                  if (_isFavoriteList.length != _books.length) {
-                    _isFavoriteList = List.filled(_books.length, false);
-                  }
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: _books.length + (_loading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == _books.length) {
-                        return const Center(
-                          child: SpinKitFadingCircle(
-                            color: Colors.blueGrey,
-                            size: 50.0,
-                          ),
-                        );
-                      } else {
-                        final Book book = _books[index];
-                        bool isFavorite = favoriteProvider.isFavorite(book.id);
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BookViewPage(
-                                  appBarCustom: appBarCustom(
-                                      'Descripción de libros', userId, true),
-                                  imageProvider: ImageUtils.getImageProvider(
-                                      book.thumbnailUrl),
-                                  title: book.title,
-                                  subtitle: book.subtitle,
-                                  authors: book.authors,
-                                  publisher: book.publisher,
-                                  publishedDate: book.publishedDate,
-                                  description: book.description,
-                                  book: book,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                width: double.infinity,
-                                height: 140.0,
-                                child: Container(
-                                  // padding: EdgeInsets.only(left: 10, right: 10),
-                                  margin: EdgeInsets.only(left: 10, right: 10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: Colors.blue,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                          child: Container(
-                                            width: 100.0,
-                                            height: 120.0,
-                                            color: Colors.grey[300],
-                                            child: Image(
-                                              image:
-                                                  ImageUtils.getImageProvider(
-                                                      book.thumbnailUrl),
-                                              fit: BoxFit.fill,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8.0),
-                                        Expanded(
-                                          child: SingleChildScrollView(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  book.title,
-                                                  style: const TextStyle(
-                                                      fontSize: 18.0,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.white),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                Text(
-                                                  book.subtitle,
-                                                  style: const TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.white),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                const SizedBox(height: 8.0),
-                                                Text(
-                                                  '- ${book.authors.join(',')}',
-                                                  style: const TextStyle(
-                                                      fontSize: 12.0,
-                                                      color: Colors.white),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            favoriteProvider.toggleFavorite(
-                                                book, userId);
-                                          },
-                                          child: Icon(
-                                            isFavorite
-                                                ? Icons.favorite
-                                                : Icons.favorite_border,
-                                            color: isFavorite
-                                                ? Colors.red
-                                                : Colors.white,
-                                            size: 32,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              )
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                  );
-                }
+              onChanged: (value) {
+                _searchBooks(value);
               },
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        Expanded(
+          child: FutureBuilder<List<Book>>(
+            future: _futureBooks,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: SpinKitFadingCircle(
+                    color: Colors.blueGrey,
+                    size: 50.0,
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
+                );
+              } else {
+                _books = snapshot.data!;
+                if (_isFavoriteList.length != _books.length) {
+                  _isFavoriteList = List.filled(_books.length, false);
+                }
+                return ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _books.length + (_loading ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == _books.length) {
+                      return const Center(
+                        child: SpinKitFadingCircle(
+                          color: Colors.blueGrey,
+                          size: 50.0,
+                        ),
+                      );
+                    } else {
+                      final Book book = _books[index];
+                      bool isFavorite = favoriteProvider.isFavorite(book.id);
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BookViewPage(
+                                appBarCustom: appBarCustom(
+                                    'Descripción de libros', userId, true),
+                                imageProvider: ImageUtils.getImageProvider(
+                                    book.thumbnailUrl),
+                                title: book.title,
+                                subtitle: book.subtitle,
+                                authors: book.authors,
+                                publisher: book.publisher,
+                                publishedDate: book.publishedDate,
+                                description: book.description,
+                                book: book,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height: 140.0,
+                              child: Container(
+                                margin: EdgeInsets.only(left: 10, right: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.blue,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                        child: Container(
+                                          width: 100.0,
+                                          height: 120.0,
+                                          color: Colors.grey[300],
+                                          child: Image(
+                                            image: ImageUtils.getImageProvider(
+                                                book.thumbnailUrl),
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8.0),
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                book.title,
+                                                style: const TextStyle(
+                                                    fontSize: 18.0,
+                                                    fontWeight:
+                                                        FontWeight.bold,
+                                                    color: Colors.white),
+                                                maxLines: 2,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
+                                              ),
+                                              Text(
+                                                book.subtitle,
+                                                style: const TextStyle(
+                                                    fontSize: 14.0,
+                                                    color: Colors.white),
+                                                maxLines: 2,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 8.0),
+                                              Text(
+                                                '- ${book.authors.join(',')}',
+                                                style: const TextStyle(
+                                                    fontSize: 12.0,
+                                                    color: Colors.white),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          favoriteProvider.toggleFavorite(
+                                              book, userId);
+                                        },
+                                        child: Icon(
+                                          isFavorite
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: isFavorite
+                                              ? Colors.red
+                                              : Colors.white,
+                                          size: 32,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                );
+              }
+            },
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 }

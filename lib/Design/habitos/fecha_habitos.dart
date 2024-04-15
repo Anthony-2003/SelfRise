@@ -116,7 +116,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
           SizedBox(height: _fechaFinalizacionToggle ? 10 : 0),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 1.0),
-            child: _buildRecordatoriosTile(),
+            
           ),
           SizedBox(height: 20),
         ],
@@ -251,39 +251,7 @@ class _FechaHabitosScreenState extends State<FechaHabitosScreen> {
     );
   }
 
-  Widget _buildRecordatoriosTile() {
-    return InkWell(
-      onTap: () => _mostrarDialogoRecordatorios(context),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.alarm),
-                SizedBox(width: 10),
-                Text('Recordatorios',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-              ],
-            ),
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFF2773B9),
-              ),
-              padding: EdgeInsets.all(10),
-              child: Text(
-                '${_recordatorios.length}',
-                style: TextStyle(fontSize: 12, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   Future<void> _seleccionarFecha(
       BuildContext context, bool isFechaInicio) async {

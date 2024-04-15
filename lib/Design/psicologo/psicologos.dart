@@ -20,14 +20,14 @@ class MapSampleState extends State<PsicologosScreen> {
     ColorSystemNavitagionBar.setSystemUIOverlayStyleLight();
   }
 
-   void dispose() {
+  void dispose() {
     ColorSystemNavitagionBar.setSystemUIOverlayStyleDark();
     super.dispose();
   }
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(18.4898366, -69.838963),
-    zoom: 12, // Aumenta el valor del zoom para mostrar el mapa más alejado
+    zoom: 12,
   );
 
   final Set<Marker> _markers = {
@@ -81,19 +81,20 @@ class MapSampleState extends State<PsicologosScreen> {
           ),
         ),
       ),
-      body: SafeArea(
-          child: Positioned.fill(
-        child: GoogleMap(
-          mapType: MapType.normal,
-          initialCameraPosition: _kGooglePlex,
-          markers: _markers,
-          onMapCreated: (GoogleMapController controller) {
-            if (!_controller.isCompleted) {
-              _controller.complete(controller);
-            }
-          },
-        ),
-      )),
+      body: Stack(
+        children: [
+          GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: _kGooglePlex,
+            markers: _markers,
+            onMapCreated: (GoogleMapController controller) {
+              if (!_controller.isCompleted) {
+                _controller.complete(controller);
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }

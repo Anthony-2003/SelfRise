@@ -46,6 +46,7 @@ class _EditarHabitoState extends State<EditarHabito>
   late Color colorCategoria;
   late List<Map<String, dynamic>> habitosUsuario = [];
   late DateTime fechaInicioDateTime;
+  DateTime? fechaFinalDateTime = null;
 
   @override
   void initState() {
@@ -62,11 +63,32 @@ class _EditarHabitoState extends State<EditarHabito>
     _categoriasFuture =
         CategoriesService.getCategoriesByUserId(idUsuarioActual!);
     nombreCategoria = widget.habito['categoria'];
+
     if (widget.habito['fechaInicio'] is Timestamp) {
       fechaInicioDateTime =
           (widget.habito['fechaInicio'] as Timestamp).toDate();
     } else if (widget.habito['fechaInicio'] is DateTime) {
       fechaInicioDateTime = widget.habito['fechaInicio'];
+    }
+
+    if (widget.habito['fechaFinal'] == null) {
+      
+
+         widget.habito['fechaFinal'] = null;
+         fechaFinalDateTime = null;
+    }
+
+    print("${fechaFinalDateTime} en init");
+
+    if (widget.habito['fechaFinal'] != null) {
+      if (widget.habito['fechaFinal'] is Timestamp) {
+        fechaFinalDateTime =
+            (widget.habito['fechaFinal'] as Timestamp).toDate();
+      } else if (widget.habito['fechaFinal'] is DateTime) {
+        fechaFinalDateTime = widget.habito['fechaFinal'];
+      }
+    } else {
+      fechaFinalDateTime = null;
     }
   }
 
@@ -254,6 +276,17 @@ class _EditarHabitoState extends State<EditarHabito>
   Widget build(BuildContext context) {
     List<String> nombresMeses = [];
 
+
+    print(widget.habito['fechaFinal']);
+    if(widget.habito['fechaFinal'] == null){
+        
+        setState(() {
+          fechaFinalDateTime = null;
+        });
+    }
+
+    print("${fechaFinalDateTime}  fecha final datetime");
+
     Color color = Color(widget.habito['color']);
     Color colorAjustado = ajustarBrilloColor(color);
     int conteoRecordatorios = 0;
@@ -292,10 +325,11 @@ class _EditarHabitoState extends State<EditarHabito>
             ),
             child: Center(
               child: CustomAppBar(
-                  titleText: widget.habito['nombreHabito'], 
-                  showBackButton: true, 
-                  icon: IconData(widget.habito['iconoCategoria'],
-                fontFamily: 'MaterialIcons'),),
+                titleText: widget.habito['nombreHabito'],
+                showBackButton: true,
+                icon: IconData(widget.habito['iconoCategoria'],
+                    fontFamily: 'MaterialIcons'),
+              ),
             ),
           ),
         ),
@@ -538,31 +572,7 @@ class _EditarHabitoState extends State<EditarHabito>
                             style: TextStyle(fontSize: 20),
                           ),
                         );
-                      } else if (index == 3) {
-                        return ListTile(
-                          leading: Icon(Icons.alarm),
-                          onTap: () {
-                            print('View habit information');
-                          },
-                          title: Text(
-                            'Recordatorios',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          trailing: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFF2773B9),
-                            ),
-                            padding: EdgeInsets.all(15),
-                            child: Text(
-                              '${conteoRecordatorios}',
-                              style:
-                                  TextStyle(fontSize: 15, color: Colors.white),
-                            ),
-                          ),
-                        );
-                      } else if (index == 4) {
+                      }  else if (index == 3) {
                         return ListTile(
                           leading: Icon(Icons.repeat),
                           onTap: () {
@@ -600,11 +610,12 @@ class _EditarHabitoState extends State<EditarHabito>
                             ),
                           ),
                         );
-                      } else if (index == 5) {
+                      } else if (index == 4) {
                         return ListTile(
                           leading: Icon(Icons.calendar_month),
                           onTap: () {
-                            _seleccionarFecha(context, fechaInicioDateTime);
+                            _seleccionarFecha(
+                                context, fechaInicioDateTime, false);
                           },
                           title: Text(
                             'Fecha inicio',
@@ -626,37 +637,66 @@ class _EditarHabitoState extends State<EditarHabito>
                             ),
                           ),
                         );
-                      } else if (index == 6) {
+                      } else if (index == 5) {
                         return ListTile(
-                          leading: Icon(Icons.date_range_outlined),
+                          leading: Icon(Icons.calendar_month),
                           onTap: () {
-                            print('View habit information');
+                            if (fechaFinalDateTime == null) {
+                              fechaFinalDateTime = DateTime.now();
+                            }
+
+                            _seleccionarFecha(
+                                context, fechaFinalDateTime!, true);
                           },
                           title: Text(
                             'Fecha final',
                             style: TextStyle(
                                 fontSize: 20, fontWeight: FontWeight.bold),
                           ),
-                          trailing: Container(
-                            padding: EdgeInsets.all(10),
-                            width: 96,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF2773B9),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(10.0)), // Set rounded corners
-                            ),
-                            child: Text(
-                              textAlign: TextAlign.center,
-                              widget.habito['fechaFinal'] == null
-                                  ? '-'
-                                  : DateFormat('dd/MM/yy').format(
-                                      widget.habito['fechaFinal'].toDate()),
-                              style:
-                                  TextStyle(fontSize: 17, color: Colors.white),
-                            ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Espacio entre el contenedor y el icono de basurita
+                              GestureDetector(
+                                onTap: () {
+                                  HabitosService().borrarFechaFinalHabito(
+                                      widget.habito['id']);
+
+                                  setState(() {
+                                    fechaFinalDateTime = null;
+                                    widget.habito['fechaFinal'] = null;
+                                  });
+
+                                  print("${fechaFinalDateTime} la fecha we");
+                                },
+                                child: Icon(
+                                  Icons.delete_outline, // Icono de la basurita
+                                  color: Colors
+                                      .black, // Color del icono de la basurita
+                                ),
+                              ),
+                              SizedBox(width: 5),
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF2773B9),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10.0),
+                                  ),
+                                ),
+                                child: Text(
+                                  fechaFinalDateTime != null
+                                      ? DateFormat('dd/MM/yy')
+                                          .format(fechaFinalDateTime!)
+                                      : '-', // Mostrar guion si fechaFinalDateTime es nulo
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.white),
+                                ),
+                              ),
+                            ],
                           ),
                         );
-                      } else if (index == 7) {
+                      } else if (index == 6) {
                         return ListTile(
                           leading: Icon(Icons.delete),
                           onTap: () {
@@ -684,7 +724,10 @@ class _EditarHabitoState extends State<EditarHabito>
   }
 
   Future<void> _seleccionarFecha(
-      BuildContext context, DateTime isFechaInicio) async {
+    BuildContext context,
+    DateTime isFechaInicio,
+    bool isFechaFinal,
+  ) async {
     final DateTime? pickedDate = await showDatePicker(
       builder: (context, child) {
         return Theme(
@@ -717,15 +760,28 @@ class _EditarHabitoState extends State<EditarHabito>
     );
 
     if (pickedDate != null) {
-      try {
-        fechaInicioDateTime = pickedDate;
-        await HabitosService().actualizarFechaInicioHabito(
-            widget.habito['id'], fechaInicioDateTime);
-        setState(() {
-          widget.habito['fechaInicio'] = fechaInicioDateTime;
-        });
-      } catch (e) {
-        print('Error al actualizar la fecha del hábito: $e');
+      if (isFechaFinal) {
+        try {
+          fechaFinalDateTime = pickedDate;
+          await HabitosService().actualizarFechaFinalHabito(
+              widget.habito['id'], fechaFinalDateTime!);
+          setState(() {
+            widget.habito['fechaFinal'] = fechaFinalDateTime;
+          });
+        } catch (e) {
+          print('Error al actualizar la fecha final del hábito: $e');
+        }
+      } else {
+        try {
+          fechaInicioDateTime = pickedDate;
+          await HabitosService().actualizarFechaInicioHabito(
+              widget.habito['id'], fechaInicioDateTime);
+          setState(() {
+            widget.habito['fechaInicio'] = fechaInicioDateTime;
+          });
+        } catch (e) {
+          print('Error al actualizar la fecha del hábito: $e');
+        }
       }
     }
   }

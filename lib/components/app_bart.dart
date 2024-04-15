@@ -27,7 +27,8 @@ class CustomAppBar extends StatelessWidget {
     "Acerca de nosotros": 50,
     "Términos y condiciones": 50,
     "Evaluación": 50,
-    "Evaluación de autoestima":40
+    "Evaluación de autoestima": 40,
+    "Ver más": 40
   };
 
   @override
@@ -112,78 +113,75 @@ class CustomAppBar extends StatelessWidget {
                     ),
 
                   // Agregar el icono y el contador si el título contiene la palabra "libro"
-                  if (isBookTitle)
-                    Positioned(
-                      right: 5,
-                      bottom: 65,
-                      child: Container(
-                        margin: EdgeInsets.only(
-                            bottom: 50), // Establece el margen deseado
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                Icons.bookmark_border,
-                                size: 30,
-                              ),
-                              color: Colors.white,
-                              onPressed: () {
-                                // Lógica al presionar el icono de favoritos
-                                final route = MaterialPageRoute(
-                                  builder: ((context) => const FavoritePage()),
-                                );
-                                Navigator.push(context, route);
-                              },
-                            ),
-                            Positioned(
-                              right: 5,
-                              bottom: 25,
-                              child: Consumer<FavoriteProvider>(
-                                builder: (context, provider, _) {
-                                  return FutureBuilder<List<Book>>(
-                                    future:
-                                        provider.getFavorites(currentUserId),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return Container();
-                                      } else if (snapshot.hasError) {
-                                        return Container();
-                                      } else {
-                                        final List<Book> favoriteBooks =
-                                            snapshot.data ?? [];
-                                        return Container(
-                                          width: 20,
-                                          height: 20,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.drawer,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '${favoriteBooks.length}',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
+                 // Agregar el icono y el contador si el título contiene la palabra "libro"
+if (isBookTitle)
+  Container(
+    margin: EdgeInsets.only(
+        bottom: 50), // Establece el margen deseado
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+    ),
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        IconButton(
+          icon: Icon(
+            Icons.bookmark_border,
+            size: 30,
+          ),
+          color: Colors.white,
+          onPressed: () {
+            // Lógica al presionar el icono de favoritos
+            final route = MaterialPageRoute(
+              builder: ((context) => const FavoritePage()),
+            );
+            Navigator.push(context, route);
+          },
+        ),
+        Positioned(
+          bottom: 25,
+          right: 5, // Ajusta la posición vertical según tus preferencias
+          child: Consumer<FavoriteProvider>(
+            builder: (context, provider, _) {
+              return FutureBuilder<List<Book>>(
+                future: provider.getFavorites(currentUserId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return Container();
+                  } else if (snapshot.hasError) {
+                    return Container();
+                  } else {
+                    final List<Book> favoriteBooks =
+                        snapshot.data ?? [];
+                    return Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: AppColors.drawer,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${favoriteBooks.length}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                    ),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    ),
+  ),
+
                 ],
               ),
             ),

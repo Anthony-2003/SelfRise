@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
-import 'package:flutter_proyecto_final/Design/ver_mas/Configuracion.dart';
 import 'package:flutter_proyecto_final/components/app_bart.dart';
 
 

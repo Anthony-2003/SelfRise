@@ -434,4 +434,35 @@ class HabitosService {
       throw e;
     }
   }
+
+  Future<void> actualizarFechaFinalHabito(
+      String habitId, DateTime nuevaFecha) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('habitos')
+          .doc(habitId)
+          .update({
+        'fechaFinal': nuevaFecha,
+      });
+      print('Fecha del hábito actualizada correctamente.');
+    } catch (e) {
+      print('Error al actualizar la fecha del hábito: $e');
+      throw e;
+    }
+  }
+
+  Future<void> borrarFechaFinalHabito(String habitId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('habitos')
+          .doc(habitId)
+          .update({
+        'fechaFinal': null, // Establecer el valor como null
+      });
+      print('Fecha final del hábito establecida como null correctamente.');
+    } catch (e) {
+      print('Error al establecer la fecha final del hábito como null: $e');
+      throw e;
+    }
+  }
 }

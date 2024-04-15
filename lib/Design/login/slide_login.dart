@@ -32,19 +32,19 @@ class _SlideLoginState extends State<SlideLogin> {
               buildSlide(
                 context,
                 'assets/imagenes/slide 1.png',
-                '¡Hola! Bienvenido a SelfRaise, tu compañero para la mejora mental y física. Aquí encontrarás herramientas y técnicas para cuidar tu bienestar emocional.',
+                '¡Hola! Bienvenido a SelfRaise, tu compañero para la mejora mental.',
                 withButtons: false,
               ),
               buildSlide(
                 context,
                 'assets/imagenes/slide 2.png',
-                'Descubre la tranquilidad y la paz mental a través de nuestras meditaciones guiadas. Encuentra un momento para ti y sumérgete en la serenidad del presente.',
+                'Aquí encontrarás herramientas y técnicas para cuidar tu bienestar emocional.',
                 withButtons: false,
               ),
               buildSlide(
                 context,
                 'assets/imagenes/slide 3.png',
-                'Aprende técnicas de respiración que te ayudarán a reducir el estrés y a encontrar el equilibrio en tu vida diaria. Descubre el poder de la respiración consciente para calmar tu mente y revitalizar tu cuerpo.',
+                'Para ayudarte a romper con los viejos hábitos y cultivar nuevos comportamientos que te acerquen a tus metas.',
                 withButtons: true,
               ),
             ],
