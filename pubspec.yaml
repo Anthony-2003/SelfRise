@@ -42,7 +42,10 @@ dependencies:
   shared_preferences: ^2.2.2
   smooth_page_indicator: ^1.1.0
   url_launcher: ^6.2.5
-
+  dropdown_button2: ^2.3.8
+  audioplayers: ^6.0.0
+  table_calendar: ^3.1.1
+  emoji_picker_flutter: ^2.2.0
 
 
   # The followig adds the Cupertino Icons font to your application.
@@ -68,11 +71,13 @@ flutter:
    - assets/imagenes/
    - assets/iconos/
    - assets/icon-menu/
-   - assets/podcast-carousel/
-   - assets/podcast-carousel/motivacion/
-   - assets/podcast-carousel/salud-mental/
-   - assets/podcast-carousel/desarrollo-personal/
-   - assets/podcast-carousel/bienestar-fisico/
+   - assets/podcast/
+   - assets/podcast/motivacion/
+   - assets/podcast/salud-mental/
+   - assets/podcast/desarrollo-personal/
+   - assets/podcast/bienestar-fisico/
+   - assets/iconos_clima-social/
+   - lib/data/frases_motivacionales.json
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

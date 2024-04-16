@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter_proyecto_final/Design/podcastcontroller.dart';
 import 'package:map_location_picker/map_location_picker.dart';
 
-final carousel = <cards>[
-  cards(
+final podcascards = <cardsdata>[
+  cardsdata(
       id: 1,
       categoria: "Motivación",
       autor: "Llados",

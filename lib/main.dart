@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proyecto_final/Design/modal_emociones.dart';
 import 'package:flutter_proyecto_final/components/favorite_provider.dart';
 import 'package:flutter_proyecto_final/services/database.dart';
 import 'package:get/get.dart';
@@ -22,7 +23,6 @@ void main() async {
   Get.put(UserRep());
   runApp(const MyApp());
 }
-
 
 
 class MyApp extends StatelessWidget {

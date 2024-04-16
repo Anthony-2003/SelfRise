@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_proyecto_final/Colors/colors.dart';
 import 'package:flutter_proyecto_final/Design/menu_principal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_proyecto_final/Design/podcastpage.dart';
 import 'package:flutter_proyecto_final/services/AuthService.dart';
 import 'package:flutter_proyecto_final/Design/booksPage.dart';
 import 'package:flutter_proyecto_final/services/openAIservices.dart';
@@ -47,6 +48,8 @@ class _DrawerMenuState extends State<DrawerMenu> {
               text: 'Podcast',
               onTap: () {
                 // Acción para Podcast
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => PodcastPage()));
               },
             ),
             _buildDrawerItem(
